@@ -284,7 +284,7 @@ body[data-role="trainer"] #settings{display:none !important}
 
 /* Do not render the branding editor as a page footer/global block. */
 .owner-branding-card{display:block!important;position:relative;float:none;clear:both}
-.branding-settings-page{display:block}
+.branding-settings-page{display:none}
 </style>
 
 <style>
@@ -426,6 +426,20 @@ body.modal-open{overflow:hidden!important}
 .diet-quick-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0 14px}
 .food-master-list{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.food-master-row{display:flex;gap:9px;padding:9px;border:1px solid #eee;border-radius:9px}.food-master-row small{display:block;color:#777;margin-top:3px}
 @media(max-width:900px){.food-master-list{grid-template-columns:1fr 1fr}}
+</style>
+
+<style id="akhada-page-visibility-final-fix">
+/* FINAL PAGE VISIBILITY FIX
+   Settings/branding is a page, not a global footer/card. */
+main.main > section.page{display:none!important}
+main.main > section.page.active{display:block!important}
+
+/* Branding editor exists only inside the Settings page. */
+main.main > section.page:not(#settings) .owner-branding-card,
+main.main > section.page:not(#settings) .branding-form,
+main.main > section.page:not(#settings) .branding-settings-page{
+  display:none!important;
+}
 </style>
 </head>
 <body>
