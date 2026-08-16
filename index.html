@@ -161,6 +161,57 @@ body[data-role="trainer"] #settings{display:none !important}
 #importexport .card{margin-bottom:16px}
 .nav-importexport{display:block}
 </style>
+
+<style>
+.verified-equipment-note{padding:12px 14px;border-radius:10px;background:#fff8e6;border:1px solid #f0dfaa;margin:14px 0}
+.equipment-grid{display:grid;grid-template-columns:repeat(3,minmax(190px,1fr));gap:10px}
+.equipment-card{display:flex;gap:10px;align-items:center;border:1px solid #e5e5e5;border-radius:12px;padding:12px;background:#fff}
+.equipment-picture{font-size:32px;width:42px;text-align:center}
+.equipment-card small{display:block;color:#777;margin-top:3px}
+.exercise-chip small{display:block;color:#777;font-size:9px}
+@media(max-width:900px){.equipment-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.equipment-grid{grid-template-columns:1fr}}
+</style>
+
+<style>
+.diet-assignment-top{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:12px;align-items:end;margin-bottom:18px}
+.diet-assignment-top label{display:block;margin-bottom:5px}
+.diet-assignment-top select{width:100%;padding:10px;border:1px solid #ddd;border-radius:9px;background:#fff}
+.diet-info-note{padding:12px 14px;background:#f7f7f7;border-radius:10px;margin-bottom:14px}
+.diet-week-table{overflow:auto;border:1px solid #e5e5e5;border-radius:12px}
+.diet-week-row{display:grid;grid-template-columns:130px minmax(360px,1fr) 120px;gap:12px;align-items:start;padding:12px;border-top:1px solid #eee}
+.diet-week-head{font-weight:800;background:#fafafa;border-top:0}
+.diet-items{margin-top:7px;display:grid;gap:7px}
+.diet-item-card{display:grid;grid-template-columns:42px 1fr auto;gap:8px;align-items:center;border:1px solid #e5e5e5;border-radius:10px;padding:8px;background:#fff}
+.diet-item-card small,.food-library-card small,.food-picker-row small{display:block;color:#777}
+.food-photo{font-size:30px;width:40px;text-align:center}
+.food-picker{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:52vh;overflow:auto}
+.food-picker-row{display:grid;grid-template-columns:20px 38px 1fr 75px;gap:8px;align-items:center;border:1px solid #e5e5e5;border-radius:10px;padding:8px}
+.food-picker-row input.food-grams{width:70px;padding:6px;border:1px solid #ddd;border-radius:7px}
+.manual-food-box{margin-top:12px;padding:12px;border:1px dashed #bbb;border-radius:10px}
+.manual-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.manual-grid input{padding:9px;border:1px solid #ddd;border-radius:8px}
+.food-library{display:grid;grid-template-columns:repeat(3,minmax(190px,1fr));gap:9px}
+.food-library-card{display:flex;gap:9px;align-items:center;border:1px solid #e5e5e5;border-radius:10px;padding:10px;background:#fff}
+#diet-items-Sunday + *{}
+@media(max-width:900px){.diet-assignment-top{grid-template-columns:1fr 1fr}.food-library{grid-template-columns:1fr 1fr}.food-picker{grid-template-columns:1fr}}
+@media(max-width:600px){.diet-assignment-top{grid-template-columns:1fr}.diet-week-row{grid-template-columns:100px 1fr}.diet-week-row>div:last-child{grid-column:2}.manual-grid{grid-template-columns:1fr}.food-library{grid-template-columns:1fr}}
+</style>
+
+<style>
+.english-name{color:#555;font-size:12px;margin:2px 0 4px}
+.bilingual-library-card{display:flex;gap:10px;align-items:center;border:1px solid #e5e5e5;border-radius:10px;padding:10px;background:#fff}
+.master-library-grid{display:grid;grid-template-columns:repeat(2,minmax(260px,1fr));gap:8px;max-height:65vh;overflow:auto;margin-top:12px}
+.master-item{display:flex;gap:10px;align-items:center;border:1px solid #e5e5e5;border-radius:10px;padding:9px;background:#fff}
+.master-item small{display:block;color:#777}
+#foodSearchMaster,#exerciseSearchMaster{width:100%;box-sizing:border-box;padding:11px;border:1px solid #ddd;border-radius:9px}
+@media(max-width:700px){.master-library-grid{grid-template-columns:1fr}}
+</style>
+
+<style>
+.supplement-card{margin-top:16px}
+.supplement-card .bilingual-library-card{margin-top:8px}
+</style>
 </head>
 <body>
 <div class="app">
@@ -308,12 +359,10 @@ body[data-role="trainer"] #settings{display:none !important}
 
 
 
+
 <section id="workout" class="page">
  <div class="header">
-  <div>
-   <h1>Workout Plans</h1>
-   <p class="muted">Select a member first, then assign workout plan and/or multiple exercises for each day.</p>
-  </div>
+  <div><h1>Workout Plans</h1><p class="muted">Equipment-verified workout library — only equipment from the gym purchase list is used.</p></div>
   <div class="actions">
    <button class="btn greenbtn owner-template-action" onclick="ownerCreateWorkoutTemplate()">＋ Add Workout Plan</button>
   </div>
@@ -321,40 +370,39 @@ body[data-role="trainer"] #settings{display:none !important}
 
  <div class="card">
   <div class="workout-assignment-top">
-   <div>
-    <label><b>Select Member</b></label>
-    <select id="weeklyWorkoutMember" onchange="loadWeeklyWorkout()"></select>
-   </div>
-   <div class="assignment-help">
-    <b>Assignment:</b> Choose a ready-made Plan, individual Exercises, or both.
-   </div>
- </div>
-
- <div class="weekly-workout-table">
-  <div class="week-row week-head">
-   <div>Day</div><div>Workout Plan</div><div>Exercises</div><div>Preview</div>
+   <div><label><b>Select Member</b></label><select id="verifiedWorkoutMember"></select></div>
+   <div><label><b>Experience Level</b></label><select id="workoutLevel"><option>Beginner</option><option>Experienced</option></select></div>
+   <div><label><b>Workout Goal</b></label><select id="workoutGoal"><option>General Fitness</option><option>Muscle Gain</option><option>Strength</option><option>Weight Loss</option><option>Fat Loss</option></select></div>
   </div>
-  <div class="week-row"><div><b>Sunday</b><span class="holiday">Holiday</span></div><div class="muted">Rest Day</div><div class="muted">—</div><div>😴 Rest</div></div>
-  <div class="week-row"><div><b>Monday</b></div><div><select id="plan-Monday"></select></div><div><button class="btn light" onclick="openExercisePicker('Monday')">Select Exercises</button><div id="chips-Monday" class="chips"></div></div><div id="preview-Monday">—</div></div>
-  <div class="week-row"><div><b>Tuesday</b></div><div><select id="plan-Tuesday"></select></div><div><button class="btn light" onclick="openExercisePicker('Tuesday')">Select Exercises</button><div id="chips-Tuesday" class="chips"></div></div><div id="preview-Tuesday">—</div></div>
-  <div class="week-row"><div><b>Wednesday</b></div><div><select id="plan-Wednesday"></select></div><div><button class="btn light" onclick="openExercisePicker('Wednesday')">Select Exercises</button><div id="chips-Wednesday" class="chips"></div></div><div id="preview-Wednesday">—</div></div>
-  <div class="week-row"><div><b>Thursday</b></div><div><select id="plan-Thursday"></select></div><div><button class="btn light" onclick="openExercisePicker('Thursday')">Select Exercises</button><div id="chips-Thursday" class="chips"></div></div><div id="preview-Thursday">—</div></div>
-  <div class="week-row"><div><b>Friday</b></div><div><select id="plan-Friday"></select></div><div><button class="btn light" onclick="openExercisePicker('Friday')">Select Exercises</button><div id="chips-Friday" class="chips"></div></div><div id="preview-Friday">—</div></div>
-  <div class="week-row"><div><b>Saturday</b></div><div><select id="plan-Saturday"></select></div><div><button class="btn light" onclick="openExercisePicker('Saturday')">Select Exercises</button><div id="chips-Saturday" class="chips"></div></div><div id="preview-Saturday">—</div></div>
- </div>
 
- <div class="weekly-actions">
-  <button class="btn" onclick="clearWeeklyWorkout()">Clear Week</button>
-  <button class="btn greenbtn" onclick="saveWeeklyWorkout()">Save Workout Assignment</button>
- </div>
+  <div class="verified-equipment-note">
+   <b>Important:</b> Exercise selection below is mapped to the purchased equipment list. If an equipment item is not in this library, it should not be shown to the Trainer.
+  </div>
+
+  <div class="card-inner">
+   <h3>Weekly Assignment</h3>
+   <div class="weekly-workout-table">
+    <div class="week-row week-head"><div>Day</div><div>Workout Plan</div><div>Exercises</div><div>Preview</div></div>
+    <div class="week-row"><div><b>Sunday</b><span class="holiday">Holiday</span></div><div>Rest Day</div><div>—</div><div>😴 Rest</div></div>
+    <div class="week-row" data-day="Monday"><div><b>Monday</b></div><div><select class="day-plan" id="verified-plan-Monday"></select></div><div><button class="btn light" onclick="openVerifiedExercisePicker('Monday')">Select Multiple Exercises</button><div id="verified-chips-Monday" class="chips"></div></div><div id="verified-preview-Monday">—</div></div>
+    <div class="week-row" data-day="Tuesday"><div><b>Tuesday</b></div><div><select class="day-plan" id="verified-plan-Tuesday"></select></div><div><button class="btn light" onclick="openVerifiedExercisePicker('Tuesday')">Select Multiple Exercises</button><div id="verified-chips-Tuesday" class="chips"></div></div><div id="verified-preview-Tuesday">—</div></div>
+    <div class="week-row" data-day="Wednesday"><div><b>Wednesday</b></div><div><select class="day-plan" id="verified-plan-Wednesday"></select></div><div><button class="btn light" onclick="openVerifiedExercisePicker('Wednesday')">Select Multiple Exercises</button><div id="verified-chips-Wednesday" class="chips"></div></div><div id="verified-preview-Wednesday">—</div></div>
+    <div class="week-row" data-day="Thursday"><div><b>Thursday</b></div><div><select class="day-plan" id="verified-plan-Thursday"></select></div><div><button class="btn light" onclick="openVerifiedExercisePicker('Thursday')">Select Multiple Exercises</button><div id="verified-chips-Thursday" class="chips"></div></div><div id="verified-preview-Thursday">—</div></div>
+    <div class="week-row" data-day="Friday"><div><b>Friday</b></div><div><select class="day-plan" id="verified-plan-Friday"></select></div><div><button class="btn light" onclick="openVerifiedExercisePicker('Friday')">Select Multiple Exercises</button><div id="verified-chips-Friday" class="chips"></div></div><div id="verified-preview-Friday">—</div></div>
+    <div class="week-row" data-day="Saturday"><div><b>Saturday</b></div><div><select class="day-plan" id="verified-plan-Saturday"></select></div><div><button class="btn light" onclick="openVerifiedExercisePicker('Saturday')">Select Multiple Exercises</button><div id="verified-chips-Saturday" class="chips"></div></div><div id="verified-preview-Saturday">—</div></div>
+   </div>
+   <div class="weekly-actions"><button class="btn" onclick="clearVerifiedWeek()">Clear Week</button><button class="btn greenbtn" onclick="saveVerifiedWorkout()">Save Weekly Workout</button></div>
+  </div>
  </div>
 
  <div class="card">
-  <h3>Workout Plan Library</h3>
-  <p class="muted">Trainer can assign plans/exercises to members. Master template add/delete remains Owner-only.</p>
-  <div id="workoutLibraryCards" class="template-grid"></div>
+  <h3>Purchased Equipment → Exercises</h3><button class="btn light" onclick="openBilingualExerciseLibrary()">🔎 View Full Exercise Master List</button>
+  <p class="muted">Every item below comes from the supplied quotation. Select Beginner or Experienced to see appropriate options.</p>
+  <div id="equipmentLibrary" class="equipment-grid"></div>
  </div>
 </section>
+
+
 
 
 
@@ -362,24 +410,58 @@ body[data-role="trainer"] #settings{display:none !important}
 
 <section id="diet" class="page">
  <div class="header">
-  <div><h1>Diet Plans</h1><p class="muted">Trainer can add/change/remove an assigned member plan. Master template delete remains Owner-only. Calorie-based templates with two meal choices. Trainer can assign/change a member's plan; Owner controls master templates.</p></div>
-  <div class="actions trainer-diet-actions">
+  <div>
+   <h1>Diet Plans</h1>
+   <p class="muted">Day-wise diet assignment with calorie, portion and nutrition information.</p>
+  </div>
+  <div class="actions">
    <button class="btn greenbtn owner-template-action" onclick="ownerCreateDietTemplate()">＋ Add Diet Plan</button>
   </div>
  </div>
- <div class="diet-filters">
-  <select id="dietCalories"></select>
-  <select id="dietType"></select>
-  <select id="dietGoal"></select>
-  <select id="dietAge"><option>18–25 years</option><option>26–35 years</option><option>36–45 years</option><option>46–55 years</option><option>55+ years</option></select>
-  <select id="dietWeight"><option>Under 50 kg</option><option>50–60 kg</option><option>60–70 kg</option><option>70–80 kg</option><option>80–90 kg</option><option>90+ kg</option></select>
-  <select id="dietMember"></select>
-  <button class="btn" onclick="assignSelectedDiet()">Assign to Member</button>
+
+ <div class="card">
+  <div class="diet-assignment-top">
+   <div><label><b>Select Member</b></label><select id="verifiedDietMember"></select></div>
+   <div><label><b>Diet Type</b></label><select id="verifiedDietType"><option>Vegetarian</option><option>Non-Vegetarian</option></select></div>
+   <div><label><b>Goal</b></label><select id="verifiedDietGoal"><option>Weight Loss</option><option>Fat Loss</option><option>Maintenance</option><option>Muscle Gain</option><option>Weight Gain</option></select></div>
+   <div><label><b>Calorie Target</b></label><select id="verifiedDietCalories"></select></div>
+  </div>
+
+  <div class="diet-info-note">
+   <b>Manual food entry:</b> Trainer can select a food item or add a custom food. The item card shows <b>portion, kcal/100g, protein, carbs and fat</b>, and calculates calories for the entered grams.
+  </div>
+
+  <div class="diet-week-table">
+   <div class="diet-week-row diet-week-head"><div>Day</div><div>Meals / Food Items</div><div>Daily Total</div></div>
+   <div class="diet-week-row"><div><b>Sunday</b><span class="holiday">Optional Rest / Flexible Day</span></div><div><button class="btn light" onclick="openDietDayPicker('Sunday')">＋ Add Food</button><div id="diet-items-Sunday" class="diet-items"></div></div><div id="diet-total-Sunday">0 kcal</div></div>
+   <div class="diet-week-row"><div><b>Monday</b></div><div><button class="btn light" onclick="openDietDayPicker('Monday')">＋ Add Food</button><div id="diet-items-Monday" class="diet-items"></div></div><div id="diet-total-Monday">0 kcal</div></div>
+   <div class="diet-week-row"><div><b>Tuesday</b></div><div><button class="btn light" onclick="openDietDayPicker('Tuesday')">＋ Add Food</button><div id="diet-items-Tuesday" class="diet-items"></div></div><div id="diet-total-Tuesday">0 kcal</div></div>
+   <div class="diet-week-row"><div><b>Wednesday</b></div><div><button class="btn light" onclick="openDietDayPicker('Wednesday')">＋ Add Food</button><div id="diet-items-Wednesday" class="diet-items"></div></div><div id="diet-total-Wednesday">0 kcal</div></div>
+   <div class="diet-week-row"><div><b>Thursday</b></div><div><button class="btn light" onclick="openDietDayPicker('Thursday')">＋ Add Food</button><div id="diet-items-Thursday" class="diet-items"></div></div><div id="diet-total-Thursday">0 kcal</div></div>
+   <div class="diet-week-row"><div><b>Friday</b></div><div><button class="btn light" onclick="openDietDayPicker('Friday')">＋ Add Food</button><div id="diet-items-Friday" class="diet-items"></div></div><div id="diet-total-Friday">0 kcal</div></div>
+   <div class="diet-week-row"><div><b>Saturday</b></div><div><button class="btn light" onclick="openDietDayPicker('Saturday')">＋ Add Food</button><div id="diet-items-Saturday" class="diet-items"></div></div><div id="diet-total-Saturday">0 kcal</div></div>
+  </div>
+
+  <div class="weekly-actions">
+   <button class="btn" onclick="clearVerifiedDiet()">Clear Week</button>
+   <button class="btn greenbtn" onclick="saveVerifiedDiet()">Save Weekly Diet</button>
+  </div>
  </div>
- <div id="dietPlanTitle" class="diet-title"></div>
- <div id="dietMeals" class="meal-grid"></div>
- <div class="card diet-note"><b>Important:</b> These are general gym templates, not medical prescriptions. Calorie needs should be personalized where appropriate.</div>
+
+ <div class="card">
+  <h3>Food Library — Hindi (Roman) + English</h3><button class="btn light" onclick="openBilingualFoodLibrary()">🔎 View Full Food Master List</button>
+  <p class="muted">Common food items are pre-fed. Trainer can also enter a custom item manually.</p>
+  <div id="foodLibrary" class="food-library"></div>
+        <div class="card supplement-card">
+          <h3>Gym Foods & Supplements — Indian Market</h3>
+          <p class="muted">Whey, plant protein, protein foods, peanut butter, mass gainer, electrolytes and other common gym-use products.</p>
+          <button class="btn light" onclick="openSupplementLibrary()">🔎 View Supplements & Gym Foods</button>
+          <div id="supplementLibrary" class="food-library" style="margin-top:10px"></div>
+        </div>
+        
+ </div>
 </section>
+
 
 
 
@@ -1470,6 +1552,227 @@ function importAKHADAFile(){
   document.getElementById("importStatus").textContent=`Selected ${file.name} for ${type}. Production import will validate columns before writing to the database.`;
   toast("Import file selected and ready for validation.");
 }
+</script>
+
+<script>
+const verifiedEquipment=[["GFF SKI 01", "Cardio", ["Ski Erg"]], ["GFF PNTH 01 / Treadmill", "Cardio", ["Treadmill Walk", "Incline Treadmill Walk", "Treadmill Jog"]], ["GFF Cross 01 / Cross Trainer", "Cardio", ["Cross Trainer"]], ["GFF TRANS 01", "Cardio", ["Stationary Cycle"]], ["Multi Flight", "Chest/Shoulder", ["Machine Chest Press", "Machine Shoulder Press"]], ["Pec Fly / Rear Delt", "Chest/Shoulder", ["Pec Fly", "Rear Delt Fly"]], ["Lat Pull Down with Seated Row", "Back", ["Lat Pulldown", "Seated Row"]], ["Assisted Dip Chin", "Back/Arms", ["Assisted Dip", "Assisted Chin-Up"]], ["Prone Leg Curl with Extension", "Leg", ["Leg Curl", "Leg Extension"]], ["Abductor & Adductor", "Leg/Hip", ["Hip Abduction", "Hip Adduction"]], ["Cable Cross Over", "Chest/Arms", ["Cable Crossover", "Cable Fly", "Cable Triceps Pushdown", "Cable Biceps Curl"]], ["Smith with Squat Rack", "Leg/Full Body", ["Smith Squat", "Smith Bench Press", "Smith Calf Raise"]], ["Leg Press with Hack Squat", "Leg", ["Leg Press", "Hack Squat"]], ["Hip Thrust", "Glutes", ["Hip Thrust"]], ["Seated Calf", "Calf", ["Seated Calf Raise"]], ["Shoulder Press", "Shoulder", ["Machine Shoulder Press"]], ["Mid Row", "Back", ["Mid Row"]], ["Low Row", "Back", ["Low Row"]], ["Incline Chest Press (Straight Handle)", "Chest", ["Incline Chest Press"]], ["Liner Row", "Back", ["Linear Row"]], ["Preacher Curl", "Biceps", ["Preacher Curl"]], ["Wrist Curl Jungle 3-1", "Forearm", ["Wrist Curl", "Reverse Wrist Curl"]], ["Abs Crunch", "Core", ["Machine Ab Crunch"]], ["Hyper Extension", "Back/Core", ["Back Extension", "Hyperextension"]], ["Double Twister", "Core", ["Torso Rotation"]], ["Olympic Flat Bench", "Free Weight", ["Flat Bench Press", "Dumbbell Bench Press"]], ["Flat Bench", "Free Weight", ["Dumbbell Press", "Dumbbell Row", "Dumbbell Curl"]], ["Solid Rubberized Dumbbells", "Free Weight", ["Dumbbell Curl", "Lateral Raise", "Dumbbell Row", "Goblet Squat"]], ["Solid Iron Chrome Plated Dumbbells", "Free Weight", ["Dumbbell Curl", "Shoulder Press", "Dumbbell Row"]], ["Dead Lift Platform", "Free Weight", ["Deadlift"]], ["Mag Handle Set", "Cable Attachment", ["Cable Row", "Cable Pulldown", "Cable Curl"]], ["Olympic Bumper Plates", "Free Weight", ["Barbell Squat", "Deadlift", "Bench Press"]], ["Solid Rubberized Plates", "Free Weight", ["Plate Squat", "Plate Front Raise", "Plate Twist"]]];
+const verifiedLevels={"Beginner": "Lower exercise count, controlled technique, lighter starting load and simpler movement selection.", "Experienced": "Higher exercise variety/volume and more advanced combinations using the available equipment."};
+const verifiedDays=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+let verifiedDraft={};
+
+function buildVerifiedExerciseList(level,goal){
+  const out=[];
+  verifiedEquipment.forEach(([eq,group,exs])=>{
+    exs.forEach(ex=>{
+      let use=true;
+      if(level==="Beginner" && ["Deadlift","Smith Bench Press","Hack Squat","Torso Rotation"].includes(ex)) use=false;
+      if(goal==="Weight Loss" || goal==="Fat Loss"){
+        // Keep strength exercises available but prioritize cardio; Trainer still chooses.
+        use=true;
+      }
+      if(use) out.push({equipment:eq,group,exercise:ex,pic:"🏋️"});
+    });
+  });
+  return out;
+}
+function initVerifiedWorkout(){
+ const m=document.getElementById("verifiedWorkoutMember");
+ if(!m)return;
+ m.innerHTML='<option value="">Select Member</option>'+membersForPlans.map(x=>`<option>${x}</option>`).join("");
+ verifiedDays.forEach(d=>{
+   const s=document.getElementById("verified-plan-"+d);
+   s.innerHTML='<option value="">No Plan</option>'+workoutCats.map(x=>`<option>${x}</option>`).join("");
+ });
+ document.getElementById("workoutLevel").addEventListener("change",renderEquipmentLibrary);
+ document.getElementById("workoutGoal").addEventListener("change",renderEquipmentLibrary);
+ renderEquipmentLibrary();
+}
+function renderEquipmentLibrary(){
+ const level=document.getElementById("workoutLevel")?.value||"Beginner";
+ const goal=document.getElementById("workoutGoal")?.value||"General Fitness";
+ const list=buildVerifiedExerciseList(level,goal);
+ document.getElementById("equipmentLibrary").innerHTML=list.map(x=>`<div class="equipment-card"><div class="equipment-picture">${x.pic}</div><div><b>${x.exercise}</b><div class="muted">${x.equipment}</div><small>${x.group}</small></div></div>`).join("");
+}
+function openVerifiedExercisePicker(day){
+ const level=document.getElementById("workoutLevel")?.value||"Beginner";
+ const goal=document.getElementById("workoutGoal")?.value||"General Fitness";
+ const selected=new Set(verifiedDraft[day]?.exercises||[]);
+ const list=buildVerifiedExerciseList(level,goal);
+ openAnyModal(`<h2>Select Exercises — ${day}</h2><p class="muted">Only purchased equipment is listed. Multiple selection is allowed.</p><div class="exercise-picker">${list.map(x=>`<label class="exercise-option ${selected.has(x.exercise)?"selected":""}"><input type="checkbox" value="${x.exercise}" data-equipment="${x.equipment}" ${selected.has(x.exercise)?"checked":""}><span class="exercise-picture">${x.pic}</span><span><b>${x.exercise}</b><small>${x.equipment} · ${x.group}</small></span></label>`).join("")}</div><div class="modal-actions"><button class="btn" onclick="closeAnyModal()">Cancel</button><button class="btn greenbtn" onclick="saveVerifiedExercises('${day}')">Use Selected</button></div>`);
+}
+function saveVerifiedExercises(day){
+ const vals=[...document.querySelectorAll(".exercise-picker input:checked")].map(x=>x.value);
+ verifiedDraft[day]={...(verifiedDraft[day]||{}),exercises:vals};
+ closeAnyModal(); renderVerifiedChips(day); updateVerifiedPreview(day);
+}
+function renderVerifiedChips(day){
+ const box=document.getElementById("verified-chips-"+day), ex=verifiedDraft[day]?.exercises||[];
+ const map=new Map();verifiedEquipment.forEach(([e,g,xs])=>xs.forEach(x=>map.set(x,[e,g])));
+ box.innerHTML=ex.map(n=>`<span class="exercise-chip">🏋️ ${n}<small>${map.get(n)?.[0]||""}</small></span>`).join("");
+}
+function updateVerifiedPreview(day){
+ const plan=document.getElementById("verified-plan-"+day)?.value||"";
+ const ex=verifiedDraft[day]?.exercises||[];
+ verifiedDraft[day]={...(verifiedDraft[day]||{}),plan};
+ document.getElementById("verified-preview-"+day).innerHTML=(plan||ex.length)?`${plan?`<b>${plan}</b>`:""}${ex.length?`<div>${ex.length} exercise${ex.length>1?"s":""}</div>`:""}`:"—";
+}
+function clearVerifiedWeek(){
+ verifiedDraft={};verifiedDays.forEach(d=>{document.getElementById("verified-plan-"+d).value="";renderVerifiedChips(d);updateVerifiedPreview(d);});
+}
+function saveVerifiedWorkout(){
+ const member=document.getElementById("verifiedWorkoutMember")?.value;
+ if(!member){toast("Please select member first.");return;}
+ const has=verifiedDays.some(d=>(verifiedDraft[d]?.plan)||((verifiedDraft[d]?.exercises||[]).length));
+ if(!has){toast("Select a workout plan or exercise.");return;}
+ const all=getAssignedPlans();all[member]=all[member]||{};
+ all[member].weeklyWorkout={level:document.getElementById("workoutLevel").value,goal:document.getElementById("workoutGoal").value,days:JSON.parse(JSON.stringify(verifiedDraft)),updatedBy:currentRole||"Owner",updatedAt:new Date().toISOString()};
+ setAssignedPlans(all);toast("Verified weekly workout saved for "+member);
+}
+document.addEventListener("DOMContentLoaded",initVerifiedWorkout);
+</script>
+
+<script>
+const dietFoodLibrary=[["Oats (dry)", "Breakfast", 389, 16.9, 66.3, 6.9, "🌾"], ["Milk, low fat", "Breakfast", 42, 3.4, 5.0, 1.0, "🥛"], ["Poha", "Breakfast", 130, 2.5, 25.0, 2.0, "🍚"], ["Curd", "Breakfast", 61, 3.5, 4.7, 3.3, "🥣"], ["Apple", "Fruit", 52, 0.3, 13.8, 0.2, "🍎"], ["Banana", "Fruit", 89, 1.1, 22.8, 0.3, "🍌"], ["Orange", "Fruit", 47, 0.9, 11.8, 0.1, "🍊"], ["Guava", "Fruit", 68, 2.6, 14.3, 1.0, "🍐"], ["Almonds", "Nuts", 579, 21.2, 21.6, 49.9, "🌰"], ["Walnuts", "Nuts", 654, 15.2, 13.7, 65.2, "🌰"], ["Rice, cooked", "Lunch", 130, 2.7, 28.2, 0.3, "🍚"], ["Roti", "Lunch", 297, 9.6, 46.0, 7.5, "🫓"], ["Dal, cooked", "Lunch", 116, 9.0, 20.0, 0.4, "🥣"], ["Rajma, cooked", "Lunch", 127, 8.7, 22.8, 0.5, "🫘"], ["Paneer", "Protein", 265, 18.3, 6.1, 20.8, "🧀"], ["Tofu", "Protein", 76, 8.0, 1.9, 4.8, "◻️"], ["Chicken breast, cooked", "Non-Veg", 165, 31.0, 0.0, 3.6, "🍗"], ["Fish, cooked", "Non-Veg", 150, 26.0, 0.0, 5.0, "🐟"], ["Egg, whole", "Non-Veg", 143, 12.6, 0.7, 9.5, "🥚"], ["Egg white", "Non-Veg", 52, 10.9, 0.7, 0.2, "🥚"], ["Roasted chana", "Snack", 364, 19.0, 61.0, 6.0, "🫘"], ["Sweet potato, cooked", "Carb", 90, 2.0, 20.7, 0.2, "🍠"], ["Mixed vegetables, cooked", "Vegetable", 70, 3.0, 12.0, 1.5, "🥦"], ["Salad vegetables", "Vegetable", 30, 1.2, 6.0, 0.2, "🥗"]];
+const dietDays=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+let verifiedDietDraft={};
+
+function initVerifiedDiet(){
+ const m=document.getElementById("verifiedDietMember");
+ if(!m)return;
+ m.innerHTML='<option value="">Select Member</option>'+membersForPlans.map(x=>`<option>${x}</option>`).join("");
+ const c=document.getElementById("verifiedDietCalories");
+ c.innerHTML=[1400,1600,1800,2000,2200,2400,2600,2800,3000].map(x=>`<option value="${x}">${x} kcal</option>`).join("");
+ renderFoodLibrary();
+}
+function openDietDayPicker(day){
+ const content=`<h2>Add Food — ${day}</h2>
+ <p class="muted">Select multiple items or add one manually. Calories are calculated from grams.</p>
+ <div class="food-picker">${dietFoodLibrary.map((f,i)=>`<label class="food-picker-row">
+   <input type="checkbox" value="${i}">
+   <span class="food-photo">${f[6]}</span>
+   <span><b>${f[0]}</b><small>${f[1]} · ${f[2]} kcal/100g · P ${f[3]}g · C ${f[4]}g · F ${f[5]}g /100g</small></span>
+   <input class="food-grams" type="number" min="1" step="1" placeholder="grams">
+ </label>`).join("")}</div>
+ <div class="manual-food-box">
+  <h3>Manual Food Item</h3>
+  <div class="manual-grid">
+   <input id="manualFoodName" placeholder="Food name">
+   <input id="manualFoodGrams" type="number" placeholder="Grams">
+   <input id="manualFoodKcal" type="number" step="0.1" placeholder="kcal / 100g">
+   <input id="manualFoodProtein" type="number" step="0.1" placeholder="Protein g / 100g">
+   <input id="manualFoodCarbs" type="number" step="0.1" placeholder="Carbs g / 100g">
+   <input id="manualFoodFat" type="number" step="0.1" placeholder="Fat g / 100g">
+  </div>
+ </div>
+ <div class="modal-actions"><button class="btn" onclick="closeAnyModal()">Cancel</button><button class="btn greenbtn" onclick="saveDietDay('${day}')">Add to ${day}</button></div>`;
+ openAnyModal(content);
+}
+function saveDietDay(day){
+ const items=[];
+ document.querySelectorAll(".food-picker-row").forEach(row=>{
+   const cb=row.querySelector('input[type="checkbox"]');
+   if(cb&&cb.checked){
+     const f=dietFoodLibrary[Number(cb.value)];
+     const grams=Number(row.querySelector(".food-grams")?.value||100);
+     items.push({name:f[0],grams,kcal100:f[2],protein100:f[3],carbs100:f[4],fat100:f[5],pic:f[6]});
+   }
+ });
+ const mn=document.getElementById("manualFoodName")?.value.trim();
+ if(mn){
+   items.push({
+     name:mn, grams:Number(document.getElementById("manualFoodGrams")?.value||100),
+     kcal100:Number(document.getElementById("manualFoodKcal")?.value||0),
+     protein100:Number(document.getElementById("manualFoodProtein")?.value||0),
+     carbs100:Number(document.getElementById("manualFoodCarbs")?.value||0),
+     fat100:Number(document.getElementById("manualFoodFat")?.value||0),pic:"🍽️"
+   });
+ }
+ if(!items.length){toast("Select or enter at least one food item.");return;}
+ verifiedDietDraft[day]=[...(verifiedDietDraft[day]||[]),...items];
+ closeAnyModal();renderDietDay(day);
+}
+function renderDietDay(day){
+ const items=verifiedDietDraft[day]||[];
+ const box=document.getElementById("diet-items-"+day);
+ let total=0;
+ box.innerHTML=items.map((f,i)=>{
+   const kcal=f.kcal100*f.grams/100, p=f.protein100*f.grams/100, c=f.carbs100*f.grams/100, fat=f.fat100*f.grams/100;
+   total+=kcal;
+   return `<div class="diet-item-card"><span class="food-photo">${f.pic}</span><div><b>${f.name}</b><div>${f.grams} g · <b>${kcal.toFixed(0)} kcal</b></div><small>${f.kcal100} kcal/100g · P ${p.toFixed(1)}g · C ${c.toFixed(1)}g · F ${fat.toFixed(1)}g</small></div><button class="btn danger" onclick="removeDietItem('${day}',${i})">×</button></div>`;
+ }).join("");
+ document.getElementById("diet-total-"+day).innerHTML=`<b>${total.toFixed(0)} kcal</b><small>${items.length} items</small>`;
+}
+function removeDietItem(day,i){verifiedDietDraft[day].splice(i,1);renderDietDay(day);}
+function clearVerifiedDiet(){verifiedDietDraft={};dietDays.forEach(d=>renderDietDay(d));}
+function saveVerifiedDiet(){
+ const member=document.getElementById("verifiedDietMember")?.value;
+ if(!member){toast("Please select member first.");return;}
+ const any=dietDays.some(d=>(verifiedDietDraft[d]||[]).length);
+ if(!any){toast("Add at least one food item.");return;}
+ const all=getAssignedPlans();all[member]=all[member]||{};
+ all[member].weeklyDiet={calories:Number(document.getElementById("verifiedDietCalories").value),type:document.getElementById("verifiedDietType").value,goal:document.getElementById("verifiedDietGoal").value,days:JSON.parse(JSON.stringify(verifiedDietDraft)),updatedBy:currentRole||"Owner",updatedAt:new Date().toISOString()};
+ setAssignedPlans(all);toast("Weekly diet saved for "+member);
+}
+function renderFoodLibrary(){
+ const box=document.getElementById("foodLibrary");
+ box.innerHTML=dietFoodLibrary.map(f=>`<div class="food-library-card"><span class="food-photo">${f[6]}</span><div><b>${f[0]}</b><div>${f[2]} kcal / 100g</div><small>Protein ${f[3]}g · Carbs ${f[4]}g · Fat ${f[5]}g / 100g</small></div></div>`).join("");
+}
+document.addEventListener("DOMContentLoaded",initVerifiedDiet);
+</script>
+
+<script>
+const bilingualFoods=[["Oats", "Oats", 389, 16.9, 66.3, 6.9], ["Daliya", "Broken Wheat", 342, 12.3, 75.9, 1.3], ["Poha", "Flattened Rice", 130, 2.5, 25.0, 2.0], ["Suji", "Semolina", 360, 12.7, 72.8, 1.1], ["Besan", "Gram Flour", 387, 22.4, 57.8, 6.7], ["Atta", "Whole Wheat Flour", 340, 13.7, 72.6, 2.5], ["Brown Rice, cooked", "Brown Rice, cooked", 123, 2.7, 25.6, 1.0], ["White Rice, cooked", "White Rice, cooked", 130, 2.7, 28.2, 0.3], ["Quinoa, cooked", "Quinoa, cooked", 120, 4.4, 21.3, 1.9], ["Ragi", "Finger Millet", 336, 7.3, 72.0, 1.3], ["Jowar", "Sorghum", 329, 10.4, 72.1, 3.1], ["Bajra", "Pearl Millet", 361, 11.6, 67.5, 5.0], ["Rajma, cooked", "Kidney Beans, cooked", 127, 8.7, 22.8, 0.5], ["Chana, cooked", "Chickpeas, cooked", 164, 8.9, 27.4, 2.6], ["Moong Dal, cooked", "Green Gram Dal, cooked", 105, 7.0, 19.2, 0.4], ["Masoor Dal, cooked", "Red Lentils, cooked", 116, 9.0, 20.1, 0.4], ["Toor Dal, cooked", "Pigeon Pea Dal, cooked", 120, 7.0, 22.0, 1.0], ["Urad Dal, cooked", "Black Gram Dal, cooked", 116, 8.0, 20.0, 0.5], ["Soya Chunks, dry", "Soy Chunks, dry", 345, 52.0, 33.0, 0.5], ["Tofu", "Tofu", 76, 8.0, 1.9, 4.8], ["Paneer", "Cottage Cheese / Paneer", 265, 18.3, 6.1, 20.8], ["Low-fat Paneer", "Low-fat Cottage Cheese", 180, 23.0, 4.0, 8.0], ["Curd", "Plain Yogurt / Curd", 61, 3.5, 4.7, 3.3], ["Greek Yogurt", "Greek Yogurt", 73, 9.9, 3.9, 2.0], ["Milk", "Milk", 61, 3.2, 4.8, 3.3], ["Low-fat Milk", "Low-fat Milk", 42, 3.4, 5.0, 1.0], ["Buttermilk", "Buttermilk", 40, 3.3, 4.8, 1.0], ["Egg", "Whole Egg", 143, 12.6, 0.7, 9.5], ["Egg White", "Egg White", 52, 10.9, 0.7, 0.2], ["Chicken Breast, cooked", "Chicken Breast, cooked", 165, 31, 0, 3.6], ["Chicken Thigh, cooked", "Chicken Thigh, cooked", 209, 26, 0, 10.9], ["Chicken Leg, cooked", "Chicken Leg, cooked", 184, 27, 0, 8], ["Fish, cooked", "Fish, cooked", 150, 26, 0, 5], ["Rohu Fish, cooked", "Rohu Fish, cooked", 160, 22, 0, 7], ["Pomfret, cooked", "Pomfret, cooked", 140, 21, 0, 5], ["Prawns, cooked", "Prawns, cooked", 99, 24, 0.2, 0.3], ["Tuna, canned in water", "Tuna, canned in water", 116, 26, 0, 1], ["Mutton, cooked", "Mutton, cooked", 258, 25, 0, 17], ["Apple", "Apple", 52, 0.3, 13.8, 0.2], ["Banana", "Banana", 89, 1.1, 22.8, 0.3], ["Orange", "Orange", 47, 0.9, 11.8, 0.1], ["Mosambi", "Sweet Lime", 43, 0.8, 9.3, 0.3], ["Guava", "Guava", 68, 2.6, 14.3, 1.0], ["Papaya", "Papaya", 43, 0.5, 10.8, 0.3], ["Watermelon", "Watermelon", 30, 0.6, 7.6, 0.2], ["Muskmelon", "Cantaloupe / Muskmelon", 34, 0.8, 8.2, 0.2], ["Mango", "Mango", 60, 0.8, 15, 0.4], ["Pomegranate", "Pomegranate", 83, 1.7, 18.7, 1.2], ["Pineapple", "Pineapple", 50, 0.5, 13.1, 0.1], ["Grapes", "Grapes", 69, 0.7, 18.1, 0.2], ["Kiwi", "Kiwi", 61, 1.1, 14.7, 0.5], ["Strawberry", "Strawberry", 32, 0.7, 7.7, 0.3], ["Dates", "Dates", 282, 2.5, 75, 0.4], ["Raisins", "Raisins", 299, 3.1, 79.2, 0.5], ["Almonds", "Almonds", 579, 21.2, 21.6, 49.9], ["Walnuts", "Walnuts", 654, 15.2, 13.7, 65.2], ["Cashews", "Cashews", 553, 18.2, 30.2, 43.9], ["Pistachios", "Pistachios", 562, 20.2, 27.2, 45.3], ["Peanuts", "Peanuts", 567, 25.8, 16.1, 49.2], ["Pumpkin Seeds", "Pumpkin Seeds", 559, 30.2, 10.7, 49.1], ["Chia Seeds", "Chia Seeds", 486, 16.5, 42.1, 30.7], ["Flax Seeds", "Flax Seeds", 534, 18.3, 28.9, 42.2], ["Sunflower Seeds", "Sunflower Seeds", 584, 20.8, 20, 51.5], ["Roasted Chana", "Roasted Chickpeas", 364, 19, 61, 6], ["Sweet Potato, cooked", "Sweet Potato, cooked", 90, 2, 20.7, 0.2], ["Potato, boiled", "Potato, boiled", 87, 1.9, 20.1, 0.1], ["Green Peas, cooked", "Green Peas, cooked", 84, 5.4, 15.6, 0.4], ["Carrot", "Carrot", 41, 0.9, 9.6, 0.2], ["Beetroot", "Beetroot", 43, 1.6, 9.6, 0.2], ["Broccoli", "Broccoli", 35, 2.4, 7.2, 0.4], ["Cauliflower", "Cauliflower", 25, 1.9, 5, 0.3], ["Spinach", "Spinach", 23, 2.9, 3.6, 0.4], ["Bhindi", "Okra", 33, 1.9, 7.5, 0.2], ["Lauki", "Bottle Gourd", 15, 0.6, 3.4, 0.1], ["Tori", "Ridge Gourd", 20, 1.2, 3.4, 0.2], ["Karela", "Bitter Gourd", 34, 1.0, 7.0, 0.2], ["Baingan", "Eggplant / Brinjal", 25, 1.0, 6.0, 0.2], ["Cabbage", "Cabbage", 25, 1.3, 5.8, 0.1], ["Tomato", "Tomato", 18, 0.9, 3.9, 0.2], ["Cucumber", "Cucumber", 15, 0.7, 3.6, 0.1], ["Onion", "Onion", 40, 1.1, 9.3, 0.1], ["Capsicum", "Bell Pepper", 31, 1.0, 6.0, 0.3], ["Mushroom", "Mushroom", 22, 3.1, 3.3, 0.3], ["Corn, boiled", "Sweet Corn, boiled", 96, 3.4, 21, 1.5], ["Roti", "Whole Wheat Roti", 297, 9.6, 46, 7.5], ["Idli", "Idli", 146, 5, 29, 1], ["Dosa", "Plain Dosa", 168, 3.9, 29, 3.7], ["Upma", "Vegetable Upma", 150, 3, 25, 4], ["Sambar", "Sambar", 70, 3.5, 10, 2], ["Sprouts", "Mixed Sprouts", 85, 8, 14, 1], ["Hummus", "Hummus", 166, 7.9, 14.3, 9.6], ["Peanut Butter", "Peanut Butter", 588, 25, 20, 50], ["Dark Chocolate", "Dark Chocolate", 598, 7.8, 45.9, 42.6], ["Protein Powder", "Whey Protein Powder", 400, 75, 10, 6], ["Olive Oil", "Olive Oil", 884, 0, 0, 100], ["Mustard Oil", "Mustard Oil", 884, 0, 0, 100], ["Ghee", "Ghee", 900, 0, 0, 100], ["Coconut", "Coconut Meat", 354, 3.3, 15.2, 33.5]];
+const bilingualExercises=[["Chest Press", "Chest Press", "Chest"], ["Incline Chest Press", "Incline Chest Press", "Chest"], ["Pec Fly", "Pec Fly / Rear Delt", "Chest"], ["Cable Crossover", "Cable Cross Over", "Chest"], ["Cable Fly", "Cable Cross Over", "Chest"], ["Smith Bench Press", "Smith with Squat Rack", "Chest"], ["Flat Bench Press", "Olympic Flat Bench", "Chest"], ["Dumbbell Bench Press", "Olympic Flat Bench / Dumbbells", "Chest"], ["Lat Pulldown", "Lat Pull Down with Seated Row", "Back"], ["Seated Row", "Lat Pull Down with Seated Row", "Back"], ["Mid Row", "Mid Row", "Back"], ["Low Row", "Low Row", "Back"], ["Linear Row", "Liner Row", "Back"], ["Assisted Chin-Up", "Assisted Dip Chin", "Back"], ["Assisted Dip", "Assisted Dip Chin", "Triceps"], ["Shoulder Press", "Shoulder Press / Multi Flight", "Shoulder"], ["Lateral Raise", "Dumbbells", "Shoulder"], ["Rear Delt Fly", "Pec Fly / Rear Delt", "Shoulder"], ["Face Pull", "Cable Cross Over", "Shoulder"], ["Smith Squat", "Smith with Squat Rack", "Leg"], ["Leg Press", "Leg Press with Hack Squat", "Leg"], ["Hack Squat", "Leg Press with Hack Squat", "Leg"], ["Leg Extension", "Prone Leg Curl with Extension", "Leg"], ["Leg Curl", "Prone Leg Curl with Extension", "Leg"], ["Hip Thrust", "Hip Thrust", "Glutes"], ["Seated Calf Raise", "Seated Calf", "Calf"], ["Smith Calf Raise", "Smith with Squat Rack", "Calf"], ["Hip Abduction", "Abductor & Adductor", "Hip"], ["Hip Adduction", "Abductor & Adductor", "Hip"], ["Preacher Curl", "Preacher Curl", "Biceps"], ["Biceps Curl", "Cable Cross Over / Dumbbells", "Biceps"], ["Hammer Curl", "Dumbbells", "Biceps"], ["Triceps Pushdown", "Cable Cross Over", "Triceps"], ["Overhead Cable Extension", "Cable Cross Over", "Triceps"], ["Wrist Curl", "Wrist Curl Jungle 3-1", "Forearm"], ["Reverse Wrist Curl", "Wrist Curl Jungle 3-1", "Forearm"], ["Machine Ab Crunch", "Abs Crunch", "Core"], ["Hyperextension", "Hyper Extension", "Core/Back"], ["Torso Rotation", "Double Twister", "Core"], ["Deadlift", "Dead Lift Platform / Bumper Plates", "Full Body"], ["Barbell Squat", "Smith with Squat Rack / Bumper Plates", "Leg"], ["Goblet Squat", "Dumbbells", "Leg"], ["Dumbbell Row", "Dumbbells / Flat Bench", "Back"], ["Dumbbell Curl", "Dumbbells", "Biceps"], ["Dumbbell Shoulder Press", "Dumbbells", "Shoulder"], ["Dumbbell Lateral Raise", "Dumbbells", "Shoulder"], ["Dumbbell Front Raise", "Dumbbells", "Shoulder"], ["Plate Front Raise", "Solid Rubberized Plates", "Shoulder"], ["Plate Twist", "Solid Rubberized Plates", "Core"], ["Ski Erg", "GFF SKI 01", "Cardio"], ["Treadmill Walk", "GFF PNTH 01 / Treadmill", "Cardio"], ["Incline Treadmill Walk", "GFF PNTH 01 / Treadmill", "Cardio"], ["Treadmill Jog", "GFF PNTH 01 / Treadmill", "Cardio"], ["Cross Trainer", "GFF Cross 01 / Cross Trainer", "Cardio"], ["Stationary Cycle", "GFF TRANS 01", "Cardio"]];
+
+function renderBilingualMasterLibraries(){
+  const foodBox=document.getElementById("foodLibrary");
+  if(foodBox){
+    foodBox.innerHTML=bilingualFoods.map(f=>`<div class="bilingual-library-card"><div class="food-photo">🍽️</div><div><b>${f[0]}</b><div class="english-name">${f[1]}</div><div><b>${f[2]} kcal / 100g</b></div><small>Protein ${f[3]}g · Carbs ${f[4]}g · Fat ${f[5]}g / 100g</small></div></div>`).join("");
+  }
+  const exBox=document.getElementById("equipmentLibrary");
+  if(exBox){
+    exBox.innerHTML=bilingualExercises.map(e=>`<div class="equipment-card"><div class="equipment-picture">🏋️</div><div><b>${e[0]}</b><div class="english-name">${e[1]}</div><small>${e[2]}</small></div></div>`).join("");
+  }
+}
+function openBilingualFoodLibrary(){
+  openAnyModal(`<h2>Food Master List — Hindi (Roman) + English</h2><input id="foodSearchMaster" placeholder="Search Hindi or English food name..." oninput="filterBilingualFood()"><div id="foodMasterResults" class="master-library-grid"></div>`);
+  filterBilingualFood();
+}
+function filterBilingualFood(){
+  const q=(document.getElementById("foodSearchMaster")?.value||"").toLowerCase();
+  const rows=bilingualFoods.filter(f=>f.join(" ").toLowerCase().includes(q));
+  const box=document.getElementById("foodMasterResults");if(!box)return;
+  box.innerHTML=rows.map(f=>`<div class="master-item"><span class="food-photo">🍽️</span><div><b>${f[0]}</b><div class="english-name">${f[1]}</div><div>${f[2]} kcal/100g</div><small>P ${f[3]}g · C ${f[4]}g · F ${f[5]}g /100g</small></div></div>`).join("");
+}
+function openBilingualExerciseLibrary(){
+  openAnyModal(`<h2>Exercise Master List — Equipment Verified</h2><input id="exerciseSearchMaster" placeholder="Search exercise or equipment..." oninput="filterBilingualExercise()"><div id="exerciseMasterResults" class="master-library-grid"></div>`);
+  filterBilingualExercise();
+}
+function filterBilingualExercise(){
+  const q=(document.getElementById("exerciseSearchMaster")?.value||"").toLowerCase();
+  const rows=bilingualExercises.filter(e=>e.join(" ").toLowerCase().includes(q));
+  const box=document.getElementById("exerciseMasterResults");if(!box)return;
+  box.innerHTML=rows.map(e=>`<div class="master-item"><span class="equipment-picture">🏋️</span><div><b>${e[0]}</b><div class="english-name">${e[1]}</div><small>Muscle: ${e[2]}</small></div></div>`).join("");
+}
+document.addEventListener("DOMContentLoaded",()=>setTimeout(renderBilingualMasterLibraries,100));
+</script>
+
+<script>
+const akhadaSupplements=[["Whey Protein", "Whey Protein", 400, 75, 10, 6], ["Whey Isolate", "Whey Protein Isolate", 370, 82, 5, 1], ["Plant Protein", "Plant Protein Blend", 380, 75, 10, 5], ["Casein Protein", "Casein Protein", 370, 75, 10, 2], ["Pea Protein", "Pea Protein", 390, 80, 8, 5], ["Soy Protein Isolate", "Soy Protein Isolate", 360, 85, 5, 1], ["Protein Bar", "Protein Bar", 350, 20, 35, 12], ["Protein Muesli", "High Protein Muesli", 380, 20, 55, 8], ["Protein Oats", "High Protein Oats", 380, 20, 55, 8], ["Peanut Butter", "Peanut Butter", 588, 25, 20, 50], ["Almond Butter", "Almond Butter", 614, 21, 19, 56], ["Electrolyte Powder", "Electrolyte Powder", 50, 0, 12, 0], ["Creatine Monohydrate", "Creatine Monohydrate", 0, 0, 0, 0], ["Glucose / Dextrose", "Dextrose", 400, 0, 100, 0], ["Maltodextrin", "Maltodextrin", 380, 0, 95, 0], ["Mass Gainer", "Mass Gainer", 380, 20, 65, 5], ["Peanut Chikki", "Peanut Chikki", 500, 15, 55, 25], ["Protein Chikki", "Protein Chikki", 400, 20, 45, 15], ["Roasted Makhana", "Roasted Fox Nuts", 350, 9, 76, 0.5], ["Unsweetened Cocoa", "Unsweetened Cocoa Powder", 228, 19.6, 57.9, 13.1], ["Coconut Water", "Coconut Water", 19, 0.7, 3.7, 0.2], ["ORS / Electrolyte Drink", "Oral Rehydration / Electrolyte Drink", 20, 0, 5, 0], ["Sports Drink", "Sports Drink", 25, 0, 6, 0]];
+function renderSupplementLibrary(){
+ const box=document.getElementById("supplementLibrary");
+ if(!box)return;
+ box.innerHTML=akhadaSupplements.map(f=>`<div class="bilingual-library-card"><div class="food-photo">🥤</div><div><b>${f[0]}</b><div class="english-name">${f[1]}</div><div><b>${f[2]} kcal / 100g</b></div><small>Protein ${f[3]}g · Carbs ${f[4]}g · Fat ${f[5]}g / 100g</small></div></div>`).join("");
+}
+function openSupplementLibrary(){
+ openAnyModal(`<h2>Gym Foods & Supplements</h2><p class="muted">Indian gym-market focused reference list. Brand label values can differ.</p><div class="master-library-grid">${akhadaSupplements.map(f=>`<div class="master-item"><span class="food-photo">🥤</span><div><b>${f[0]}</b><div class="english-name">${f[1]}</div><div>${f[2]} kcal/100g</div><small>P ${f[3]}g · C ${f[4]}g · F ${f[5]}g /100g</small></div></div>`).join("")}</div>`);
+}
+document.addEventListener("DOMContentLoaded",()=>setTimeout(renderSupplementLibrary,120));
+</script>
+
+<script>
+const combinedAkhadaFoods=[...bilingualFoods,...akhadaSupplements];
+function getAkhadaFoodLibrary(){return combinedAkhadaFoods;}
 </script>
 </body>
 </html>
