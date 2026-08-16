@@ -75,6 +75,11 @@ textarea{min-height:90px;resize:vertical}
  .mobilebar .active{color:#111;font-weight:900}
 }
 @media(max-width:520px){.cards{grid-template-columns:1fr 1fr}.header h1{font-size:23px}}
+
+.tablewrap{overflow:auto}.tablewrap table{width:100%;border-collapse:collapse;min-width:900px}.tablewrap th,.tablewrap td{padding:11px 10px;border-bottom:1px solid #e5e5e5;text-align:left;white-space:nowrap}.tablewrap th{font-size:12px;text-transform:uppercase;color:#777}.good{color:#17844a}.bad{color:#c53a3a}.member-select{width:100%;max-width:520px;padding:12px;border:1px solid #ddd;border-radius:10px;background:#fff}.row{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid #eee}.muted{color:#777}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat{background:#fff;border:1px solid #eee;border-radius:14px;padding:18px}.stat span{display:block;color:#777;font-size:13px;margin-bottom:8px}.stat b{font-size:24px}.tablewrap{overflow:auto}.tablewrap table{width:100%;border-collapse:collapse;min-width:760px}.tablewrap th,.tablewrap td{padding:11px 10px;border-bottom:1px solid #e5e5e5;text-align:left;white-space:nowrap}.tablewrap th{font-size:12px;text-transform:uppercase;color:#777}
+@media(max-width:800px){.grid4{grid-template-columns:repeat(2,1fr)}.actions{width:100%}}
 </style>
 </head>
 <body>
@@ -231,12 +236,57 @@ textarea{min-height:90px;resize:vertical}
   <div class="card"><h3>Rahul Kumar · Fat Loss</h3><div class="row"><span>Breakfast</span><b>Oats + Milk + Fruit</b></div><div class="row"><span>Lunch</span><b>Rice/Roti + Dal + Protein</b></div><div class="row"><span>Evening</span><b>Fruit / Whey</b></div><div class="row"><span>Dinner</span><b>Protein + Vegetables</b></div></div>
 </section>
 
-<section id="progress" class="page"><div class="header"><h1>Member Progress</h1><button class="btn" onclick="openModal('progress')">＋ Add Record</button></div><div class="card"><h3>Rahul Kumar</h3><div class="row"><span>Weight</span><b>80.2 → 78.8 kg</b></div><div class="row"><span>Waist</span><b>40.5 → 38.9 in</b></div><div class="row"><span>Monthly Visits</span><b>18</b></div><div class="row"><span>Goal</span><b>Fat Loss</b></div></div></section>
+<section id="progress" class="page">
+ <div class="header"><div><h1>Member Progress</h1><p class="muted">Select a member from the existing member list.</p></div><button class="btn greenbtn" onclick="openMeasurementModal()">＋ Add Measurement</button></div>
+ <div class="card">
+   <label>Member</label>
+   <div id="progressMemberSelect"></div>
+ </div>
+ <div class="card">
+   <h3>Complete Progress History</h3>
+   <p class="muted">Every measurement entry from the first assessment onward is shown, so weekly gain/loss can be compared.</p>
+   <div class="tablewrap"><table><thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th>Chest</th><th>Arm</th><th>Thigh</th><th>Body Fat</th><th>Notes</th></tr></thead><tbody id="progressHistory"></tbody></table></div>
+ </div>
+</section>
 
 <section id="expenses" class="page">
-  <div class="header"><h1>Expenses</h1><button class="btn greenbtn" onclick="openModal('expense')">＋ Add Expense</button></div>
-  <div class="cards"><div class="card"><div class="label">This Month</div><div class="value">₹1.72L</div></div><div class="card"><div class="label">Staff Salaries</div><div class="value">₹72,000</div></div><div class="card"><div class="label">Rent</div><div class="value">₹45,000</div></div><div class="card"><div class="label">Other</div><div class="value">₹55,000</div></div></div>
-  <div class="card"><h3>Expense Register</h3><div class="row"><span>Staff Salary</span><b>₹72,000</b></div><div class="row"><span>Rent</span><b>₹45,000</b></div><div class="row"><span>Electricity / Water</span><b>₹18,500</b></div><div class="row"><span>Other Gym Expenses</span><b>₹36,500</b></div></div>
+ <div class="header">
+  <div><h1>Expenses</h1><p class="muted">Track staff salaries and every other gym expense with accountability.</p></div>
+  <div class="actions">
+   <button class="btn" onclick="openExpenseModal('other')">＋ Other Expense</button>
+   <button class="btn greenbtn" onclick="openExpenseModal('salary')">＋ Staff Salary</button>
+  </div>
+ </div>
+ <div class="grid4">
+  <div class="stat"><span>Total Expenses</span><b>₹1.72L</b></div>
+  <div class="stat"><span>Staff Salaries</span><b>₹1.05L</b></div>
+  <div class="stat"><span>Other Expenses</span><b>₹67,000</b></div>
+  <div class="stat"><span>This Month</span><b>₹1.72L</b></div>
+ </div>
+ <div class="card">
+  <h3>Staff Salary Payments</h3>
+  <p class="muted">Every salary entry records exactly which staff member received the payment.</p>
+  <div class="tablewrap"><table>
+   <thead><tr><th>Date</th><th>Staff Name</th><th>Month</th><th>Amount</th><th>Remarks</th></tr></thead>
+   <tbody>
+    <tr><td>05/08/2026</td><td>Raj Kumar</td><td>Aug 2026</td><td>₹25,000</td><td>Monthly salary</td></tr>
+    <tr><td>05/08/2026</td><td>Amit Verma</td><td>Aug 2026</td><td>₹22,000</td><td>Monthly salary</td></tr>
+    <tr><td>05/08/2026</td><td>Neha Gupta</td><td>Aug 2026</td><td>₹18,000</td><td>Monthly salary</td></tr>
+   </tbody>
+  </table></div>
+ </div>
+ <div class="card">
+  <h3>Other Expenses</h3>
+  <p class="muted">Vendor / supplier name is mandatory for accountability.</p>
+  <div class="tablewrap"><table>
+   <thead><tr><th>Date</th><th>Category</th><th>Vendor / Supplier</th><th>Amount</th><th>Bill / Invoice</th><th>Details</th></tr></thead>
+   <tbody>
+    <tr><td>08/08/2026</td><td>Electricity</td><td>NBPDCL</td><td>₹12,500</td><td>EL-0826</td><td>Monthly electricity bill</td></tr>
+    <tr><td>10/08/2026</td><td>Cleaning</td><td>CleanPro Services</td><td>₹5,000</td><td>CP-104</td><td>Gym cleaning supplies</td></tr>
+    <tr><td>12/08/2026</td><td>Repair</td><td>Fitness Equipment Care</td><td>₹7,500</td><td>FEC-212</td><td>Treadmill servicing</td></tr>
+   </tbody>
+  </table></div>
+ </div>
 </section>
 
 <section id="messages" class="page"><div class="header"><h1>Messages</h1><button class="btn greenbtn" onclick="openModal('message')">＋ Send Message</button></div><div class="cards"><div class="card"><h3>WhatsApp</h3><p>Fee due reminders, renewal reminders and announcements.</p></div><div class="card"><h3>Email</h3><p>Welcome, renewal and important gym updates.</p></div><div class="card"><h3>Push</h3><p>Member-app notifications.</p></div><div class="card"><h3>Templates</h3><p>Welcome · Due reminder · Renewal · Holiday.</p></div></div></section>
@@ -375,11 +425,124 @@ function saveInquiry(){
  inquiries.unshift({name,phone,source,plan,stage,follow,last:"Today",notes,initials:initials(name)});
  closeModal(); renderInquiries(); renderLeads(); go("inquiries"); toast("Enquiry saved — now visible in Inquiry List");
 }
+
+const memberProgressData={
+ "Rahul Kumar":[
+  {date:"16/08/2026",weight:82.4,waist:40.8,chest:41.0,arm:13.2,thigh:23.0,bodyfat:"—",notes:"Initial assessment"},
+  {date:"23/08/2026",weight:81.6,waist:40.2,chest:41.2,arm:13.3,thigh:23.1,bodyfat:"—",notes:"Good consistency"},
+  {date:"30/08/2026",weight:80.9,waist:39.7,chest:41.4,arm:13.4,thigh:23.2,bodyfat:"—",notes:"Waist improving"}
+ ],
+ "Priya Sharma":[
+  {date:"16/08/2026",weight:68.5,waist:34.5,chest:36.0,arm:11.5,thigh:21.5,bodyfat:"—",notes:"Initial assessment"},
+  {date:"23/08/2026",weight:67.8,waist:34.0,chest:36.2,arm:11.6,thigh:21.4,bodyfat:"—",notes:""}
+ ],
+ "Amit Singh":[
+  {date:"16/08/2026",weight:76.2,waist:37.8,chest:39.5,arm:12.8,thigh:22.4,bodyfat:"—",notes:"Initial assessment"}
+ ]
+};
+function memberNames(){
+ return (typeof members!=="undefined"?members:[]).map(m=>m.name);
+}
+function memberOptions(selected=""){
+ return memberNames().map(n=>`<option value="${n}" ${n===selected?"selected":""}>${n}</option>`).join("");
+}
+function renderMemberSelect(id,selected=""){
+ return `<select id="${id}" class="member-select" onchange="onProgressMemberChange(this.value)"><option value="">Select member</option>${memberOptions(selected)}</select>`;
+}
+function onProgressMemberChange(name){
+ if(!name)return;
+ if(typeof renderProgress==="function")renderProgress(name);
+ if(typeof renderWorkoutPlans==="function")renderWorkoutPlans(name);
+ if(typeof renderDietPlans==="function")renderDietPlans(name);
+}
+function addMeasurement(name){
+ if(!name)return;
+ const date=document.getElementById("measurementDate").value||new Date().toLocaleDateString("en-GB");
+ const row={date,weight:document.getElementById("measurementWeight").value||"—",waist:document.getElementById("measurementWaist").value||"—",chest:document.getElementById("measurementChest").value||"—",arm:document.getElementById("measurementArm").value||"—",thigh:document.getElementById("measurementThigh").value||"—",bodyfat:document.getElementById("measurementBodyfat").value||"—",notes:document.getElementById("measurementNotes").value||""};
+ (memberProgressData[name] ||= []).push(row);
+ closeModal(); renderProgress(name); toast("Measurement saved for "+name);
+}
+function renderProgress(name){
+ const data=memberProgressData[name]||[];
+ const rows=data.map((r,i)=>{
+   const prev=data[i-1];
+   const wd=prev && isFinite(r.weight) && isFinite(prev.weight) ? (Number(r.weight)-Number(prev.weight)).toFixed(1) : "—";
+   return `<tr><td>${r.date}</td><td><b>${r.weight}</b>${wd!=="—"?` <small class="${Number(wd)<=0?"good":"bad"}">(${wd>0?"+":""}${wd} kg)</small>`:""}</td><td>${r.waist}</td><td>${r.chest}</td><td>${r.arm}</td><td>${r.thigh}</td><td>${r.bodyfat}</td><td>${r.notes||"—"}</td></tr>`;
+ }).join("");
+ const target=document.getElementById("progressHistory");
+ if(target)target.innerHTML=rows||`<tr><td colspan="8" class="muted">No measurements recorded yet.</td></tr>`;
+}
+
+
+function openMeasurementModal(){
+ const name=(document.getElementById("progressMember")||{}).value;
+ if(!name){toast("Select a member first");return;}
+ openCustom(`<h2>Add Measurement — ${name}</h2>
+ <div class="grid2">
+  <input id="measurementDate" type="date">
+  <input id="measurementWeight" type="number" step="0.1" placeholder="Weight (kg)">
+  <input id="measurementWaist" type="number" step="0.1" placeholder="Waist (inch)">
+  <input id="measurementChest" type="number" step="0.1" placeholder="Chest (inch)">
+  <input id="measurementArm" type="number" step="0.1" placeholder="Arm (inch)">
+  <input id="measurementThigh" type="number" step="0.1" placeholder="Thigh (inch)">
+  <input id="measurementBodyfat" type="number" step="0.1" placeholder="Body Fat %">
+ </div>
+ <textarea id="measurementNotes" placeholder="Notes"></textarea>
+ <button class="btn greenbtn" onclick="addMeasurement('${name.replace(/'/g,"\\'")}')">Save Measurement</button>`);
+}
+function renderProgressPage(){
+ const box=document.getElementById("progressMemberSelect");
+ if(box)box.innerHTML=renderMemberSelect("progressMember");
+ const name=(members&&members[0])?members[0].name:"";
+ if(name){document.getElementById("progressMember").value=name;renderProgress(name)}
+}
+function renderWorkoutPlans(name=""){
+ const box=document.getElementById("workoutsMemberSelect"); if(box)box.innerHTML=renderMemberSelect("workoutMember",name);
+ const list=document.getElementById("workoutsPlanList"); if(list)list.innerHTML=name?`<div class="row"><span>Selected member</span><b>${name}</b></div><p class="muted">Workout plans for this member will appear here. Plans are linked to the member record, so names cannot be mistyped.</p>`:"<p class='muted'>Select a member to view or create a workout plan.</p>";
+}
+function renderDietPlans(name=""){
+ const box=document.getElementById("dietsMemberSelect"); if(box)box.innerHTML=renderMemberSelect("dietMember",name);
+ const list=document.getElementById("dietsPlanList"); if(list)list.innerHTML=name?`<div class="row"><span>Selected member</span><b>${name}</b></div><p class="muted">Diet plans for this member will appear here and remain linked to the member record.</p>`:"<p class='muted'>Select a member to view or create a diet plan.</p>";
+}
+function openPlanModal(type){
+ const names=memberOptions();
+ const title=type==="workouts"?"Workout Plan":"Diet Plan";
+ openCustom(`<h2>Add ${title}</h2><label>Member</label><select id="planMember"><option value="">Select member</option>${names}</select><textarea placeholder="${type==="workouts"?"Exercises, sets, reps, weekly schedule...":"Meals, calories, protein target, timings..."}"></textarea><button class="btn greenbtn" onclick="saveDemo('${title}')">Save ${title}</button>`);
+}
+
+
+function openExpenseModal(type="other"){
+ const staffNames=(typeof staff!=="undefined"?staff:[]).map(s=>s.name);
+ const staffOpts=staffNames.map(n=>`<option value="${n}">${n}</option>`).join("");
+ const isSalary=type==="salary";
+ openCustom(`<h2>${isSalary?"Record Staff Salary":"Record Other Expense"}</h2>
+ <div class="grid2">
+  <input id="expenseDate" type="date" value="${new Date().toISOString().slice(0,10)}">
+  <input id="expenseAmount" type="number" step="0.01" placeholder="Amount (₹)">
+  ${isSalary
+    ? `<select id="expenseStaff"><option value="">Select staff</option>${staffOpts}</select>
+       <input id="expenseMonth" type="month" value="${new Date().toISOString().slice(0,7)}">`
+    : `<input id="expenseVendor" placeholder="Vendor / Supplier Name *">
+       <input id="expenseCategory" placeholder="Expense category (Electricity, Repair, Equipment...)">`
+  }
+ </div>
+ <input id="expenseDescription" placeholder="${isSalary?"Salary payment details / remarks":"What was purchased or paid for?"}">
+ ${!isSalary?`<input id="expenseBill" placeholder="Bill / Invoice No. (optional)">`:""}
+ <button class="btn greenbtn" onclick="saveExpense('${isSalary?"salary":"other"}')">Save Expense</button>`);
+}
+function saveExpense(type){
+ const amount=document.getElementById("expenseAmount")?.value;
+ if(!amount){toast("Please enter amount");return;}
+ if(type==="salary" && !document.getElementById("expenseStaff")?.value){toast("Please select staff name");return;}
+ if(type==="other" && !document.getElementById("expenseVendor")?.value){toast("Please enter vendor/supplier name");return;}
+ saveDemo(type==="salary"?"Staff Salary Payment":"Other Expense");
+}
+
 function saveDemo(label){closeModal();toast(label+" saved in demo mode");}
 function closeModal(){document.getElementById("modalBack").classList.remove("open")}
 function toast(t){const x=document.getElementById("toast");x.textContent=t;x.style.display="block";clearTimeout(window._toast);window._toast=setTimeout(()=>x.style.display="none",2200)}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
-renderMembers();renderLeads();renderInquiries();
+renderMembers();renderLeads();renderInquiries();renderProgressPage();renderWorkoutPlans();renderDietPlans();
 </script>
 </body>
 </html>
