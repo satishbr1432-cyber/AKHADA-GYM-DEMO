@@ -250,6 +250,28 @@ body[data-role="trainer"] #settings{display:none !important}
 .today-note{margin:12px 0 0}
 @media(max-width:600px){.today-exercise-grid{grid-template-columns:1fr}}
 </style>
+
+<style>
+.owner-branding-card{max-width:900px}
+.branding-form{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.branding-form label{display:block;margin-bottom:6px}
+.branding-form input:not([type=file]){width:100%;box-sizing:border-box;padding:11px;border:1px solid #ddd;border-radius:9px}
+.branding-logo-field{grid-column:1/-1}
+.logo-preview-wrap{margin-top:10px;min-height:90px;border:1px dashed #ccc;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:12px;padding:10px}
+.logo-preview-wrap img{max-height:75px;max-width:180px;display:none;object-fit:contain}
+.branding-actions{display:flex;gap:10px;margin-top:16px}
+.member-brand{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:5px 5px 18px;font-weight:900;font-size:22px;line-height:1}
+.member-brand img{width:38px;height:38px;object-fit:contain;border-radius:8px}
+.member-brand strong{font-size:24px}.member-brand span{display:block;width:100%;font-size:10px;letter-spacing:1.5px;color:#777;font-weight:600}
+@media(max-width:700px){.branding-form{grid-template-columns:1fr}.branding-logo-field{grid-column:auto}}
+</style>
+
+<style>
+.branding-settings-page{padding-top:0!important}
+.branding-settings-page .header{margin-top:0!important;padding-top:0!important}
+.branding-settings-page .owner-branding-card{margin-top:8px!important}
+.branding-settings-page .owner-branding-card h3{margin-top:0}
+</style>
 </head>
 <body>
 <div class="app">
@@ -615,10 +637,48 @@ body[data-role="trainer"] #settings{display:none !important}
     </ul>
   </div>
 </section>
-<section id="settings" class="page">
-<div class="card role-note"><h3>Trainer / Member dashboard privacy</h3>
-<p class="muted">Pending Dues and Today's Collection are Owner/Manager financial information. They are hidden from Trainer and Member accounts.</p></div>
-<div class="card owner-only"><h3>Gym Branding</h3><p class="muted">Change AKHADA name, tagline and logo.</p><button class="btn gold" onclick="openModal('branding')">Edit Gym Branding</button></div><div class="card"><h3>Data isolation</h3><p>Member accounts are scoped to their own member ID. A member cannot browse the member directory or access another member's attendance, payments, workout, diet or progress. Trainer access is limited to assigned members. These restrictions must also be enforced by the production backend/database, not only by hiding menu items.</p></div><div class="card"><h3>Role-based access</h3><div class="row"><span>Owner</span><b>Full permissions</b></div><div class="row"><span>Manager</span><b>Operational permissions</b></div><div class="row"><span>Trainer</span><b>Assigned members only</b></div><div class="row"><span>Member</span><b>Own profile & services only</b></div><p class="muted">Joining date, membership plan, next fee date, expiry date and payment status remain controlled by Gym/Admin.</p></div><h1>Settings</h1><div class="card"><h3>Gym Profile</h3><div class="row"><span>Gym Name</span><b>AKHADA — The Lifestyle Gym</b></div><div class="row"><span>Payments</span><b>Razorpay / UPI</b></div><div class="row"><span>Member Self Registration</span><b class="green">ON</b></div><div class="row"><span>Member Login</span><b class="green">ON</b></div><div class="row"><span>Auto-disable after expiry</span><b class="green">ON</b></div><div class="row"><span>Staff Permissions</span><button class="btn light" data-go="staff">Manage</button></div></div></section>
+
+<section id="settings" class="page branding-settings-page">
+  <div class="header">
+    <div><h1>Settings</h1><p class="muted">Owner-only gym branding and application settings.</p></div>
+  </div>
+
+  <div class="card owner-branding-card">
+    <h3>Gym Branding</h3>
+    <p class="muted">Only Owner can change the gym name, tagline and logo. These settings will be used across the application where branding is displayed.</p>
+
+    <div class="branding-form">
+      <div>
+        <label><b>Gym Name</b></label>
+        <input id="brandGymName" value="AKHADA">
+      </div>
+      <div>
+        <label><b>Tagline</b></label>
+        <input id="brandTagline" value="The Lifestyle Gym">
+      </div>
+      <div class="branding-logo-field">
+        <label><b>Gym Logo</b></label>
+        <input id="brandLogoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+        <div class="logo-preview-wrap">
+          <img id="brandLogoPreview" alt="Logo preview">
+          <span id="brandLogoPlaceholder">No logo selected</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="branding-actions">
+      <button class="btn" onclick="resetBrandingPreview()">Reset Preview</button>
+      <button class="btn greenbtn" onclick="saveGymBranding()">Save Branding</button>
+    </div>
+    <p id="brandingStatus" class="muted"></p>
+  </div>
+
+  <div class="card">
+    <h3>Branding Permission</h3>
+    <p class="muted">Owner: Full access · Manager/Trainer/Member: Cannot change gym name, tagline or logo.</p>
+  </div>
+</section>
+
 
 
 <section id="memberhome" class="page"><div class="notice member-visible"><b>Member privacy:</b> Only your own profile, membership, attendance, payments, workout, diet and progress are visible.</div>
@@ -1999,6 +2059,53 @@ function memberPreviewGo(page){
   const nav=document.querySelectorAll(".member-nav")[map[page]??0];
   if(nav)nav.classList.add("active");
 }
+</script>
+
+<script>
+const BRAND_KEY="akhada_gym_branding";
+
+function getGymBranding(){
+  try{
+    return JSON.parse(localStorage.getItem(BRAND_KEY)||'{"name":"AKHADA","tagline":"The Lifestyle Gym","logo":""}');
+  }catch(e){
+    return {name:"AKHADA",tagline:"The Lifestyle Gym",logo:""};
+  }
+}
+function applyGymBranding(){
+  const b=getGymBranding();
+  document.querySelectorAll(".member-brand").forEach(el=>{
+    el.innerHTML=`${b.logo?`<img src="${b.logo}" alt="Gym Logo">`:""}<strong>${b.name||"AKHADA"}</strong><span>${b.tagline||""}</span>`;
+  });
+  const n=document.getElementById("brandGymName"),t=document.getElementById("brandTagline"),img=document.getElementById("brandLogoPreview"),ph=document.getElementById("brandLogoPlaceholder");
+  if(n)n.value=b.name||"AKHADA";
+  if(t)t.value=b.tagline||"The Lifestyle Gym";
+  if(img && b.logo){img.src=b.logo;img.style.display="block";if(ph)ph.style.display="none";}
+}
+function saveGymBranding(){
+  if((currentRole||"Owner")!=="Owner"){toast("Only Owner can change branding.");return;}
+  const name=(document.getElementById("brandGymName")?.value||"").trim()||"AKHADA";
+  const tagline=(document.getElementById("brandTagline")?.value||"").trim();
+  const file=document.getElementById("brandLogoFile")?.files?.[0];
+  const finish=(logo)=>{
+    localStorage.setItem(BRAND_KEY,JSON.stringify({name,tagline,logo:logo||getGymBranding().logo||""}));
+    applyGymBranding();
+    const s=document.getElementById("brandingStatus");if(s)s.textContent="Branding saved successfully.";
+    toast("Gym branding saved.");
+  };
+  if(file){
+    const r=new FileReader();
+    r.onload=()=>finish(r.result);
+    r.readAsDataURL(file);
+  }else finish("");
+}
+function resetBrandingPreview(){
+  const b=getGymBranding();
+  const n=document.getElementById("brandGymName"),t=document.getElementById("brandTagline");
+  if(n)n.value=b.name||"AKHADA";if(t)t.value=b.tagline||"The Lifestyle Gym";
+  const f=document.getElementById("brandLogoFile");if(f)f.value="";
+  applyGymBranding();
+}
+document.addEventListener("DOMContentLoaded",()=>setTimeout(applyGymBranding,100));
 </script>
 </body>
 </html>
