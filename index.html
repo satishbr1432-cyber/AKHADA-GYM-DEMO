@@ -128,6 +128,39 @@ body[data-role="trainer"] #settings{display:none !important}
 .expense-form textarea{min-height:80px;resize:vertical}
 .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
 </style>
+
+<style>
+.workout-assignment-top{display:grid;grid-template-columns:minmax(240px,1fr) 2fr;gap:18px;align-items:end;margin-bottom:18px}
+.workout-assignment-top label{display:block;margin-bottom:6px}
+.workout-assignment-top select,.weekly-workout-table select{width:100%;padding:10px;border:1px solid #ddd;border-radius:9px;background:#fff}
+.assignment-help{padding:12px 14px;background:#f7f7f7;border-radius:10px}
+.weekly-workout-table{overflow:auto;border:1px solid #e5e5e5;border-radius:12px}
+.week-row{display:grid;grid-template-columns:130px minmax(190px,1fr) minmax(240px,1.5fr) minmax(160px,1fr);gap:12px;align-items:center;padding:12px;border-top:1px solid #eee}
+.week-row:first-child{border-top:0}
+.week-head{font-weight:800;background:#fafafa}
+.holiday{display:block;color:#b42318;font-size:12px;margin-top:3px}
+.weekly-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.exercise-chip{background:#f4f4f4;border:1px solid #ddd;border-radius:999px;padding:5px 8px;font-size:12px}
+.exercise-picker{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:8px;max-height:55vh;overflow:auto}
+.exercise-option{display:flex;gap:10px;align-items:center;border:1px solid #e4e4e4;border-radius:10px;padding:9px;background:#fff;cursor:pointer}
+.exercise-option.selected{border-color:#d6a600;background:#fffaf0}
+.exercise-option input{width:18px;height:18px}
+.exercise-picture{font-size:28px;width:38px;text-align:center}
+.exercise-option small{display:block;color:#777;margin-top:2px}
+@media(max-width:900px){
+ .workout-assignment-top{grid-template-columns:1fr}
+ .week-row{grid-template-columns:110px 1fr}
+ .week-row>div:nth-child(3),.week-row>div:nth-child(4){grid-column:2}
+}
+</style>
+
+<style>
+.export-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+#importexport select,#importexport input[type=file]{width:100%;box-sizing:border-box;padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff;margin:6px 0 10px}
+#importexport .card{margin-bottom:16px}
+.nav-importexport{display:block}
+</style>
 </head>
 <body>
 <div class="app">
@@ -274,28 +307,55 @@ body[data-role="trainer"] #settings{display:none !important}
 </section>
 
 
+
 <section id="workout" class="page">
  <div class="header">
-  <div><h1>Workout Plans</h1><p class="muted">Trainer can add/change/remove an assigned member plan. Master template delete remains Owner-only. Pre-fed workout library. Trainer can assign/change a plan for an assigned member. Owner controls the master templates.</p></div>
-  <div class="actions trainer-workout-actions">
-   <button class="btn greenbtn owner-template-action" onclick="ownerCreateWorkoutTemplate()">＋ Add Workout</button>
+  <div>
+   <h1>Workout Plans</h1>
+   <p class="muted">Select a member first, then assign workout plan and/or multiple exercises for each day.</p>
+  </div>
+  <div class="actions">
+   <button class="btn greenbtn owner-template-action" onclick="ownerCreateWorkoutTemplate()">＋ Add Workout Plan</button>
   </div>
  </div>
+
  <div class="card">
-  <div class="workout-toolbar">
-   <select id="workoutCategory"></select>
-   <select id="workoutMember"></select>
-   <button class="btn" onclick="assignSelectedWorkout()">Assign to Member</button>
-  </div>
-  <div id="workoutTitle" class="diet-title"></div>
-  <div id="workoutTable" class="tablewrap"></div>
+  <div class="workout-assignment-top">
+   <div>
+    <label><b>Select Member</b></label>
+    <select id="weeklyWorkoutMember" onchange="loadWeeklyWorkout()"></select>
+   </div>
+   <div class="assignment-help">
+    <b>Assignment:</b> Choose a ready-made Plan, individual Exercises, or both.
+   </div>
  </div>
+
+ <div class="weekly-workout-table">
+  <div class="week-row week-head">
+   <div>Day</div><div>Workout Plan</div><div>Exercises</div><div>Preview</div>
+  </div>
+  <div class="week-row"><div><b>Sunday</b><span class="holiday">Holiday</span></div><div class="muted">Rest Day</div><div class="muted">—</div><div>😴 Rest</div></div>
+  <div class="week-row"><div><b>Monday</b></div><div><select id="plan-Monday"></select></div><div><button class="btn light" onclick="openExercisePicker('Monday')">Select Exercises</button><div id="chips-Monday" class="chips"></div></div><div id="preview-Monday">—</div></div>
+  <div class="week-row"><div><b>Tuesday</b></div><div><select id="plan-Tuesday"></select></div><div><button class="btn light" onclick="openExercisePicker('Tuesday')">Select Exercises</button><div id="chips-Tuesday" class="chips"></div></div><div id="preview-Tuesday">—</div></div>
+  <div class="week-row"><div><b>Wednesday</b></div><div><select id="plan-Wednesday"></select></div><div><button class="btn light" onclick="openExercisePicker('Wednesday')">Select Exercises</button><div id="chips-Wednesday" class="chips"></div></div><div id="preview-Wednesday">—</div></div>
+  <div class="week-row"><div><b>Thursday</b></div><div><select id="plan-Thursday"></select></div><div><button class="btn light" onclick="openExercisePicker('Thursday')">Select Exercises</button><div id="chips-Thursday" class="chips"></div></div><div id="preview-Thursday">—</div></div>
+  <div class="week-row"><div><b>Friday</b></div><div><select id="plan-Friday"></select></div><div><button class="btn light" onclick="openExercisePicker('Friday')">Select Exercises</button><div id="chips-Friday" class="chips"></div></div><div id="preview-Friday">—</div></div>
+  <div class="week-row"><div><b>Saturday</b></div><div><select id="plan-Saturday"></select></div><div><button class="btn light" onclick="openExercisePicker('Saturday')">Select Exercises</button><div id="chips-Saturday" class="chips"></div></div><div id="preview-Saturday">—</div></div>
+ </div>
+
+ <div class="weekly-actions">
+  <button class="btn" onclick="clearWeeklyWorkout()">Clear Week</button>
+  <button class="btn greenbtn" onclick="saveWeeklyWorkout()">Save Workout Assignment</button>
+ </div>
+ </div>
+
  <div class="card">
-  <h3>Workout Template Library</h3>
-  <p class="muted">Chest, Back, Shoulder, Biceps, Triceps, Leg, combination plans and weight-loss cardio circuits are pre-fed.</p>
+  <h3>Workout Plan Library</h3>
+  <p class="muted">Trainer can assign plans/exercises to members. Master template add/delete remains Owner-only.</p>
   <div id="workoutLibraryCards" class="template-grid"></div>
  </div>
 </section>
+
 
 
 
@@ -378,6 +438,67 @@ body[data-role="trainer"] #settings{display:none !important}
 
 <section id="notifications" class="page"><h1>Notifications</h1><div class="card"><div class="row"><span>🔴 5 memberships expired</span><b>Now</b></div><div class="row"><span>🟠 8 payments overdue</span><b>Today</b></div><div class="row"><span>🟡 12 memberships expiring this week</span><b>Today</b></div><div class="row"><span>🟢 ₹18,500 collected today</span><b>Today</b></div></div></section>
 
+
+<section id="importexport" class="page">
+  <div class="header">
+    <div>
+      <h1>Data Import / Export</h1>
+      <p class="muted">Backup, transfer and restore AKHADA data using Excel or CSV files.</p>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Export Data</h3>
+      <p class="muted">Download your selected data as Excel or CSV.</p>
+      <label><b>Select Data</b></label>
+      <select id="exportDataType">
+        <option value="members">Members</option>
+        <option value="attendance">Attendance</option>
+        <option value="payments">Billing & Payments</option>
+        <option value="expenses">Expenses</option>
+        <option value="salary">Staff Salary</option>
+        <option value="leads">Enquiries / Leads</option>
+        <option value="progress">Member Progress</option>
+        <option value="workouts">Workout Assignments</option>
+        <option value="diet">Diet Assignments</option>
+        <option value="all">All Available Data</option>
+      </select>
+      <div class="export-actions">
+        <button class="btn greenbtn" onclick="exportAKHADA('xlsx')">⬇ Export Excel (.xlsx)</button>
+        <button class="btn" onclick="exportAKHADA('csv')">⬇ Export CSV (.csv)</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Import Data</h3>
+      <p class="muted">Import members or other supported records from Excel/CSV. Existing records will not be silently deleted.</p>
+      <label><b>Data Type</b></label>
+      <select id="importDataType">
+        <option value="members">Members</option>
+        <option value="attendance">Attendance</option>
+        <option value="payments">Billing & Payments</option>
+        <option value="expenses">Expenses</option>
+        <option value="salary">Staff Salary</option>
+        <option value="leads">Enquiries / Leads</option>
+        <option value="progress">Member Progress</option>
+      </select>
+      <input id="akhadaImportFile" type="file" accept=".csv,.xlsx,.xls">
+      <button class="btn greenbtn" onclick="importAKHADAFile()">⬆ Import File</button>
+      <div id="importStatus" class="muted"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Backup & Safety</h3>
+    <ul>
+      <li>Export can be used as a regular backup.</li>
+      <li>Import will validate the selected data type before processing.</li>
+      <li>Financial records remain subject to Owner-only edit/delete permissions.</li>
+      <li>Import/restore actions should be restricted to Owner in the production version.</li>
+    </ul>
+  </div>
+</section>
 <section id="settings" class="page">
 <div class="card role-note"><h3>Trainer / Member dashboard privacy</h3>
 <p class="muted">Pending Dues and Today's Collection are Owner/Manager financial information. They are hidden from Trainer and Member accounts.</p></div>
@@ -682,8 +803,8 @@ function saveExpense(type){
 
 
 const roles={
- Owner:["dashboard","members","plans","attendance","billing","dues","inquiries","batches","staff","trainers","workout","diet","progress","expenses","messages","reports","notifications","settings","memberapp"],
- Manager:["dashboard","members","plans","attendance","billing","dues","inquiries","batches","trainers","workout","diet","progress","reports","notifications"],
+ Owner:["dashboard","members","plans","attendance","billing","dues","inquiries","batches","staff","trainers","workout","diet","progress","expenses","messages","reports","notifications","settings","memberapp","importexport"],
+ Manager:["dashboard","members","plans","attendance","billing","dues","inquiries","batches","trainers","workout","diet","progress","reports","notifications","importexport"],
  Trainer:["dashboard","members","attendance","trainers","workout","diet","progress"],
  Member:["memberhome","memberapp","attendance","progress","billing"]
 };
@@ -1176,6 +1297,178 @@ function enforceAssignedMemberPages(){
       if(["workout","diet"].includes(p.id)) p.classList.remove("active");
     });
   }
+}
+</script>
+
+<script>
+const weeklyDays=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const weeklyExercises = [
+ ["Incline Chest Press","Chest","🏋️"],
+ ["Chest Press","Chest","🏋️"],
+ ["Pec Fly","Chest","🏋️"],
+ ["Cable Crossover","Chest","🔗"],
+ ["Lat Pulldown","Back","🏋️"],
+ ["Seated Row","Back","🏋️"],
+ ["Cable Row","Back","🔗"],
+ ["Back Extension","Back","🏋️"],
+ ["Shoulder Press","Shoulder","🏋️"],
+ ["Lateral Raise","Shoulder","🏋️"],
+ ["Rear Delt / Reverse Fly","Shoulder","🏋️"],
+ ["Cable Face Pull","Shoulder","🔗"],
+ ["Cable Biceps Curl","Biceps","🔗"],
+ ["Preacher Curl","Biceps","🏋️"],
+ ["Dumbbell Curl","Biceps","🏋️"],
+ ["Hammer Curl","Biceps","🏋️"],
+ ["Cable Triceps Pushdown","Triceps","🔗"],
+ ["Overhead Cable Extension","Triceps","🔗"],
+ ["Assisted Dip / Dip","Triceps","🏋️"],
+ ["Dumbbell Overhead Extension","Triceps","🏋️"],
+ ["Leg Press","Leg","🏋️"],
+ ["Leg Extension","Leg","🏋️"],
+ ["Leg Curl","Leg","🏋️"],
+ ["Calf Raise","Leg","🏋️"],
+ ["Treadmill","Weight Loss","🏃"],
+ ["SKI","Weight Loss","⛷️"],
+ ["Cycle","Weight Loss","🚴"],
+ ["Cross Trainer","Weight Loss","🏃"],
+ ["Hammer Strength Circuit","Weight Loss","🏋️"]
+];
+let weeklyDraft={};
+
+function initWeeklyWorkout(){
+ const sel=document.getElementById("weeklyWorkoutMember");
+ if(!sel)return;
+ sel.innerHTML='<option value="">Select Member</option>'+membersForPlans.map(x=>`<option>${x}</option>`).join("");
+ weeklyDays.forEach(d=>{
+   const s=document.getElementById("plan-"+d);
+   if(s)s.innerHTML='<option value="">No Plan</option>'+workoutCats.map(x=>`<option value="${x.replace(/"/g,'&quot;')}">${x}</option>`).join("");
+ });
+ document.querySelectorAll('[id^="plan-"]').forEach(s=>s.addEventListener("change",()=>updateWeeklyPreview(s.id.replace("plan-",""))));
+ renderWeeklyLibrary();
+}
+function loadWeeklyWorkout(){
+ const m=document.getElementById("weeklyWorkoutMember")?.value;
+ weeklyDraft=(getAssignedPlans()[m]?.weeklyWorkout)||{};
+ weeklyDays.forEach(d=>{
+   const plan=weeklyDraft[d]?.plan||"";
+   const s=document.getElementById("plan-"+d); if(s)s.value=plan;
+   renderExerciseChips(d);
+   updateWeeklyPreview(d);
+ });
+}
+function updateWeeklyPreview(day){
+ const plan=document.getElementById("plan-"+day)?.value||"";
+ const ex=weeklyDraft[day]?.exercises||[];
+ weeklyDraft[day]={...(weeklyDraft[day]||{}),plan,exercises:ex};
+ const p=document.getElementById("preview-"+day);
+ if(p)p.innerHTML=(plan||ex.length)?`${plan?`<b>${plan}</b>`:""}${ex.length?`<div>${ex.length} exercise${ex.length>1?"s":""} selected</div>`:""}`:"—";
+}
+function openExercisePicker(day){
+ const selected=new Set(weeklyDraft[day]?.exercises||[]);
+ const content=`
+  <h2>Select Exercises — ${day}</h2>
+  <p class="muted">You can select multiple exercises. Plan, exercises, or both can be assigned.</p>
+  <div class="exercise-picker">${weeklyExercises.map(([name,group,pic],i)=>`
+   <label class="exercise-option ${selected.has(name)?"selected":""}">
+    <input type="checkbox" value="${name}" ${selected.has(name)?"checked":""}>
+    <span class="exercise-picture">${pic}</span>
+    <span><b>${name}</b><small>${group}</small></span>
+   </label>`).join("")}</div>
+  <div class="modal-actions">
+   <button class="btn" onclick="closeAnyModal()">Cancel</button>
+   <button class="btn greenbtn" onclick="saveExerciseSelection('${day}')">Use Selected Exercises</button>
+  </div>`;
+ openAnyModal(content);
+}
+function saveExerciseSelection(day){
+ const vals=[...document.querySelectorAll(".exercise-picker input:checked")].map(x=>x.value);
+ weeklyDraft[day]={...(weeklyDraft[day]||{}),exercises:vals};
+ closeAnyModal(); renderExerciseChips(day); updateWeeklyPreview(day);
+}
+function renderExerciseChips(day){
+ const box=document.getElementById("chips-"+day);
+ const ex=weeklyDraft[day]?.exercises||[];
+ if(box)box.innerHTML=ex.map(n=>{const e=weeklyExercises.find(x=>x[0]===n);return `<span class="exercise-chip">${e?e[2]:"🏋️"} ${n}</span>`}).join("");
+}
+function clearWeeklyWorkout(){
+ weeklyDraft={};
+ weeklyDays.forEach(d=>{
+   const s=document.getElementById("plan-"+d);if(s)s.value="";
+   renderExerciseChips(d);updateWeeklyPreview(d);
+ });
+}
+function saveWeeklyWorkout(){
+ const m=document.getElementById("weeklyWorkoutMember")?.value;
+ if(!m){toast("Please select a member first.");return;}
+ const has=weeklyDays.some(d=>(weeklyDraft[d]?.plan)||((weeklyDraft[d]?.exercises||[]).length));
+ if(!has){toast("Select at least one workout plan or exercise.");return;}
+ const all=getAssignedPlans();all[m]=all[m]||{};
+ all[m].weeklyWorkout=JSON.parse(JSON.stringify(weeklyDraft));
+ all[m].weeklyWorkout.updatedBy=currentRole||"Owner";
+ all[m].weeklyWorkout.updatedAt=new Date().toISOString();
+ setAssignedPlans(all);
+ toast("Weekly workout saved for "+m);
+}
+function renderWeeklyLibrary(){
+ const box=document.getElementById("workoutLibraryCards");
+ if(box)box.innerHTML=workoutCats.map(x=>`<button class="template-card" onclick="document.getElementById('plan-Monday').value='${x.replace(/'/g,"\\'")}';updateWeeklyPreview('Monday')">${x}</button>`).join("");
+}
+document.addEventListener("DOMContentLoaded",initWeeklyWorkout);
+</script>
+
+<script>
+function akhadaDemoRows(type){
+  const saved = {
+    salary: JSON.parse(localStorage.getItem("akhada_salary_entries")||"[]"),
+    expenses: JSON.parse(localStorage.getItem("akhada_expense_entries")||"[]"),
+    assigned: JSON.parse(localStorage.getItem("akhada_assigned_plans")||"{}")
+  };
+  if(type==="members") return [
+    {Name:"Rahul Kumar",Mobile:"98XXXXXX210",Plan:"Quarterly",JoinDate:"19/08/2026",Expiry:"18/11/2026"},
+    {Name:"Priya Sharma",Mobile:"98XXXXXX733",Plan:"Yearly",JoinDate:"12/08/2026",Expiry:"11/08/2027"},
+    {Name:"Amit Singh",Mobile:"98XXXXXX414",Plan:"Monthly",JoinDate:"19/08/2026",Expiry:"18/09/2026"}
+  ];
+  if(type==="salary") return saved.salary.length?saved.salary:[{Date:"05/08/2026",StaffName:"Raj Kumar",Month:"08/2026",Amount:25000,Mode:"Bank Transfer"}];
+  if(type==="expenses") return saved.expenses.length?saved.expenses:[{Date:"08/08/2026",Category:"Electricity",Vendor:"NBPDCL",Amount:12500,Mode:"UPI"}];
+  if(type==="workouts") return Object.entries(saved.assigned).map(([member,v])=>({Member:member,Workout: v.weeklyWorkout?"Weekly Assigned":"Not Assigned"}));
+  if(type==="diet") return Object.entries(saved.assigned).map(([member,v])=>({Member:member,Diet:v.diet?`${v.diet.calories} ${v.diet.type}`:"Not Assigned"}));
+  return [{Info:"Demo export – connect production database for complete live records."}];
+}
+function csvEscape(v){const s=String(v??"");return `"${s.replace(/"/g,'""')}"`;}
+function rowsToCSV(rows){
+  if(!rows.length)return "";
+  const keys=[...new Set(rows.flatMap(r=>Object.keys(r)))];
+  return [keys.map(csvEscape).join(","),...rows.map(r=>keys.map(k=>csvEscape(r[k])).join(","))].join("\n");
+}
+function downloadBlob(text,name,type){
+  const blob=new Blob([text],{type}); const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),500);
+}
+function exportAKHADA(format){
+  if(!["Owner","Manager"].includes(currentRole||"Owner")){toast("Export is available only to Owner/Manager.");return;}
+  const type=document.getElementById("exportDataType")?.value||"members";
+  const rows=type==="all"?[].concat(...["members","salary","expenses","workouts","diet"].map(akhadaDemoRows)):akhadaDemoRows(type);
+  if(format==="csv"){
+    downloadBlob(rowsToCSV(rows),`AKHADA_${type}_${new Date().toISOString().slice(0,10)}.csv`,"text/csv;charset=utf-8");
+    toast("CSV exported.");
+    return;
+  }
+  // Excel-compatible SpreadsheetML; opens directly in Excel.
+  const keys=[...new Set(rows.flatMap(r=>Object.keys(r)))];
+  const xmlRows=[`<Row>${keys.map(k=>`<Cell><Data ss:Type="String">${String(k).replace(/&/g,"&amp;").replace(/</g,"&lt;")}</Data></Cell>`).join("")}</Row>`]
+    .concat(rows.map(r=>`<Row>${keys.map(k=>`<Cell><Data ss:Type="String">${String(r[k]??"").replace(/&/g,"&amp;").replace(/</g,"&lt;")}</Data></Cell>`).join("")}</Row>`));
+  const xml=`<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="${type}"><Table>${xmlRows.join("")}</Table></Worksheet></Workbook>`;
+  downloadBlob(xml,`AKHADA_${type}_${new Date().toISOString().slice(0,10)}.xls`,"application/vnd.ms-excel");
+  toast("Excel file exported.");
+}
+function importAKHADAFile(){
+  if((currentRole||"Owner")!=="Owner"){toast("Only Owner can import/restore data.");return;}
+  const file=document.getElementById("akhadaImportFile")?.files?.[0];
+  if(!file){toast("Please select a CSV or Excel file.");return;}
+  const type=document.getElementById("importDataType")?.value||"members";
+  document.getElementById("importStatus").textContent=`Selected ${file.name} for ${type}. Production import will validate columns before writing to the database.`;
+  toast("Import file selected and ready for validation.");
 }
 </script>
 </body>
