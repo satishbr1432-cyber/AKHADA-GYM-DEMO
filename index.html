@@ -428,18 +428,69 @@ body.modal-open{overflow:hidden!important}
 @media(max-width:900px){.food-master-list{grid-template-columns:1fr 1fr}}
 </style>
 
-<style id="akhada-page-visibility-final-fix">
-/* FINAL PAGE VISIBILITY FIX
-   Settings/branding is a page, not a global footer/card. */
-main.main > section.page{display:none!important}
-main.main > section.page.active{display:block!important}
 
-/* Branding editor exists only inside the Settings page. */
-main.main > section.page:not(#settings) .owner-branding-card,
-main.main > section.page:not(#settings) .branding-form,
-main.main > section.page:not(#settings) .branding-settings-page{
+
+<style id="akhada-page-visibility-safe-fix">
+/* Safe navigation: only the existing .active page is visible. */
+.page{display:none}
+.page.active{display:block}
+/* Branding editor is contained only inside Settings; never force its parent visible. */
+.branding-settings-page{display:none}
+.branding-settings-page.active{display:block}
+</style>
+
+<style id="akhada-final-layout-stability">
+/* ===== FINAL LAYOUT STABILITY ===== */
+html,body{min-height:100%;overflow-x:hidden}
+.app{min-height:100vh}
+
+/* Desktop + iPad/tablet */
+@media (min-width:768px){
+  .sidebar{
+    display:block!important;
+    position:fixed!important;
+    left:0!important;top:0!important;bottom:0!important;
+    width:245px!important;
+    background:#101214!important;
+    color:#fff!important;
+    z-index:100!important;
+    overflow:auto!important;
+  }
+  .main{
+    display:block!important;
+    margin-left:245px!important;
+    padding:24px!important;
+    max-width:1500px!important;
+    min-height:100vh;
+  }
+  .mobilebar{display:none!important}
+  .page{display:none!important}
+  .page.active{display:block!important}
+}
+
+/* Phone */
+@media (max-width:767px){
+  .sidebar{display:none!important}
+  .main{
+    display:block!important;
+    margin-left:0!important;
+    padding:16px 14px 82px!important;
+    min-height:100vh;
+  }
+  .mobilebar{display:flex!important}
+  .page{display:none!important}
+  .page.active{display:block!important}
+}
+
+/* Branding editor is only allowed inside Settings */
+.page:not(#settings) .owner-branding-card,
+.page:not(#settings) .branding-form,
+.page:not(#settings) .branding-settings-page{
   display:none!important;
 }
+
+/* Never force the Settings page itself to render globally. */
+.branding-settings-page{display:block}
 </style>
 </head>
 <body>
