@@ -344,6 +344,80 @@ body[data-role="trainer"] #settings{display:none !important}
   line-height:1!important;
 }
 </style>
+
+<style>
+.exercise-prescription-panel{margin-top:10px;background:#fbfbfb;border:1px solid #e5e5e5;border-radius:10px;padding:10px}
+.prescription-title{font-weight:800;margin-bottom:8px}
+.prescription-list{display:grid;gap:7px}
+.prescription-row{display:grid;grid-template-columns:minmax(220px,2fr) 75px 105px 135px 95px;gap:8px;align-items:end;background:#fff;border:1px solid #e7e7e7;border-radius:9px;padding:9px}
+.exercise-name-cell{display:flex;gap:8px;align-items:center}.exercise-name-cell small{display:block;color:#777;margin-top:2px;font-size:11px}
+.exercise-icon{font-size:24px}
+.prescription-row label{font-size:10px;color:#777;font-weight:700}.prescription-row input{display:block;width:100%;box-sizing:border-box;margin-top:3px;padding:7px;border:1px solid #ddd;border-radius:7px;font-size:12px}
+.empty-prescription{padding:12px;color:#777;text-align:center}
+@media(max-width:900px){.prescription-row{grid-template-columns:1fr 70px 95px 120px 85px;min-width:650px}.exercise-prescription-panel{overflow-x:auto}}
+</style>
+
+<style>
+/* FINAL FIX: dynamic forms must be true modal overlays, never appear at page bottom */
+#customModal{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100vh!important;
+  box-sizing:border-box!important;
+  display:none;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:20px!important;
+  background:rgba(0,0,0,.48)!important;
+  z-index:2147483000!important;
+  overflow:auto!important;
+}
+#customModal[style*="display: flex"],
+#customModal[style*="display:flex"]{
+  display:flex!important;
+}
+#customModal .modalbox{
+  position:relative!important;
+  width:min(620px,calc(100vw - 40px))!important;
+  max-height:90vh!important;
+  overflow:auto!important;
+  box-sizing:border-box!important;
+  background:#fff!important;
+  border-radius:16px!important;
+  padding:22px!important;
+  box-shadow:0 20px 60px rgba(0,0,0,.25)!important;
+}
+#customModal .modalbox h2{margin-top:0}
+#customModal .modalbox .modal-actions{
+  display:flex;justify-content:flex-end;gap:10px;margin-top:16px;
+}
+body.modal-open{overflow:hidden!important}
+</style>
+
+<style>
+.akhada-diet-five-meal-section{margin:16px 0}
+.akhada-five-meal-grid{display:grid;grid-template-columns:95px repeat(5,minmax(190px,1fr));min-width:1040px;border:1px solid #e5e5e5;border-radius:14px;overflow:hidden;background:#fff}
+.diet5-head{padding:12px;text-align:center;font-weight:800;background:#f7f7f7;border-right:1px solid #eee;border-bottom:1px solid #eee}
+.diet5-day{padding:12px;background:#fbfbfb;border-right:1px solid #eee;border-bottom:1px solid #eee}
+.diet5-day small{display:block;color:#b44;margin-top:4px}
+.diet5-cell{min-height:125px;padding:10px;border-right:1px solid #eee;border-bottom:1px solid #eee;vertical-align:top}
+.diet-add-working{border:1px dashed #bbb;background:#fafafa;border-radius:8px;padding:7px 10px;cursor:pointer;font-size:12px}
+.meal-cell-top{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px}
+.assigned-food{display:grid;grid-template-columns:22px 1fr 22px;gap:5px;align-items:center;padding:7px;border:1px solid #eee;border-radius:8px;margin-top:6px;background:#fcfcfc}
+.assigned-food small{display:block;color:#777;font-size:10px;margin-top:2px}
+.assigned-food button{border:0;background:transparent;cursor:pointer;font-size:17px;color:#888}
+.empty-meal{display:block;color:#999;font-size:11px;margin-top:8px}
+.working-food-overlay{position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:18px}
+.working-food-modal{position:relative;background:#fff;width:min(760px,calc(100vw - 28px));max-height:90vh;overflow:auto;border-radius:16px;padding:22px;box-sizing:border-box}
+.working-food-close{position:absolute;right:10px;top:8px;width:38px;height:38px;border:0;background:transparent;font-size:28px;cursor:pointer}
+.working-food-results{display:grid;gap:7px;margin-top:10px}
+.working-food-item{display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;border:1px solid #e7e7e7;border-radius:10px;padding:9px}
+.food-main span,.food-main small{display:block;color:#777;margin-top:2px}.food-main small{font-size:11px}
+.food-add-controls{display:flex;gap:6px;align-items:center}.food-add-controls input{width:70px;padding:8px;border:1px solid #ddd;border-radius:7px}
+.working-food-footer{display:flex;justify-content:flex-end;margin-top:14px}
+@media(max-width:900px){.akhada-five-meal-grid{min-width:1040px}.working-food-item{grid-template-columns:30px 1fr}.food-add-controls{grid-column:2}}
+</style>
 </head>
 <body>
 <div class="app">
@@ -516,12 +590,12 @@ body[data-role="trainer"] #settings{display:none !important}
    <div class="weekly-workout-table">
     <div class="week-row week-head"><div>Day</div><div>Workout Plan</div><div>Exercises</div><div>Preview</div></div>
     <div class="week-row"><div><b>Sunday</b><span class="holiday">Holiday</span></div><div>Rest Day</div><div>—</div><div>😴 Rest</div></div>
-    <div class="week-row" data-day="Monday"><div><b>Monday</b></div><div><select class="day-plan" id="verified-plan-Monday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Monday')">Select Multiple Exercises</button><div id="verified-chips-Monday" class="chips"></div></div><div id="verified-preview-Monday">—</div></div>
-    <div class="week-row" data-day="Tuesday"><div><b>Tuesday</b></div><div><select class="day-plan" id="verified-plan-Tuesday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Tuesday')">Select Multiple Exercises</button><div id="verified-chips-Tuesday" class="chips"></div></div><div id="verified-preview-Tuesday">—</div></div>
-    <div class="week-row" data-day="Wednesday"><div><b>Wednesday</b></div><div><select class="day-plan" id="verified-plan-Wednesday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Wednesday')">Select Multiple Exercises</button><div id="verified-chips-Wednesday" class="chips"></div></div><div id="verified-preview-Wednesday">—</div></div>
-    <div class="week-row" data-day="Thursday"><div><b>Thursday</b></div><div><select class="day-plan" id="verified-plan-Thursday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Thursday')">Select Multiple Exercises</button><div id="verified-chips-Thursday" class="chips"></div></div><div id="verified-preview-Thursday">—</div></div>
-    <div class="week-row" data-day="Friday"><div><b>Friday</b></div><div><select class="day-plan" id="verified-plan-Friday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Friday')">Select Multiple Exercises</button><div id="verified-chips-Friday" class="chips"></div></div><div id="verified-preview-Friday">—</div></div>
-    <div class="week-row" data-day="Saturday"><div><b>Saturday</b></div><div><select class="day-plan" id="verified-plan-Saturday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Saturday')">Select Multiple Exercises</button><div id="verified-chips-Saturday" class="chips"></div></div><div id="verified-preview-Saturday">—</div></div>
+    <div class="week-row" data-day="Monday"><div><b>Monday</b></div><div><select class="day-plan" id="verified-plan-Monday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Monday')">Select Multiple Exercises</button><div class="exercise-prescription-panel"><div class="prescription-title">Plan Exercises & Prescription</div><div id="exercise-list-Monday" class="prescription-list"><div class="empty-prescription">Select a workout plan to load exercises.</div></div></div><div id="verified-chips-Monday" class="chips"></div></div><div id="verified-preview-Monday">—</div></div>
+    <div class="week-row" data-day="Tuesday"><div><b>Tuesday</b></div><div><select class="day-plan" id="verified-plan-Tuesday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Tuesday')">Select Multiple Exercises</button><div class="exercise-prescription-panel"><div class="prescription-title">Plan Exercises & Prescription</div><div id="exercise-list-Tuesday" class="prescription-list"><div class="empty-prescription">Select a workout plan to load exercises.</div></div></div><div id="verified-chips-Tuesday" class="chips"></div></div><div id="verified-preview-Tuesday">—</div></div>
+    <div class="week-row" data-day="Wednesday"><div><b>Wednesday</b></div><div><select class="day-plan" id="verified-plan-Wednesday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Wednesday')">Select Multiple Exercises</button><div class="exercise-prescription-panel"><div class="prescription-title">Plan Exercises & Prescription</div><div id="exercise-list-Wednesday" class="prescription-list"><div class="empty-prescription">Select a workout plan to load exercises.</div></div></div><div id="verified-chips-Wednesday" class="chips"></div></div><div id="verified-preview-Wednesday">—</div></div>
+    <div class="week-row" data-day="Thursday"><div><b>Thursday</b></div><div><select class="day-plan" id="verified-plan-Thursday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Thursday')">Select Multiple Exercises</button><div class="exercise-prescription-panel"><div class="prescription-title">Plan Exercises & Prescription</div><div id="exercise-list-Thursday" class="prescription-list"><div class="empty-prescription">Select a workout plan to load exercises.</div></div></div><div id="verified-chips-Thursday" class="chips"></div></div><div id="verified-preview-Thursday">—</div></div>
+    <div class="week-row" data-day="Friday"><div><b>Friday</b></div><div><select class="day-plan" id="verified-plan-Friday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Friday')">Select Multiple Exercises</button><div class="exercise-prescription-panel"><div class="prescription-title">Plan Exercises & Prescription</div><div id="exercise-list-Friday" class="prescription-list"><div class="empty-prescription">Select a workout plan to load exercises.</div></div></div><div id="verified-chips-Friday" class="chips"></div></div><div id="verified-preview-Friday">—</div></div>
+    <div class="week-row" data-day="Saturday"><div><b>Saturday</b></div><div><select class="day-plan" id="verified-plan-Saturday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Saturday')">Select Multiple Exercises</button><div class="exercise-prescription-panel"><div class="prescription-title">Plan Exercises & Prescription</div><div id="exercise-list-Saturday" class="prescription-list"><div class="empty-prescription">Select a workout plan to load exercises.</div></div></div><div id="verified-chips-Saturday" class="chips"></div></div><div id="verified-preview-Saturday">—</div></div>
    </div>
    <div class="weekly-actions"><button class="btn" onclick="clearVerifiedWeek()">Clear Week</button><button class="btn greenbtn" onclick="saveVerifiedWorkout()">Save Weekly Workout</button></div>
   </div>
@@ -541,7 +615,72 @@ body[data-role="trainer"] #settings{display:none !important}
 
 
 
-<section id="diet" class="page">
+
+    <section class="akhada-diet-five-meal-section">
+      <div class="section-heading">
+        <h2>Weekly Diet Assignment</h2>
+        <p class="muted">Every day has 5 meal slots: Breakfast · Morning Snack · Lunch · Evening Snack · Dinner.</p>
+      </div>
+      <div class="akhada-five-meal-grid">
+        <div class="diet5-head">Day</div>
+        <div class="diet5-head">🍳 Breakfast</div>
+        <div class="diet5-head">🍎 Morning Snack</div>
+        <div class="diet5-head">🍱 Lunch</div>
+        <div class="diet5-head">🥤 Evening Snack</div>
+        <div class="diet5-head">🍽️ Dinner</div>
+        
+        <div class="diet5-day"><b>Sunday</b><small>Holiday</small></div>
+        <div class="diet5-cell" id="akhada-diet-Sunday-Breakfast"><button class="diet-add-working" onclick="openWorkingFoodPicker('Sunday','Breakfast')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Sunday-MorningSnack"><button class="diet-add-working" onclick="openWorkingFoodPicker('Sunday','Morning Snack')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Sunday-Lunch"><button class="diet-add-working" onclick="openWorkingFoodPicker('Sunday','Lunch')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Sunday-EveningSnack"><button class="diet-add-working" onclick="openWorkingFoodPicker('Sunday','Evening Snack')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Sunday-Dinner"><button class="diet-add-working" onclick="openWorkingFoodPicker('Sunday','Dinner')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        
+        <div class="diet5-day"><b>Monday</b></div>
+        <div class="diet5-cell" id="akhada-diet-Monday-Breakfast"><button class="diet-add-working" onclick="openWorkingFoodPicker('Monday','Breakfast')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Monday-MorningSnack"><button class="diet-add-working" onclick="openWorkingFoodPicker('Monday','Morning Snack')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Monday-Lunch"><button class="diet-add-working" onclick="openWorkingFoodPicker('Monday','Lunch')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Monday-EveningSnack"><button class="diet-add-working" onclick="openWorkingFoodPicker('Monday','Evening Snack')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Monday-Dinner"><button class="diet-add-working" onclick="openWorkingFoodPicker('Monday','Dinner')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        
+        <div class="diet5-day"><b>Tuesday</b></div>
+        <div class="diet5-cell" id="akhada-diet-Tuesday-Breakfast"><button class="diet-add-working" onclick="openWorkingFoodPicker('Tuesday','Breakfast')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Tuesday-MorningSnack"><button class="diet-add-working" onclick="openWorkingFoodPicker('Tuesday','Morning Snack')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Tuesday-Lunch"><button class="diet-add-working" onclick="openWorkingFoodPicker('Tuesday','Lunch')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Tuesday-EveningSnack"><button class="diet-add-working" onclick="openWorkingFoodPicker('Tuesday','Evening Snack')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Tuesday-Dinner"><button class="diet-add-working" onclick="openWorkingFoodPicker('Tuesday','Dinner')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        
+        <div class="diet5-day"><b>Wednesday</b></div>
+        <div class="diet5-cell" id="akhada-diet-Wednesday-Breakfast"><button class="diet-add-working" onclick="openWorkingFoodPicker('Wednesday','Breakfast')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Wednesday-MorningSnack"><button class="diet-add-working" onclick="openWorkingFoodPicker('Wednesday','Morning Snack')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Wednesday-Lunch"><button class="diet-add-working" onclick="openWorkingFoodPicker('Wednesday','Lunch')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Wednesday-EveningSnack"><button class="diet-add-working" onclick="openWorkingFoodPicker('Wednesday','Evening Snack')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Wednesday-Dinner"><button class="diet-add-working" onclick="openWorkingFoodPicker('Wednesday','Dinner')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        
+        <div class="diet5-day"><b>Thursday</b></div>
+        <div class="diet5-cell" id="akhada-diet-Thursday-Breakfast"><button class="diet-add-working" onclick="openWorkingFoodPicker('Thursday','Breakfast')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Thursday-MorningSnack"><button class="diet-add-working" onclick="openWorkingFoodPicker('Thursday','Morning Snack')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Thursday-Lunch"><button class="diet-add-working" onclick="openWorkingFoodPicker('Thursday','Lunch')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Thursday-EveningSnack"><button class="diet-add-working" onclick="openWorkingFoodPicker('Thursday','Evening Snack')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Thursday-Dinner"><button class="diet-add-working" onclick="openWorkingFoodPicker('Thursday','Dinner')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        
+        <div class="diet5-day"><b>Friday</b></div>
+        <div class="diet5-cell" id="akhada-diet-Friday-Breakfast"><button class="diet-add-working" onclick="openWorkingFoodPicker('Friday','Breakfast')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Friday-MorningSnack"><button class="diet-add-working" onclick="openWorkingFoodPicker('Friday','Morning Snack')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Friday-Lunch"><button class="diet-add-working" onclick="openWorkingFoodPicker('Friday','Lunch')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Friday-EveningSnack"><button class="diet-add-working" onclick="openWorkingFoodPicker('Friday','Evening Snack')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Friday-Dinner"><button class="diet-add-working" onclick="openWorkingFoodPicker('Friday','Dinner')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        
+        <div class="diet5-day"><b>Saturday</b></div>
+        <div class="diet5-cell" id="akhada-diet-Saturday-Breakfast"><button class="diet-add-working" onclick="openWorkingFoodPicker('Saturday','Breakfast')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Saturday-MorningSnack"><button class="diet-add-working" onclick="openWorkingFoodPicker('Saturday','Morning Snack')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Saturday-Lunch"><button class="diet-add-working" onclick="openWorkingFoodPicker('Saturday','Lunch')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Saturday-EveningSnack"><button class="diet-add-working" onclick="openWorkingFoodPicker('Saturday','Evening Snack')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        <div class="diet5-cell" id="akhada-diet-Saturday-Dinner"><button class="diet-add-working" onclick="openWorkingFoodPicker('Saturday','Dinner')">＋ Add Food</button><span class="empty-meal">No food assigned</span></div>
+        
+      </div>
+    </section>
+    <section id="diet" class="page">
  <div class="header">
   <div>
    <h1>Diet Plans</h1>
@@ -955,509 +1094,6 @@ function openInquiry(i){
 }
 function openInquiryByName(name){const i=inquiries.findIndex(x=>x.name===name);if(i>=0)openInquiry(i)}
 function convertInquiry(i){closeModal();toast(inquiries[i].name+" converted to Member in demo");go("members")}
-function openCustom(content){document.getElementById("modalTitle").textContent="Details";document.getElementById("modalBody").innerHTML=content;document.getElementById("modalBack").classList.add("open")}
-function openModal(type){
- const titles={member:"Add Member",plan:"Create Membership Plan",payment:"Collect Fee",lead:"Add Potential Member",batch:"Add Batch",staff:"Invite Staff",trainer:"Add Trainer",workout:"Workout Plan",diet:"Diet Plan",progress:"Add Progress",expense:"Add Expense",message:"Send Message",renew:"Renew Membership"};
- document.getElementById("modalTitle").textContent=titles[type]||"Form";
- let c="";
- if(type==="member") c=`<label>Photo</label><input type="file" accept="image/*"><label>First Name</label><input placeholder="Rahul"><label>Last Name</label><input placeholder="Sharma"><label>Mobile</label><input placeholder="+91 98765 43210"><label>Email</label><input placeholder="email@example.com"><label>Membership Plan</label><select><option>Monthly — ₹1,000</option><option>Quarterly — ₹2,500</option><option>Half-Yearly — ₹4,500</option><option>Yearly — ₹8,000</option></select><label>Joining Date</label><input type="date"><label>Membership Start Date</label><input type="date"><label>Next Fee Date</label><input type="date"><label>Expiry Date</label><input type="date"><label>Trainer</label><select><option>Raj Kumar</option><option>Amit Verma</option></select><button class="btn greenbtn" onclick="saveDemo('Member')">Save Member</button>`;
- else if(type==="plan") c=`<input placeholder="Plan Name"><input placeholder="Amount ₹"><input placeholder="Duration in days"><textarea placeholder="Plan features"></textarea><button class="btn greenbtn" onclick="saveDemo('Membership Plan')">Create Plan</button>`;
- else if(type==="payment") c=`<select>${members.map(m=>`<option>${m.name}</option>`).join("")}</select><input placeholder="Amount ₹"><select><option>UPI</option><option>Cash</option><option>Card</option></select><input type="date"><button class="btn greenbtn" onclick="saveDemo('Payment')">Save Payment</button>`;
- else if(type==="lead") c=`<input id="inqName" placeholder="Full Name"><input id="inqPhone" placeholder="Phone"><input placeholder="Email"><select id="inqSource"><option>Website</option><option>Referral</option><option>Walk-in</option><option>Social media</option><option>Manual</option></select><select id="inqStage"><option>New</option><option>Contacted</option><option>Trial</option><option>Converted</option><option>Lost</option></select><select id="inqPlan"><option>Monthly</option><option>Quarterly</option><option>Half-Yearly</option><option>Yearly</option></select><label>Next Follow-up</label><input id="inqFollow" type="date"><textarea id="inqNotes" placeholder="Notes"></textarea><button class="btn greenbtn" onclick="saveInquiry()">Save Enquiry</button>`;
- else if(type==="batch") c=`<input placeholder="Batch Name"><label>Start Time</label><input type="time"><label>End Time</label><input type="time"><input placeholder="Capacity"><select><option>Raj Kumar</option><option>Amit Verma</option></select><button class="btn greenbtn" onclick="saveDemo('Batch')">Save Batch</button>`;
- else if(type==="staff") c=`<input placeholder="First Name"><input placeholder="Last Name"><input placeholder="Email"><select><option>Trainer</option><option>Manager</option><option>Receptionist</option></select><button class="btn greenbtn" onclick="saveDemo('Staff invitation')">Send Invite</button>`;
- else if(type==="trainer") c=`<input placeholder="Trainer Name"><input placeholder="Phone"><select><option>Active</option><option>Inactive</option></select><button class="btn greenbtn" onclick="saveDemo('Trainer')">Save Trainer</button>`;
- else if(type==="workout") c=`<input placeholder="Member Name"><input placeholder="Workout Name"><textarea placeholder="Exercises, sets, reps..."></textarea><button class="btn greenbtn" onclick="saveDemo('Workout Plan')">Save & Assign</button>`;
- else if(type==="diet") c=`<input placeholder="Member Name"><input placeholder="Goal"><textarea placeholder="Breakfast / Lunch / Evening / Dinner..."></textarea><button class="btn greenbtn" onclick="saveDemo('Diet Plan')">Save & Assign</button>`;
- else if(type==="progress") c=`<input placeholder="Member Name"><input placeholder="Weight"><input placeholder="Waist"><input placeholder="Visits"><textarea placeholder="Notes"></textarea><button class="btn greenbtn" onclick="saveDemo('Progress record')">Save Record</button>`;
- else if(type==="expense") c=`<select><option>Staff Salary</option><option>Rent</option><option>Electricity / Water</option><option>Maintenance</option><option>Other</option></select><input placeholder="Amount ₹"><input type="date"><input placeholder="Paid to / Vendor"><textarea placeholder="Notes"></textarea><button class="btn greenbtn" onclick="saveDemo('Expense')">Save Expense</button>`;
- else if(type==="message") c=`<select><option>WhatsApp</option><option>Email</option><option>Push</option></select><select><option>All Members</option><option>Due Members</option><option>Expiring Members</option></select><input placeholder="Subject"><textarea placeholder="Message"></textarea><button class="btn greenbtn" onclick="saveDemo('Message')">Send</button>`;
- else if(type==="renew") c=`<h3>Renew Membership</h3><select><option>Monthly — ₹1,000</option><option>Quarterly — ₹2,500</option><option>Half-Yearly — ₹4,500</option><option>Yearly — ₹8,000</option></select><select><option>UPI / Razorpay</option><option>Cash</option></select><button class="btn greenbtn" onclick="saveDemo('Renewal')">Pay & Renew</button>`;
- document.getElementById("modalBody").innerHTML=c;
- document.getElementById("modalBack").classList.add("open");
-}
-function saveInquiry(){
- const name=document.getElementById("inqName").value.trim()||"New Enquiry";
- const phone=document.getElementById("inqPhone").value.trim()||"Not provided";
- const source=document.getElementById("inqSource").value;
- const stage=document.getElementById("inqStage").value;
- const plan=document.getElementById("inqPlan").value;
- const follow=document.getElementById("inqFollow").value||"Not set";
- const notes=document.getElementById("inqNotes").value||"";
- inquiries.unshift({name,phone,source,plan,stage,follow,last:"Today",notes,initials:initials(name)});
- closeModal(); renderInquiries(); renderLeads(); go("inquiries"); toast("Enquiry saved — now visible in Inquiry List");
-}
-
-const memberProgressData={
- "Rahul Kumar":[
-  {date:"16/08/2026",weight:82.4,waist:40.8,chest:41.0,arm:13.2,thigh:23.0,bodyfat:"—",notes:"Initial assessment"},
-  {date:"23/08/2026",weight:81.6,waist:40.2,chest:41.2,arm:13.3,thigh:23.1,bodyfat:"—",notes:"Good consistency"},
-  {date:"30/08/2026",weight:80.9,waist:39.7,chest:41.4,arm:13.4,thigh:23.2,bodyfat:"—",notes:"Waist improving"}
- ],
- "Priya Sharma":[
-  {date:"16/08/2026",weight:68.5,waist:34.5,chest:36.0,arm:11.5,thigh:21.5,bodyfat:"—",notes:"Initial assessment"},
-  {date:"23/08/2026",weight:67.8,waist:34.0,chest:36.2,arm:11.6,thigh:21.4,bodyfat:"—",notes:""}
- ],
- "Amit Singh":[
-  {date:"16/08/2026",weight:76.2,waist:37.8,chest:39.5,arm:12.8,thigh:22.4,bodyfat:"—",notes:"Initial assessment"}
- ]
-};
-function memberNames(){
- return (typeof members!=="undefined"?members:[]).map(m=>m.name);
-}
-function memberOptions(selected=""){
- return memberNames().map(n=>`<option value="${n}" ${n===selected?"selected":""}>${n}</option>`).join("");
-}
-function renderMemberSelect(id,selected=""){
- return `<select id="${id}" class="member-select" onchange="onProgressMemberChange(this.value)"><option value="">Select member</option>${memberOptions(selected)}</select>`;
-}
-function onProgressMemberChange(name){
- if(!name)return;
- if(typeof renderProgress==="function")renderProgress(name);
- if(typeof renderWorkoutPlans==="function")renderWorkoutPlans(name);
- if(typeof renderDietPlans==="function")renderDietPlans(name);
-}
-function addMeasurement(name){
- if(!name)return;
- const date=document.getElementById("measurementDate").value||new Date().toLocaleDateString("en-GB");
- const row={date,weight:document.getElementById("measurementWeight").value||"—",waist:document.getElementById("measurementWaist").value||"—",chest:document.getElementById("measurementChest").value||"—",arm:document.getElementById("measurementArm").value||"—",thigh:document.getElementById("measurementThigh").value||"—",bodyfat:document.getElementById("measurementBodyfat").value||"—",notes:document.getElementById("measurementNotes").value||""};
- (memberProgressData[name] ||= []).push(row);
- closeModal(); renderProgress(name); toast("Measurement saved for "+name);
-}
-function renderProgress(name){
- const data=memberProgressData[name]||[];
- const rows=data.map((r,i)=>{
-   const prev=data[i-1];
-   const wd=prev && isFinite(r.weight) && isFinite(prev.weight) ? (Number(r.weight)-Number(prev.weight)).toFixed(1) : "—";
-   return `<tr><td>${r.date}</td><td><b>${r.weight}</b>${wd!=="—"?` <small class="${Number(wd)<=0?"good":"bad"}">(${wd>0?"+":""}${wd} kg)</small>`:""}</td><td>${r.waist}</td><td>${r.chest}</td><td>${r.arm}</td><td>${r.thigh}</td><td>${r.bodyfat}</td><td>${r.notes||"—"}</td></tr>`;
- }).join("");
- const target=document.getElementById("progressHistory");
- if(target)target.innerHTML=rows||`<tr><td colspan="8" class="muted">No measurements recorded yet.</td></tr>`;
-}
-
-
-function openMeasurementModal(){
- const name=(document.getElementById("progressMember")||{}).value;
- if(!name){toast("Select a member first");return;}
- openCustom(`<h2>Add Measurement — ${name}</h2>
- <div class="grid2">
-  <input id="measurementDate" type="date">
-  <input id="measurementWeight" type="number" step="0.1" placeholder="Weight (kg)">
-  <input id="measurementWaist" type="number" step="0.1" placeholder="Waist (inch)">
-  <input id="measurementChest" type="number" step="0.1" placeholder="Chest (inch)">
-  <input id="measurementArm" type="number" step="0.1" placeholder="Arm (inch)">
-  <input id="measurementThigh" type="number" step="0.1" placeholder="Thigh (inch)">
-  <input id="measurementBodyfat" type="number" step="0.1" placeholder="Body Fat %">
- </div>
- <textarea id="measurementNotes" placeholder="Notes"></textarea>
- <button class="btn greenbtn" onclick="addMeasurement('${name.replace(/'/g,"\\'")}')">Save Measurement</button>`);
-}
-function renderProgressPage(){
- const box=document.getElementById("progressMemberSelect");
- if(box)box.innerHTML=renderMemberSelect("progressMember");
- const name=(members&&members[0])?members[0].name:"";
- if(name){document.getElementById("progressMember").value=name;renderProgress(name)}
-}
-function renderWorkoutPlans(name=""){
- const box=document.getElementById("workoutsMemberSelect"); if(box)box.innerHTML=renderMemberSelect("workoutMember",name);
- const list=document.getElementById("workoutsPlanList"); if(list)list.innerHTML=name?`<div class="row"><span>Selected member</span><b>${name}</b></div><p class="muted">Workout plans for this member will appear here. Plans are linked to the member record, so names cannot be mistyped.</p>`:"<p class='muted'>Select a member to view or create a workout plan.</p>";
-}
-function renderDietPlans(name=""){
- const box=document.getElementById("dietsMemberSelect"); if(box)box.innerHTML=renderMemberSelect("dietMember",name);
- const list=document.getElementById("dietsPlanList"); if(list)list.innerHTML=name?`<div class="row"><span>Selected member</span><b>${name}</b></div><p class="muted">Diet plans for this member will appear here and remain linked to the member record.</p>`:"<p class='muted'>Select a member to view or create a diet plan.</p>";
-}
-function openPlanModal(type){
- const names=memberOptions();
- const title=type==="workouts"?"Workout Plan":"Diet Plan";
- openCustom(`<h2>Add ${title}</h2><label>Member</label><select id="planMember"><option value="">Select member</option>${names}</select><textarea placeholder="${type==="workouts"?"Exercises, sets, reps, weekly schedule...":"Meals, calories, protein target, timings..."}"></textarea><button class="btn greenbtn" onclick="saveDemo('${title}')">Save ${title}</button>`);
-}
-
-
-function openExpenseModal(type="other"){
- const staffNames=(typeof staff!=="undefined"?staff:[]).map(s=>s.name);
- const staffOpts=staffNames.map(n=>`<option value="${n}">${n}</option>`).join("");
- const isSalary=type==="salary";
- openCustom(`<h2>${isSalary?"Record Staff Salary":"Record Other Expense"}</h2>
- <div class="grid2">
-  <input id="expenseDate" type="date" value="${new Date().toISOString().slice(0,10)}">
-  <input id="expenseAmount" type="number" step="0.01" placeholder="Amount (₹)">
-  ${isSalary
-    ? `<select id="expenseStaff"><option value="">Select staff</option>${staffOpts}</select>
-       <input id="expenseMonth" type="month" value="${new Date().toISOString().slice(0,7)}">`
-    : `<input id="expenseVendor" placeholder="Vendor / Supplier Name *">
-       <input id="expenseCategory" placeholder="Expense category (Electricity, Repair, Equipment...)">`
-  }
- </div>
- <input id="expenseDescription" placeholder="${isSalary?"Salary payment details / remarks":"What was purchased or paid for?"}">
- ${!isSalary?`<input id="expenseBill" placeholder="Bill / Invoice No. (optional)">`:""}
- <button class="btn greenbtn" onclick="saveExpense('${isSalary?"salary":"other"}')">Save Expense</button>`);
-}
-function saveExpense(type){
- const amount=document.getElementById("expenseAmount")?.value;
- if(!amount){toast("Please enter amount");return;}
- if(type==="salary" && !document.getElementById("expenseStaff")?.value){toast("Please select staff name");return;}
- if(type==="other" && !document.getElementById("expenseVendor")?.value){toast("Please enter vendor/supplier name");return;}
- saveDemo(type==="salary"?"Staff Salary Payment":"Other Expense");
-}
-
-
-const roles={
- Owner:["dashboard","members","plans","attendance","billing","dues","inquiries","batches","staff","trainers","workout","diet","progress","expenses","messages","reports","notifications","settings","memberapp","importexport"],
- Manager:["dashboard","members","plans","attendance","billing","dues","inquiries","batches","trainers","workout","diet","progress","reports","notifications","importexport"],
- Trainer:["dashboard","members","attendance","trainers","workout","diet","progress"],
- Member:["memberhome","memberapp","attendance","progress","billing"]
-};
-let currentRole="Owner";
-function switchRole(role){
- currentRole=role;
- const allowed=roles[role]||roles.Owner;
-
- document.querySelectorAll(".navbtn").forEach(btn=>{
-   const page=btn.dataset.page || "";
-   btn.style.display=allowed.includes(page)?"block":"none";
- });
- document.querySelectorAll(".mobilebar button").forEach(btn=>{
-   const page=btn.dataset.page || "";
-   btn.style.display=allowed.includes(page)?"block":"none";
- });
-
- document.querySelectorAll(".owner-only").forEach(x=>{
-   x.style.display=role==="Owner"?"":"none";
- });
-
- if(role==="Member"){
-   // Member sees no member directory, Add Member, management shortcuts,
-   // staff, expenses, reports, settings, enquiries, or owner dashboard.
-   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-   const memberPage=document.getElementById("memberhome");
-   if(memberPage) memberPage.classList.add("active");
-
-   document.querySelectorAll(".member-admin-only").forEach(x=>x.style.display="none");
-   document.querySelectorAll(".member-visible").forEach(x=>x.style.display="");
-
-   // Hide any admin quick-action buttons that may be inside shared components.
-   document.querySelectorAll(
-     '[data-action="add-member"], [data-action="add-lead"], .add-member-btn, .admin-only, .management-only'
-   ).forEach(x=>x.style.display="none");
-
-   toast("Member login: My Data Only"); lockFinancialRows(); enforceRoleDashboard(); applyRoleVisibility();
- } else {
-   document.querySelectorAll(".member-admin-only").forEach(x=>x.style.display="");
-   go("dashboard");
-   toast("Viewing as "+role); lockFinancialRows(); enforceRoleDashboard(); applyRoleVisibility();
-} }
-function renderRoleSelector(){
- const side=document.querySelector(".sidebar .brand");
- if(side && !document.getElementById("roleSelector")){
-   const wrap=document.createElement("div");
-   wrap.id="roleSelector";
-   wrap.style.cssText="margin:10px 0 14px;padding:10px;background:#191c1f;border-radius:10px";
-   wrap.innerHTML='<div style="font-size:10px;color:#aaa;margin-bottom:5px">DEMO ROLE</div><select id="roleSelect" style="margin:0;background:#fff" onchange="switchRole(this.value)"><option>Owner</option><option>Manager</option><option>Trainer</option><option>Member</option></select>';
-   side.parentNode.insertBefore(wrap,side.nextSibling);
- }
-}
-
-function saveDemo(label){closeModal();toast(label+" saved in demo mode");}
-function closeModal(){document.getElementById("modalBack").classList.remove("open")}
-function toast(t){const x=document.getElementById("toast");x.textContent=t;x.style.display="block";clearTimeout(window._toast);window._toast=setTimeout(()=>x.style.display="none",2200)}
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
-renderMembers();renderLeads();renderInquiries();renderRoleSelector();switchRole('Owner');renderProgressPage();renderWorkoutPlans();renderDietPlans();
-</script>
-
-
-
-<script>
-const dietTemplates = {"1400": {"Weight Loss": {"Vegetarian": [["Breakfast", "Option 1: Oats + low-fat milk + apple", "Option 2: Vegetable poha + curd"], ["Mid-Morning", "Option 1: Orange + 8 almonds", "Option 2: Guava + 2 walnuts"], ["Lunch", "Option 1: 2 roti + dal + mixed vegetables + salad", "Option 2: 1 bowl rice + rajma + salad"], ["Pre-Workout", "Option 1: Banana", "Option 2: Apple + light snack"], ["Post-Workout", "Option 1: Curd + fruit", "Option 2: Milk + roasted chana"], ["Dinner", "Option 1: 2 roti + paneer/tofu + vegetables", "Option 2: Moong dal + vegetables + 1 roti"]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + fruit", "Option 2: 2 eggs + vegetable poha"], ["Mid-Morning", "Option 1: Orange + almonds", "Option 2: Guava + walnuts"], ["Lunch", "Option 1: 2 roti + dal + chicken + salad", "Option 2: Rice + chicken curry + vegetables"], ["Pre-Workout", "Option 1: Banana", "Option 2: Apple + light snack"], ["Post-Workout", "Option 1: Curd + fruit", "Option 2: Milk + egg whites"], ["Dinner", "Option 1: 2 roti + grilled chicken + vegetables", "Option 2: Fish + vegetables + 1 roti"]]}}, "1800": {"Weight Loss": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + seeds", "Option 2: 2 moong chilla + curd + fruit"], ["Mid-Morning", "Option 1: Apple + almonds", "Option 2: Orange + walnuts"], ["Lunch", "Option 1: 2 roti + dal + paneer + salad", "Option 2: Rice + rajma + curd + salad"], ["Pre-Workout", "Option 1: Banana + black coffee", "Option 2: Fruit + roasted chana"], ["Post-Workout", "Option 1: Milk + curd", "Option 2: Paneer/tofu + fruit"], ["Dinner", "Option 1: 2 roti + paneer/tofu + vegetables", "Option 2: Dal + rice + vegetables"]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + fruit", "Option 2: 2 eggs + 2 toast + fruit"], ["Mid-Morning", "Option 1: Apple + almonds", "Option 2: Orange + walnuts"], ["Lunch", "Option 1: 2 roti + chicken + dal + salad", "Option 2: Rice + fish + vegetables"], ["Pre-Workout", "Option 1: Banana + black coffee", "Option 2: Fruit + roasted chana"], ["Post-Workout", "Option 1: Curd + egg whites", "Option 2: Milk + fruit"], ["Dinner", "Option 1: 2 roti + grilled chicken + vegetables", "Option 2: Fish + dal + vegetables"]]}}, "2200": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts", "Option 2: Paneer sandwich + fruit"], ["Mid-Morning", "Option 1: Apple + almonds", "Option 2: Banana + walnuts"], ["Lunch", "Option 1: 3 roti + dal + paneer + salad", "Option 2: Rice + rajma + curd + vegetables"], ["Pre-Workout", "Option 1: Banana + curd", "Option 2: Fruit + roasted chana"], ["Post-Workout", "Option 1: Milk + paneer/tofu", "Option 2: Curd + fruit + nuts"], ["Dinner", "Option 1: 3 roti + dal + vegetables", "Option 2: Rice + paneer + vegetables"]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana", "Option 2: 3 eggs + toast + fruit"], ["Mid-Morning", "Option 1: Apple + almonds", "Option 2: Banana + walnuts"], ["Lunch", "Option 1: 3 roti + chicken + dal + salad", "Option 2: Rice + fish + vegetables + curd"], ["Pre-Workout", "Option 1: Banana + curd", "Option 2: Fruit + roasted chana"], ["Post-Workout", "Option 1: Milk + eggs", "Option 2: Curd + fruit"], ["Dinner", "Option 1: 3 roti + chicken + vegetables", "Option 2: Fish + rice + vegetables"]]}}, "1600": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}, "2000": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}, "2400": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}, "2600": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}, "2800": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}, "3000": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}};
-const foodPics = {
- "Breakfast":"🍳","Mid-Morning":"🍎","Lunch":"🍛","Pre-Workout":"🍌","Post-Workout":"🥛","Dinner":"🥗"
-};
-function initDietPlans(){
- const c=document.getElementById("dietCalories");
- const g=document.getElementById("dietGoal");
- const t=document.getElementById("dietType");
- if(!c||!g||!t)return;
- c.innerHTML=[1400,1600,1800,2000,2200,2400,2600,2800,3000].map(x=>`<option value="${x}">${x} calories</option>`).join("");
- g.innerHTML=[...new Set(Object.values(dietTemplates).flatMap(x=>Object.keys(x)))].map(x=>`<option>${x}</option>`).join("");
- t.innerHTML=`<option>Vegetarian</option><option>Non-Vegetarian</option>`;
- [c,g,t,document.getElementById("dietAge"),document.getElementById("dietWeight")].forEach(x=>x&&x.addEventListener("change",renderDiet));
- renderDiet();
-}
-function renderDiet(){
- const kcal=Number(document.getElementById("dietCalories")?.value||1400);
- const goal=document.getElementById("dietGoal")?.value||"Weight Loss";
- const type=document.getElementById("dietType")?.value||"Vegetarian";
- const age=document.getElementById("dietAge")?.value||"18–25 years";
- const weight=document.getElementById("dietWeight")?.value||"Under 50 kg";
- let goalBlock=dietTemplates[kcal]?.[goal];
- if(!goalBlock) goalBlock=dietTemplates[kcal]?.["Maintenance"]||dietTemplates[2200]["Maintenance"];
- let rows=goalBlock[type]||goalBlock["Vegetarian"];
- document.getElementById("dietPlanTitle").innerHTML=`${kcal} Calories Food Plan – ${goal} – ${type}<div class="muted" style="font-size:13px;font-weight:500">Age group: ${age} · Weight group: ${weight} · 2 choices per meal</div>`;
- document.getElementById("dietMeals").innerHTML=rows.map(([meal,a,b])=>`
-  <div class="meal-card">
-   <div class="meal-head"><h3>${meal}</h3><span>${foodPics[meal]||"🍽️"}</span></div>
-   <div class="food-option"><div class="food-pic">${foodPics[meal]||"🍽️"}</div><div><b>Option 1</b><div>${a}</div></div></div>
-   <div class="food-option"><div class="food-pic">${foodPics[meal]||"🍽️"}</div><div><b>Option 2</b><div>${b}</div></div></div>
-  </div>`).join("");
-}
-function saveBranding(){
- const name=document.getElementById("brandName")?.value.trim()||"AKHADA";
- const tag=document.getElementById("brandTagline")?.value.trim()||"The Lifestyle Gym";
- const logo=document.getElementById("brandLogo")?.value.trim()||"";
- localStorage.setItem("akhada_branding",JSON.stringify({name,tag,logo}));
- document.querySelectorAll("[data-brand-name]").forEach(x=>x.textContent=name);
- document.querySelectorAll("[data-brand-tagline]").forEach(x=>x.textContent=tag);
- if(typeof closeModal==="function")closeModal("branding");
- if(typeof toast==="function")toast("Branding saved");
-}
-document.addEventListener("DOMContentLoaded",()=>{initDietPlans();
- const saved=localStorage.getItem("akhada_branding");
- if(saved){try{const b=JSON.parse(saved);document.querySelectorAll("[data-brand-name]").forEach(x=>x.textContent=b.name);document.querySelectorAll("[data-brand-tagline]").forEach(x=>x.textContent=b.tag);}catch(e){}}
-});
-</script>
-
-<script>
-/* AKHADA FINAL PERMISSION RULES
-   Owner: full control + override + delete
-   Manager: operational entry/edit where explicitly allowed; financial entry only
-   Staff/Trainer: assigned operational work
-   Member: own data only
-*/
-const akhadaPermissions = {
-  Owner: {
-    deleteAll: true, paymentEdit: true, paymentDelete: true,
-    salaryAdd: true, salaryEdit: true, salaryDelete: true,
-    expenseAdd: true, expenseEdit: true, expenseDelete: true,
-    memberOneTimeEdit: true, override: true
-  },
-  Manager: {
-    deleteAll: false, paymentEdit: false, paymentDelete: false,
-    salaryAdd: true, salaryEdit: false, salaryDelete: false,
-    expenseAdd: true, expenseEdit: false, expenseDelete: false,
-    memberOneTimeEdit: true, override: false
-  },
-  Trainer: {
-    deleteAll: false, paymentEdit: false, paymentDelete: false,
-    salaryAdd: false, salaryEdit: false, salaryDelete: false,
-    expenseAdd: false, expenseEdit: false, expenseDelete: false,
-    memberOneTimeEdit: false, override: false
-  },
-  Member: {
-    deleteAll: false, paymentEdit: false, paymentDelete: false,
-    salaryAdd: false, salaryEdit: false, salaryDelete: false,
-    expenseAdd: false, expenseEdit: false, expenseDelete: false,
-    memberOneTimeEdit: false, override: false
-  }
-};
-
-function canAKHADA(action){
-  const p = akhadaPermissions[currentRole || "Owner"];
-  return !!(p && p[action]);
-}
-function guardAKHADA(action, message){
-  if(canAKHADA(action)) return true;
-  if(typeof toast === "function") toast(message || "You do not have permission for this action.");
-  return false;
-}
-function lockFinancialRows(){
-  document.querySelectorAll("[data-financial-record]").forEach(row=>{
-    if((currentRole||"Owner") !== "Owner"){
-      row.querySelectorAll("[data-edit],[data-delete]").forEach(b=>b.style.display="none");
-      row.classList.add("locked-record");
-    }
-  });
-}
-</script>
-
-<script>
-function enforceRoleDashboard(){
-  const restrictedForTrainerMember = [
-    '[data-module="pending-dues"]',
-    '[data-module="todays-collection"]',
-    '#pendingDues',
-    '#todaysCollection',
-    '.pending-dues',
-    '.todays-collection'
-  ];
-  if((currentRole==="Trainer" || currentRole==="Member")){
-    restrictedForTrainerMember.forEach(sel=>{
-      document.querySelectorAll(sel).forEach(el=>el.style.display="none");
-    });
-  }
-}
-</script>
-
-<script>
-const workoutTemplates = {"Chest": [["Incline Chest Press", "3", "10–12"], ["Chest Press", "3", "10–12"], ["Pec Fly", "3", "12"], ["Cable Crossover", "3", "12"]], "Back": [["Lat Pulldown", "3", "10–12"], ["Seated Row", "3", "10–12"], ["Lat Pull Down / Cable Row", "3", "10–12"], ["Back Extension", "3", "12–15"]], "Shoulder": [["Shoulder Press", "3", "10–12"], ["Lateral Raise", "3", "12–15"], ["Rear Delt / Reverse Fly", "3", "12–15"], ["Cable Face Pull", "3", "12–15"]], "Biceps": [["Cable Biceps Curl", "3", "10–12"], ["Preacher Curl", "3", "10–12"], ["Dumbbell Curl", "3", "10–12"], ["Hammer Curl", "3", "10–12"]], "Triceps": [["Cable Triceps Pushdown", "3", "10–12"], ["Overhead Cable Extension", "3", "10–12"], ["Assisted Dip / Dip", "3", "8–12"], ["Dumbbell Overhead Extension", "3", "10–12"]], "Leg": [["Leg Press", "4", "10–12"], ["Leg Extension", "3", "12"], ["Leg Curl", "3", "10–12"], ["Calf Raise", "3", "15"]], "Chest + Biceps": [["Incline Chest Press", "3", "10–12"], ["Chest Press", "3", "10–12"], ["Pec Fly", "3", "12"], ["Cable Biceps Curl", "3", "10–12"], ["Preacher Curl", "3", "10–12"]], "Back + Triceps": [["Lat Pulldown", "3", "10–12"], ["Seated Row", "3", "10–12"], ["Cable Row", "3", "10–12"], ["Triceps Pushdown", "3", "10–12"], ["Overhead Cable Extension", "3", "10–12"]], "Shoulder + Triceps": [["Shoulder Press", "3", "10–12"], ["Lateral Raise", "3", "12–15"], ["Rear Delt / Reverse Fly", "3", "12–15"], ["Triceps Pushdown", "3", "10–12"]], "Weight Loss – Full Body + Cardio": [["Treadmill", "1", "10–15 min"], ["Cross Trainer", "1", "8–12 min"], ["Leg Press", "3", "12"], ["Chest Press", "3", "12"], ["Lat Pulldown", "3", "12"], ["Cable Circuit", "2", "12 each"], ["Cycle", "1", "10 min"]], "Weight Loss – Cardio Circuit": [["Treadmill", "1", "10 min"], ["SKI", "1", "5–8 min"], ["Cycle", "1", "8–10 min"], ["Cross Trainer", "1", "8–10 min"], ["Hammer / Strength Circuit", "2", "12 each"]]};
-const dietTemplatesFull = {"1400": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}, "1600": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}, "1800": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}, "2000": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}, "2200": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}, "2400": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}, "2600": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}, "2800": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}, "3000": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}};
-const workoutCats = Object.keys(workoutTemplates);
-const membersForPlans = ["Rahul Kumar","Priya Sharma","Amit Singh"];
-
-function initWorkoutDiet(){
- const wc=document.getElementById("workoutCategory"), wm=document.getElementById("workoutMember");
- if(wc){wc.innerHTML=workoutCats.map(x=>`<option>${x}</option>`).join(""); wc.onchange=renderWorkout;}
- if(wm)wm.innerHTML='<option value="">Select assigned member</option>'+membersForPlans.map(x=>`<option>${x}</option>`).join("");
- const dc=document.getElementById("dietCalories"), dt=document.getElementById("dietType"), dg=document.getElementById("dietGoal"), dm=document.getElementById("dietMember");
- if(dc)dc.innerHTML=["1400 calories", "1600 calories", "1800 calories", "2000 calories", "2200 calories", "2400 calories", "2600 calories", "2800 calories", "3000 calories"].map(x=>`<option>${x}</option>`).join("");
- if(dt)dt.innerHTML='<option>Vegetarian</option><option>Non-Vegetarian</option>';
- if(dg)dg.innerHTML='<option>Weight Loss</option><option>Fat Loss</option><option>Maintenance</option><option>Muscle Gain</option><option>Weight Gain</option>';
- if(dm)dm.innerHTML='<option value="">Select assigned member</option>'+membersForPlans.map(x=>`<option>${x}</option>`).join("");
- [dc,dt,dg,document.getElementById("dietAge"),document.getElementById("dietWeight")].forEach(x=>x&&x.addEventListener("change",renderDietFull));
- renderWorkout(); renderDietFull();
-}
-function renderWorkout(){
- const cat=document.getElementById("workoutCategory")?.value||workoutCats[0];
- const rows=workoutTemplates[cat]||[];
- document.getElementById("workoutTitle").innerHTML=`${cat} Workout Plan`;
- document.getElementById("workoutTable").innerHTML=`<table><thead><tr><th>Exercise</th><th>Sets</th><th>Reps / Duration</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("")}</tbody></table>`;
- document.getElementById("workoutLibraryCards").innerHTML=workoutCats.map(x=>`<button class="template-card" onclick="document.getElementById('workoutCategory').value='${x.replace(/'/g,"\\'")}';renderWorkout()">${x}</button>`).join("");
-}
-function renderDietFull(){
- const kcalText=document.getElementById("dietCalories")?.value||"1400 calories";
- const kcal=Number(kcalText);
- const type=document.getElementById("dietType")?.value||"Vegetarian";
- const goal=document.getElementById("dietGoal")?.value||"Weight Loss";
- const age=document.getElementById("dietAge")?.value||"18–25 years";
- const weight=document.getElementById("dietWeight")?.value||"Under 50 kg";
- const rows=(dietTemplatesFull[String(kcal)]||{})[type]||diet_meals[type];
- document.getElementById("dietPlanTitle").innerHTML=`${kcal} Calories Food Plan – ${goal} – ${type}<div class="muted" style="font-size:13px;font-weight:500">Age: ${age} · Weight: ${weight} · Minimum 2 options per meal</div>`;
- document.getElementById("dietMeals").innerHTML=Object.entries(rows).map(([meal,opts])=>`<div class="meal-card"><div class="meal-head"><h3>${meal}</h3><span class="food-pic">${meal==="Breakfast"?"🍳":meal==="Mid-Morning"?"🍎":meal==="Lunch"?"🍛":meal==="Pre-Workout"?"🍌":meal==="Post-Workout"?"🥛":"🥗"}</span></div><div class="food-option"><div class="food-pic">🍽️</div><div><b>Option 1</b><div>${opts[0]}</div></div></div><div class="food-option"><div class="food-pic">🍽️</div><div><b>Option 2</b><div>${opts[1]}</div></div></div></div>`).join("");
-}
-function trainerCreateWorkout(){
- if(currentRole!=="Trainer" && currentRole!=="Owner" && currentRole!=="Manager"){toast("Only Trainer/Manager/Owner can add workout plans.");return;}
- openCustom(`<h2>Add Workout Plan</h2><p class="muted">This creates a member-level/custom plan. Master template deletion remains Owner-only.</p><input id="customWorkoutName" placeholder="Workout plan name"><textarea id="customWorkoutText" placeholder="Exercises, sets, reps, duration..."></textarea><button class="btn greenbtn" onclick="saveDemo('Custom Workout Plan')">Save Workout Plan</button>`);
-}
-function trainerCreateDiet(){
- if(currentRole!=="Trainer" && currentRole!=="Owner" && currentRole!=="Manager"){toast("Only Trainer/Manager/Owner can add diet plans.");return;}
- openCustom(`<h2>Add Diet Plan</h2><p class="muted">Use the calorie library or create a member-specific plan. Master template deletion remains Owner-only.</p><input id="customDietName" placeholder="Diet plan name"><textarea id="customDietText" placeholder="Meals, portions, calories and notes..."></textarea><button class="btn greenbtn" onclick="saveDemo('Custom Diet Plan')">Save Diet Plan</button>`);
-}
-function assignSelectedWorkout(){
- const m=document.getElementById("workoutMember")?.value;
- if(!m){toast("Select a member first");return;}
- toast("Workout assigned to "+m);
-}
-function assignSelectedDiet(){
- const m=document.getElementById("dietMember")?.value;
- if(!m){toast("Select a member first");return;}
- toast("Diet plan assigned to "+m);
-}
-document.addEventListener("DOMContentLoaded", initWorkoutDiet);
-</script>
-
-<script>
-function applyRoleVisibility(){
-  const role = currentRole || "Owner";
-  document.body.dataset.role = role.toLowerCase();
-  const allowed = roles[role] || roles.Owner;
-
-  document.querySelectorAll(".page").forEach(p=>{
-    const id=p.id;
-    if(role==="Member"){
-      p.classList.toggle("active", id==="memberhome");
-    } else {
-      // Keep only the currently active page if it is allowed.
-      if(!allowed.includes(id)) p.classList.remove("active");
-    }
-  });
-
-  document.querySelectorAll(".owner-only").forEach(el=>{
-    el.style.display = role==="Owner" ? "" : "none";
-  });
-
-  // Financial/admin content is never visible to Trainer or Member.
-  if(role==="Trainer" || role==="Member"){
-    document.querySelectorAll(
-      '[data-module="pending-dues"],[data-module="todays-collection"],' +
-      '#pendingDues,#todaysCollection,.pending-dues,.todays-collection,' +
-      '.financial-admin-only,.admin-finance'
-    ).forEach(el=>el.style.display="none");
-  }
-}
-
-// Wrap navigation so a role can never open a page outside its permissions.
-const _originalGo = window.go;
-window.go = function(id){
-  const role=currentRole || "Owner";
-  const allowed=roles[role] || roles.Owner;
-  if(!allowed.includes(id)){
-    toast("This section is not available for "+role+".");
-    return;
-  }
-  return _originalGo(id);
-};
-</script>
-
-<script>
-function openExpenseModal(type){
-  const isSalary = type === "salary";
-  const title = isSalary ? "Add Staff Salary" : "Add Other Expense";
-  const form = isSalary ? `
-    <label>Payment Date</label><input type="date" id="expDate">
-    <label>Staff Name *</label><input id="salaryStaff" placeholder="Select / enter staff name">
-    <label>Salary Month *</label><input type="month" id="salaryMonth">
-    <label>Amount *</label><input type="number" id="expAmount" placeholder="₹ Amount">
-    <label>Payment Mode</label><select id="expMode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option></select>
-    <label>Remarks</label><textarea id="expRemarks" placeholder="Salary / advance / bonus etc."></textarea>
-  ` : `
-    <label>Expense Date</label><input type="date" id="expDate">
-    <label>Expense Category *</label><select id="expCategory">
-      <option>Electricity</option><option>Equipment Repair</option><option>Maintenance</option>
-      <option>Cleaning</option><option>Rent</option><option>Marketing</option>
-      <option>Supplies</option><option>Other</option>
-    </select>
-    <label>Vendor / Supplier Name *</label><input id="vendorName" placeholder="Vendor name">
-    <label>Amount *</label><input type="number" id="expAmount" placeholder="₹ Amount">
-    <label>Payment Mode</label><select id="expMode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option></select>
-    <label>Bill / Invoice No.</label><input id="invoiceNo" placeholder="Optional">
-    <label>Details / Remarks</label><textarea id="expRemarks" placeholder="Describe the expense"></textarea>
-  `;
-  const content = `
-    <div class="expense-form">
-      <h2>${title}</h2>
-      <p class="muted">${isSalary ? "Manager can add salary entries. Saved salary records can only be edited/deleted by Owner." : "Manager can add expenses. Vendor/Supplier name is mandatory. Saved expenses can only be edited/deleted by Owner."}</p>
-      ${form}
-      <div class="modal-actions">
-        <button class="btn" onclick="closeModal('expenseForm')">Cancel</button>
-        <button class="btn greenbtn" onclick="saveExpenseEntry('${type}')">Save ${isSalary ? "Salary" : "Expense"}</button>
-      </div>
-    </div>`;
-  openCustom(content);
-}
-
-function saveExpenseEntry(type){
-  const amount = Number(document.getElementById("expAmount")?.value || 0);
-  if(!amount){ toast("Please enter amount."); return; }
-
-  if(type === "salary"){
-    const staff = document.getElementById("salaryStaff")?.value.trim();
-    const month = document.getElementById("salaryMonth")?.value;
-    if(!staff || !month){ toast("Staff name and salary month are required."); return; }
-  } else {
-    const vendor = document.getElementById("vendorName")?.value.trim();
-    if(!vendor){ toast("Vendor / Supplier name is required."); return; }
-  }
-
-  // Demo persistence so entries remain visible after saving in this browser.
-  const key = type === "salary" ? "akhada_salary_entries" : "akhada_expense_entries";
-  const old = JSON.parse(localStorage.getItem(key) || "[]");
-  old.push({
-    date: document.getElementById("expDate")?.value || new Date().toISOString().slice(0,10),
-    amount,
-    mode: document.getElementById("expMode")?.value || "Cash",
-    staff: document.getElementById("salaryStaff")?.value || "",
-    month: document.getElementById("salaryMonth")?.value || "",
-    category: document.getElementById("expCategory")?.value || "",
-    vendor: document.getElementById("vendorName")?.value || "",
-    invoice: document.getElementById("invoiceNo")?.value || "",
-    remarks: document.getElementById("expRemarks")?.value || "",
-    createdBy: currentRole || "Owner",
-    createdAt: new Date().toISOString()
-  });
-  localStorage.setItem(key, JSON.stringify(old));
-  if(typeof closeModal === "function") closeModal();
-  if(typeof toast === "function") toast((type === "salary" ? "Staff salary" : "Other expense") + " entry saved.");
-  if(typeof go === "function") go("expenses");
-}
-
 function openCustom(content){
   let m=document.getElementById("customModal");
   if(!m){
@@ -1468,10 +1104,19 @@ function openCustom(content){
   }
   m.innerHTML='<div class="modalbox">'+content+'</div>';
   m.style.display="flex";
+  document.body.classList.add("modal-open");
+  m.onclick=function(e){
+    if(e.target===m) closeModal();
+  };
 }
+
 function closeModal(which){
   const m=document.getElementById("customModal");
-  if(m) m.style.display="none";
+  if(m){
+    m.style.display="none";
+    m.innerHTML="";
+  }
+  document.body.classList.remove("modal-open");
 }
 </script>
 
@@ -2364,6 +2009,287 @@ function renderAllMealCells(){dayDietDays.forEach(d=>akhadaMealSlots.forEach(m=>
     // Finally force-hide the exact popup containing this X.
     forceClosePopup(btn);
   }, true);
+})();
+</script>
+
+<script>
+const AKHADA_WORKOUT_PLANS = {"Chest — Beginner": [["Machine Chest Press", "3", "12", "Light / Moderate", "60 sec"], ["Incline Chest Press", "3", "12", "Light / Moderate", "60 sec"], ["Pec Fly", "3", "12", "Light / Moderate", "60 sec"], ["Cable Crossover", "3", "15", "Light", "45 sec"]], "Chest — Experienced": [["Barbell Bench Press", "4", "8-10", "Progressive", "90 sec"], ["Incline Chest Press", "4", "10", "Progressive", "75 sec"], ["Pec Fly", "3", "12", "Moderate", "60 sec"], ["Cable Crossover", "3", "15", "Moderate", "45 sec"]], "Back — Beginner": [["Wide-Grip Lat Pulldown", "3", "12", "Light / Moderate", "60 sec"], ["Mid Row", "3", "12", "Light / Moderate", "60 sec"], ["Straight-Arm Pulldown", "3", "15", "Light", "45 sec"], ["Back Extension", "3", "12", "Bodyweight / Light", "60 sec"]], "Back — Experienced": [["Wide-Grip Lat Pulldown", "4", "10", "Progressive", "75 sec"], ["Chest-Supported Row", "4", "10", "Progressive", "75 sec"], ["Single-Arm Row", "3", "10 / side", "Moderate", "60 sec"], ["Straight-Arm Pulldown", "3", "15", "Moderate", "45 sec"]], "Shoulder — Beginner": [["Machine Shoulder Press", "3", "12", "Light / Moderate", "60 sec"], ["Lateral Raise", "3", "12", "Light", "45 sec"], ["Rear Delt Fly", "3", "12", "Light", "45 sec"]], "Shoulder — Experienced": [["Machine Shoulder Press", "4", "8-10", "Progressive", "75 sec"], ["Arnold Press", "3", "10", "Moderate", "60 sec"], ["Lateral Raise", "4", "12", "Moderate", "45 sec"], ["Rear Delt Fly", "3", "15", "Moderate", "45 sec"]], "Biceps — Beginner": [["Dumbbell Curl", "3", "12", "Light / Moderate", "60 sec"], ["Preacher Curl", "3", "12", "Light / Moderate", "60 sec"], ["Cable Curl", "3", "15", "Light", "45 sec"]], "Biceps — Experienced": [["EZ-Bar / Barbell Curl", "4", "8-10", "Progressive", "75 sec"], ["Preacher Curl", "3", "10", "Moderate", "60 sec"], ["Cable Curl", "3", "12", "Moderate", "45 sec"], ["Rope Hammer Curl", "3", "12", "Moderate", "45 sec"]], "Triceps — Beginner": [["Rope Triceps Pushdown", "3", "12", "Light / Moderate", "60 sec"], ["Overhead Rope Extension", "3", "12", "Light", "60 sec"], ["Single-Arm Cable Pushdown", "3", "12 / side", "Light", "45 sec"]], "Triceps — Experienced": [["Rope Triceps Pushdown", "4", "10", "Progressive", "60 sec"], ["Overhead Rope Extension", "3", "10", "Moderate", "60 sec"], ["Close-Grip Bench Press", "3", "8-10", "Progressive", "90 sec"], ["Single-Arm Cable Pushdown", "3", "12 / side", "Moderate", "45 sec"]], "Leg — Beginner": [["Leg Press", "3", "12", "Light / Moderate", "75 sec"], ["Leg Extension", "3", "12", "Light", "60 sec"], ["Leg Curl", "3", "12", "Light", "60 sec"], ["Calf Raise", "3", "15", "Bodyweight / Light", "45 sec"]], "Leg — Experienced": [["Leg Press", "4", "10", "Progressive", "90 sec"], ["Squat / Smith Squat", "4", "8-10", "Progressive", "90 sec"], ["Leg Extension", "3", "12", "Moderate", "60 sec"], ["Leg Curl", "3", "12", "Moderate", "60 sec"], ["Calf Raise", "4", "15", "Moderate", "45 sec"]], "Chest + Biceps — Beginner": [["Machine Chest Press", "3", "12", "Light / Moderate", "60 sec"], ["Incline Chest Press", "3", "12", "Light / Moderate", "60 sec"], ["Pec Fly", "3", "12", "Light", "45 sec"], ["Dumbbell Curl", "3", "12", "Light / Moderate", "60 sec"], ["Preacher Curl", "3", "12", "Light", "60 sec"]], "Chest + Biceps — Experienced": [["Barbell Bench Press", "4", "8-10", "Progressive", "90 sec"], ["Incline Chest Press", "4", "10", "Progressive", "75 sec"], ["Pec Fly", "3", "12", "Moderate", "60 sec"], ["Preacher Curl", "3", "10", "Moderate", "60 sec"], ["Rope Hammer Curl", "3", "12", "Moderate", "45 sec"]], "Back + Triceps — Beginner": [["Wide-Grip Lat Pulldown", "3", "12", "Light / Moderate", "60 sec"], ["Mid Row", "3", "12", "Light / Moderate", "60 sec"], ["Straight-Arm Pulldown", "3", "15", "Light", "45 sec"], ["Rope Triceps Pushdown", "3", "12", "Light / Moderate", "60 sec"]], "Back + Triceps — Experienced": [["Wide-Grip Lat Pulldown", "4", "10", "Progressive", "75 sec"], ["Chest-Supported Row", "4", "10", "Progressive", "75 sec"], ["Single-Arm Row", "3", "10 / side", "Moderate", "60 sec"], ["Rope Triceps Pushdown", "4", "10", "Progressive", "60 sec"]], "Shoulder + Triceps — Beginner": [["Machine Shoulder Press", "3", "12", "Light / Moderate", "60 sec"], ["Lateral Raise", "3", "12", "Light", "45 sec"], ["Rear Delt Fly", "3", "12", "Light", "45 sec"], ["Rope Triceps Pushdown", "3", "12", "Light", "60 sec"]], "Shoulder + Triceps — Experienced": [["Machine Shoulder Press", "4", "8-10", "Progressive", "75 sec"], ["Arnold Press", "3", "10", "Moderate", "60 sec"], ["Lateral Raise", "4", "12", "Moderate", "45 sec"], ["Rope Triceps Pushdown", "4", "10", "Progressive", "60 sec"]], "Weight Loss – Full Body + Cardio — Beginner": [["Leg Press", "3", "12", "Light", "60 sec"], ["Machine Chest Press", "3", "12", "Light", "60 sec"], ["Lat Pulldown", "3", "12", "Light", "60 sec"], ["Treadmill Brisk Walk", "1", "15 min", "Moderate", "—"], ["Cycle Intervals", "1", "10 min", "Moderate", "—"]], "Weight Loss – Full Body + Cardio — Experienced": [["Leg Press", "4", "12", "Moderate", "60 sec"], ["Machine Chest Press", "4", "12", "Moderate", "60 sec"], ["Lat Pulldown", "4", "12", "Moderate", "60 sec"], ["Cross Trainer Intervals", "1", "15 min", "Moderate/Hard", "—"], ["Ski Erg Intervals", "1", "10 min", "Moderate/Hard", "—"]], "Weight Loss – Cardio Circuit — Beginner": [["Treadmill Brisk Walk", "1", "10 min", "Moderate", "—"], ["Cycle Intervals", "1", "10 min", "Moderate", "—"], ["Cross Trainer Intervals", "1", "10 min", "Moderate", "—"], ["Ski Erg Intervals", "1", "5 min", "Light / Moderate", "—"]], "Weight Loss – Cardio Circuit — Experienced": [["Treadmill Incline Walk", "1", "15 min", "Moderate", "—"], ["Cycle Intervals", "1", "12 min", "Moderate/Hard", "—"], ["Cross Trainer Intervals", "1", "12 min", "Moderate/Hard", "—"], ["Ski Erg Intervals", "1", "8 min", "Moderate/Hard", "—"]]};
+
+function normalizePlanLabel(v){
+  return (v||"").replace(/\s+/g," ").trim();
+}
+
+function populatePlanExercises(day, plan){
+  const key=normalizePlanLabel(plan);
+  const rows=AKHADA_WORKOUT_PLANS[key] || [];
+  const safeDay=day.replace(/[^A-Za-z0-9]/g,"");
+  const box=document.getElementById("exercise-list-"+safeDay) || document.querySelector(`[data-exercise-list="${day}"]`);
+  if(!box)return;
+
+  box.innerHTML = rows.length ? rows.map((r,i)=>`
+    <div class="prescription-row">
+      <div class="exercise-name-cell">
+        <span class="exercise-icon">🏋️</span>
+        <div><b>${r[0]}</b><small>Equipment / exercise from AKHADA library</small></div>
+      </div>
+      <label>Sets<input type="number" min="1" value="${r[1]}" onchange="updatePrescription('${day}',${i},'sets',this.value)"></label>
+      <label>Reps / Time<input value="${r[2]}" onchange="updatePrescription('${day}',${i},'reps',this.value)"></label>
+      <label>Weight / Intensity<input value="${r[3]}" onchange="updatePrescription('${day}',${i},'weight',this.value)"></label>
+      <label>Rest<input value="${r[4]}" onchange="updatePrescription('${day}',${i},'rest',this.value)"></label>
+    </div>`).join("") :
+    `<div class="empty-prescription">Select a workout plan to automatically load its exercises.</div>`;
+
+  box.dataset.plan=key;
+}
+
+function updatePrescription(day,index,field,value){
+  window.akhadaPrescriptionDraft=window.akhadaPrescriptionDraft||{};
+  window.akhadaPrescriptionDraft[day]=window.akhadaPrescriptionDraft[day]||[];
+  window.akhadaPrescriptionDraft[day][index]=window.akhadaPrescriptionDraft[day][index]||{};
+  window.akhadaPrescriptionDraft[day][index][field]=value;
+}
+
+function bindWorkoutPlanAutoLoad(){
+  document.querySelectorAll("select").forEach(sel=>{
+    const opts=[...sel.options].map(o=>o.textContent).join("|");
+    if(!/Chest|Back|Shoulder|Biceps|Triceps|Weight Loss/.test(opts))return;
+    if(sel.dataset.akhadaBound==="1")return;
+    sel.dataset.akhadaBound="1";
+    sel.addEventListener("change",()=>{
+      const row=sel.closest("tr,.weekly-assignment-row,.assignment-row");
+      const day=row?.querySelector(".day-name")?.textContent?.trim() || row?.dataset?.day || "";
+      if(day)populatePlanExercises(day,sel.value);
+    });
+  });
+}
+document.addEventListener("DOMContentLoaded",()=>setTimeout(bindWorkoutPlanAutoLoad,250));
+</script>
+
+<script>
+(function(){
+  function showExpenseModal(type){
+    const isSalary = type === "salary";
+    const title = isSalary ? "Add Staff Salary" : "Add Other Expense";
+    const form = isSalary ? `
+      <div class="expense-form-grid">
+        <label>Staff Name *<input id="expenseStaffName" placeholder="Select / enter staff name"></label>
+        <label>Salary Month *<input id="expenseSalaryMonth" type="month"></label>
+        <label>Amount (₹) *<input id="expenseSalaryAmount" type="number" min="0" step="1" placeholder="Enter salary amount"></label>
+        <label>Payment Mode
+          <select id="expenseSalaryMode"><option>Cash</option><option>Bank Transfer</option><option>UPI</option><option>Cheque</option></select>
+        </label>
+        <label class="full">Remarks<textarea id="expenseSalaryRemarks" placeholder="Optional remarks"></textarea></label>
+      </div>` : `
+      <div class="expense-form-grid">
+        <label>Expense Category *<select id="expenseOtherCategory">
+          <option>Equipment / Repair</option><option>Electricity</option><option>Rent</option>
+          <option>Cleaning</option><option>Maintenance</option><option>Marketing</option>
+          <option>Supplies</option><option>Other</option>
+        </select></label>
+        <label>Vendor Name *<input id="expenseVendorName" placeholder="Enter vendor name"></label>
+        <label>Amount (₹) *<input id="expenseOtherAmount" type="number" min="0" step="1" placeholder="Enter amount"></label>
+        <label>Payment Mode
+          <select id="expenseOtherMode"><option>Cash</option><option>Bank Transfer</option><option>UPI</option><option>Cheque</option></select>
+        </label>
+        <label>Expense Date *<input id="expenseOtherDate" type="date"></label>
+        <label>Bill / Invoice No.<input id="expenseInvoiceNo" placeholder="Optional"></label>
+        <label class="full">Remarks<textarea id="expenseOtherRemarks" placeholder="Optional remarks"></textarea></label>
+      </div>`;
+
+    const content = `
+      <div class="expense-modal-inner">
+        <button type="button" class="expense-modal-close" aria-label="Close" onclick="closeExpenseModal()">×</button>
+        <h2>${title}</h2>
+        <p class="muted">${isSalary
+          ? "Manager can enter salary records. Edit/Delete remains Owner-only."
+          : "Vendor name is mandatory for accountability. Edit/Delete remains Owner-only."}</p>
+        ${form}
+        <div class="expense-modal-actions">
+          <button type="button" class="btn" onclick="closeExpenseModal()">Cancel</button>
+          <button type="button" class="btn greenbtn" onclick="saveExpenseEntry('${type}')">Save Entry</button>
+        </div>
+      </div>`;
+
+    let overlay=document.getElementById("expenseModal");
+    if(!overlay){
+      overlay=document.createElement("div");
+      overlay.id="expenseModal";
+      overlay.className="expense-modal-overlay";
+      document.body.appendChild(overlay);
+    }
+    overlay.innerHTML=content;
+    overlay.style.display="flex";
+    document.body.classList.add("modal-open");
+  }
+
+  window.openStaffSalaryForm=function(){ showExpenseModal("salary"); };
+  window.openOtherExpenseForm=function(){ showExpenseModal("other"); };
+  window.closeExpenseModal=function(){
+    const o=document.getElementById("expenseModal");
+    if(o){o.style.display="none";o.innerHTML="";}
+    document.body.classList.remove("modal-open");
+  };
+
+  window.saveExpenseEntry=function(type){
+    if(type==="salary"){
+      const staff=document.getElementById("expenseStaffName")?.value.trim();
+      const amount=document.getElementById("expenseSalaryAmount")?.value;
+      const month=document.getElementById("expenseSalaryMonth")?.value;
+      if(!staff||!amount||!month){ alert("Staff Name, Salary Month and Amount are required."); return; }
+    }else{
+      const vendor=document.getElementById("expenseVendorName")?.value.trim();
+      const amount=document.getElementById("expenseOtherAmount")?.value;
+      const date=document.getElementById("expenseOtherDate")?.value;
+      if(!vendor||!amount||!date){ alert("Vendor Name, Amount and Expense Date are required."); return; }
+    }
+    closeExpenseModal();
+    if(typeof toast==="function") toast(type==="salary" ? "Staff salary entry saved." : "Other expense entry saved.");
+  };
+
+  document.addEventListener("click",function(e){
+    const b=e.target.closest(
+      '[onclick*="Staff Salary"],[onclick*="Other Expense"],' +
+      '[data-action="staff-salary"],[data-action="other-expense"],' +
+      '.add-staff-salary,.add-other-expense'
+    );
+    if(!b)return;
+    const txt=(b.textContent||"").toLowerCase();
+    const attr=b.getAttribute("data-action")||"";
+    if(txt.includes("staff salary")||attr==="staff-salary"){
+      e.preventDefault(); e.stopPropagation(); showExpenseModal("salary");
+    }else if(txt.includes("other expense")||attr==="other-expense"){
+      e.preventDefault(); e.stopPropagation(); showExpenseModal("other");
+    }
+  },true);
+})();
+</script>
+
+
+<script>
+(function(){
+  const MEALS=["Breakfast","Morning Snack","Lunch","Evening Snack","Dinner"];
+  window.akhadaDietDraft=window.akhadaDietDraft||{};
+
+  const foodRows = ()=>(
+    typeof combinedAkhadaFoods!=="undefined" ? combinedAkhadaFoods :
+    (typeof bilingualFoods!=="undefined" ? bilingualFoods : [])
+  );
+
+  function mealId(day,meal){
+    return "akhada-diet-"+day.replace(/[^A-Za-z0-9]/g,"")+"-"+meal.replace(/[^A-Za-z0-9]/g,"");
+  }
+
+  window.openWorkingFoodPicker=function(day,meal){
+    const foods=foodRows();
+    let overlay=document.getElementById("workingFoodModal");
+    if(!overlay){
+      overlay=document.createElement("div");
+      overlay.id="workingFoodModal";
+      overlay.className="working-food-overlay";
+      document.body.appendChild(overlay);
+    }
+
+    overlay.innerHTML=`
+      <div class="working-food-modal">
+        <button type="button" class="working-food-close" onclick="closeWorkingFoodPicker()">×</button>
+        <h2>${meal} — ${day}</h2>
+        <p class="muted">Select multiple food items. Add quantity in grams for each item.</p>
+        <input id="workingFoodSearch" class="library-search" placeholder="Search Hindi/Roman or English food..." oninput="renderWorkingFoodResults('${day}','${meal}')">
+        <div id="workingFoodResults" class="working-food-results"></div>
+        <div class="working-food-footer">
+          <button class="btn" onclick="closeWorkingFoodPicker()">Done</button>
+        </div>
+      </div>`;
+    overlay.style.display="flex";
+    document.body.classList.add("modal-open");
+    renderWorkingFoodResults(day,meal);
+  };
+
+  window.renderWorkingFoodResults=function(day,meal){
+    const q=(document.getElementById("workingFoodSearch")?.value||"").toLowerCase();
+    const foods=foodRows().filter(f=>f.join(" ").toLowerCase().includes(q));
+    const box=document.getElementById("workingFoodResults");
+    if(!box)return;
+
+    box.innerHTML=foods.slice(0,150).map((f,i)=>`
+      <div class="working-food-item">
+        <div class="food-emoji">🍽️</div>
+        <div class="food-main">
+          <b>${f[0]}</b>
+          <span>${f[1]}</span>
+          <small>${f[2]} kcal/100g · Protein ${f[3]}g · Carbs ${f[4]}g · Fat ${f[5]}g</small>
+        </div>
+        <div class="food-add-controls">
+          <input id="foodGram-${i}" type="number" min="1" value="100" aria-label="grams">
+          <button class="btn light" onclick="addWorkingFood('${day}','${meal}',${i})">Add</button>
+        </div>
+      </div>`).join("") || `<div class="empty-prescription">No food found.</div>`;
+  };
+
+  window.addWorkingFood=function(day,meal,index){
+    const q=(document.getElementById("workingFoodSearch")?.value||"").toLowerCase();
+    const foods=foodRows().filter(f=>f.join(" ").toLowerCase().includes(q));
+    const f=foods[index];
+    if(!f)return;
+    const grams=Math.max(1,Number(document.getElementById("foodGram-"+index)?.value||100));
+
+    akhadaDietDraft[day]=akhadaDietDraft[day]||{};
+    akhadaDietDraft[day][meal]=akhadaDietDraft[day][meal]||[];
+    akhadaDietDraft[day][meal].push({
+      name:f[0],english:f[1],grams,
+      kcal100:Number(f[2])||0,protein100:Number(f[3])||0,
+      carbs100:Number(f[4])||0,fat100:Number(f[5])||0
+    });
+    renderWorkingMeal(day,meal);
+  };
+
+  window.removeWorkingFood=function(day,meal,index){
+    akhadaDietDraft[day][meal].splice(index,1);
+    renderWorkingMeal(day,meal);
+  };
+
+  window.renderWorkingMeal=function(day,meal){
+    const box=document.getElementById(mealId(day,meal));
+    if(!box)return;
+    const items=akhadaDietDraft[day]?.[meal]||[];
+    const total=items.reduce((s,f)=>s+(f.kcal100*f.grams/100),0);
+    box.innerHTML=`
+      <div class="meal-cell-top">
+        <button class="diet-add-working" onclick="openWorkingFoodPicker('${day}','${meal}')">＋ Add Food</button>
+        <b>${Math.round(total)} kcal</b>
+      </div>
+      ${items.map((f,i)=>`
+        <div class="assigned-food">
+          <span>🍽️</span>
+          <div><b>${f.name}</b><small>${f.english} · ${f.grams}g · ${Math.round(f.kcal100*f.grams/100)} kcal</small></div>
+          <button type="button" onclick="removeWorkingFood('${day}','${meal}',${i})">×</button>
+        </div>`).join("")}
+      ${items.length===0?'<span class="empty-meal">No food assigned</span>':''}`;
+  };
+
+  window.closeWorkingFoodPicker=function(){
+    const o=document.getElementById("workingFoodModal");
+    if(o)o.style.display="none";
+    document.body.classList.remove("modal-open");
+  };
+
+  window.initWorkingDietGrid=function(){
+    const days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    days.forEach(d=>MEALS.forEach(m=>renderWorkingMeal(d,m)));
+  };
+
+  // If old diet buttons exist, route them to the working selector.
+  document.addEventListener("click",function(e){
+    const b=e.target.closest(".diet-add,.diet-add-food,[data-diet-add]");
+    if(!b)return;
+    const day=b.getAttribute("data-day"), meal=b.getAttribute("data-meal");
+    if(day&&meal){
+      e.preventDefault(); e.stopImmediatePropagation();
+      openWorkingFoodPicker(day,meal);
+    }
+  },true);
+
+  document.addEventListener("DOMContentLoaded",()=>setTimeout(initWorkingDietGrid,200));
 })();
 </script>
 </body>
