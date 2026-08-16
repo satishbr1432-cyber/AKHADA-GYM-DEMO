@@ -272,6 +272,78 @@ body[data-role="trainer"] #settings{display:none !important}
 .branding-settings-page .owner-branding-card{margin-top:8px!important}
 .branding-settings-page .owner-branding-card h3{margin-top:0}
 </style>
+
+<style>
+/* FIX: Branding controls belong ONLY to Owner > Settings */
+.page:not(#settings) .owner-branding-card,
+.page:not(#settings) .branding-form,
+.page:not(#settings) .branding-settings-page,
+.page:not(#settings) [id*="brandGym"],
+.page:not(#settings) [id*="brandTagline"],
+.page:not(#settings) [id*="brandLogo"]{display:none!important}
+
+/* Do not render the branding editor as a page footer/global block. */
+.owner-branding-card{display:block!important;position:relative;float:none;clear:both}
+.branding-settings-page{display:block}
+</style>
+
+<style>
+/* Final branding cleanup */
+#brandingModal,#brandName,#brandLogo{display:none!important}
+.branding-settings-page{padding-top:0!important}
+.branding-settings-page .owner-branding-card{margin-top:8px!important}
+</style>
+
+<style>
+.modal .close,.modal-overlay .close,.popup .close{
+  position:absolute;
+  top:10px;
+  right:12px;
+  z-index:99999;
+  pointer-events:auto;
+  cursor:pointer;
+  min-width:32px;
+  min-height:32px;
+  border:0;
+  background:transparent;
+  font-size:24px;
+  line-height:1;
+}
+</style>
+
+<style>
+.diet-week-grid-wrap{overflow-x:auto;margin-top:14px}
+.diet-week-grid{display:grid;grid-template-columns:100px repeat(5,minmax(190px,1fr));min-width:1050px;border:1px solid #e5e5e5;border-radius:12px;overflow:hidden;background:#fff}
+.diet-grid-head,.diet-day,.diet-cell{padding:12px;border-right:1px solid #eee;border-bottom:1px solid #eee}
+.diet-grid-head{background:#f7f7f7;font-weight:800;text-align:center;line-height:1.25}.diet-grid-head small{display:block;color:#777;font-weight:500;margin-top:3px}
+.diet-day{font-weight:800;background:#fbfbfb}.diet-day .holiday{font-size:11px;color:#888;margin-top:5px}
+.diet-cell{min-height:120px;vertical-align:top}.diet-add{border:1px dashed #bbb;background:#fafafa;border-radius:7px;padding:6px 9px;cursor:pointer;font-size:12px}
+.diet-option{display:grid;grid-template-columns:24px 1fr 22px;gap:6px;align-items:center;border:1px solid #eee;border-radius:8px;padding:7px;margin-top:7px;background:#fcfcfc}
+.diet-option small{display:block;color:#777;font-size:11px;margin-top:2px}.diet-remove{border:0;background:transparent;color:#999;cursor:pointer;font-size:17px}
+@media(max-width:900px){.diet-week-grid{min-width:1050px}}
+</style>
+
+<style>
+/* Workout + food popup close button */
+.modal .close,.modal-overlay .close,.popup .close,
+.modal [data-close-modal],.modal-overlay [data-close-modal],.popup [data-close-modal]{
+  position:absolute!important;
+  top:8px!important;
+  right:10px!important;
+  z-index:2147483647!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:36px!important;
+  height:36px!important;
+  cursor:pointer!important;
+  pointer-events:auto!important;
+  border:0!important;
+  background:transparent!important;
+  font-size:25px!important;
+  line-height:1!important;
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -488,24 +560,68 @@ body[data-role="trainer"] #settings{display:none !important}
    <div><label><b>Calorie Target</b></label><select id="dayDietCalories"></select></div>
   </div>
 
-  <div class="diet-week-table">
-   <div class="diet-week-row diet-week-head">
-    <div>Day</div><div>Meals / Food Items</div><div>Daily Total</div>
-   </div>
-   <div class="diet-week-row">
-    <div><b>Sunday</b><span class="holiday">Flexible / Rest Day</span></div>
-    <div><button class="btn light" onclick="trainerFoodSearch('Sunday')">＋ Add Food</button><div id="dayDietItems-Sunday" class="diet-items"></div></div>
-    <div id="dayDietTotal-Sunday">0 kcal</div>
-   </div>
-   <div class="diet-week-row"><div><b>Monday</b></div><div><button class="btn light" onclick="trainerFoodSearch('Monday')">＋ Add Food</button><div id="dayDietItems-Monday" class="diet-items"></div></div><div id="dayDietTotal-Monday">0 kcal</div></div>
-   <div class="diet-week-row"><div><b>Tuesday</b></div><div><button class="btn light" onclick="trainerFoodSearch('Tuesday')">＋ Add Food</button><div id="dayDietItems-Tuesday" class="diet-items"></div></div><div id="dayDietTotal-Tuesday">0 kcal</div></div>
-   <div class="diet-week-row"><div><b>Wednesday</b></div><div><button class="btn light" onclick="trainerFoodSearch('Wednesday')">＋ Add Food</button><div id="dayDietItems-Wednesday" class="diet-items"></div></div><div id="dayDietTotal-Wednesday">0 kcal</div></div>
-   <div class="diet-week-row"><div><b>Thursday</b></div><div><button class="btn light" onclick="trainerFoodSearch('Thursday')">＋ Add Food</button><div id="dayDietItems-Thursday" class="diet-items"></div></div><div id="dayDietTotal-Thursday">0 kcal</div></div>
-   <div class="diet-week-row"><div><b>Friday</b></div><div><button class="btn light" onclick="trainerFoodSearch('Friday')">＋ Add Food</button><div id="dayDietItems-Friday" class="diet-items"></div></div><div id="dayDietTotal-Friday">0 kcal</div></div>
-   <div class="diet-week-row"><div><b>Saturday</b></div><div><button class="btn light" onclick="trainerFoodSearch('Saturday')">＋ Add Food</button><div id="dayDietItems-Saturday" class="diet-items"></div></div><div id="dayDietTotal-Saturday">0 kcal</div></div>
-  </div>
+  
+<div class="diet-week-grid-wrap">
+  <div class="diet-week-grid">
+    <div class="diet-grid-head day-col">Day</div>
+    <div class="diet-grid-head">🍳 Breakfast<br><small>3+ options</small></div>
+    <div class="diet-grid-head">🍎 Morning Snack<br><small>2 options</small></div>
+    <div class="diet-grid-head">🍱 Lunch<br><small>3+ options</small></div>
+    <div class="diet-grid-head">🥤 Evening / Pre-Workout<br><small>2 options</small></div>
+    <div class="diet-grid-head">🍽️ Dinner<br><small>3+ options</small></div>
 
-  <div class="weekly-actions">
+    <div class="diet-day">Sunday<div class="holiday">Rest / Flexible</div></div>
+    <div class="diet-cell" id="diet-cell-Sunday-Breakfast"><button class="diet-add" onclick="openDayDietPicker('Sunday','Breakfast')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Sunday-MorningSnack"><button class="diet-add" onclick="openDayDietPicker('Sunday','Morning Snack')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Sunday-Lunch"><button class="diet-add" onclick="openDayDietPicker('Sunday','Lunch')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Sunday-EveningSnack"><button class="diet-add" onclick="openDayDietPicker('Sunday','Evening Snack')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Sunday-Dinner"><button class="diet-add" onclick="openDayDietPicker('Sunday','Dinner')">＋ Add</button></div>
+
+    <div class="diet-day">Monday</div>
+    <div class="diet-cell" id="diet-cell-Monday-Breakfast"><button class="diet-add" onclick="openDayDietPicker('Monday','Breakfast')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Monday-MorningSnack"><button class="diet-add" onclick="openDayDietPicker('Monday','Morning Snack')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Monday-Lunch"><button class="diet-add" onclick="openDayDietPicker('Monday','Lunch')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Monday-EveningSnack"><button class="diet-add" onclick="openDayDietPicker('Monday','Evening Snack')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Monday-Dinner"><button class="diet-add" onclick="openDayDietPicker('Monday','Dinner')">＋ Add</button></div>
+
+    <div class="diet-day">Tuesday</div>
+    <div class="diet-cell" id="diet-cell-Tuesday-Breakfast"><button class="diet-add" onclick="openDayDietPicker('Tuesday','Breakfast')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Tuesday-MorningSnack"><button class="diet-add" onclick="openDayDietPicker('Tuesday','Morning Snack')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Tuesday-Lunch"><button class="diet-add" onclick="openDayDietPicker('Tuesday','Lunch')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Tuesday-EveningSnack"><button class="diet-add" onclick="openDayDietPicker('Tuesday','Evening Snack')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Tuesday-Dinner"><button class="diet-add" onclick="openDayDietPicker('Tuesday','Dinner')">＋ Add</button></div>
+
+    <div class="diet-day">Wednesday</div>
+    <div class="diet-cell" id="diet-cell-Wednesday-Breakfast"><button class="diet-add" onclick="openDayDietPicker('Wednesday','Breakfast')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Wednesday-MorningSnack"><button class="diet-add" onclick="openDayDietPicker('Wednesday','Morning Snack')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Wednesday-Lunch"><button class="diet-add" onclick="openDayDietPicker('Wednesday','Lunch')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Wednesday-EveningSnack"><button class="diet-add" onclick="openDayDietPicker('Wednesday','Evening Snack')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Wednesday-Dinner"><button class="diet-add" onclick="openDayDietPicker('Wednesday','Dinner')">＋ Add</button></div>
+
+    <div class="diet-day">Thursday</div>
+    <div class="diet-cell" id="diet-cell-Thursday-Breakfast"><button class="diet-add" onclick="openDayDietPicker('Thursday','Breakfast')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Thursday-MorningSnack"><button class="diet-add" onclick="openDayDietPicker('Thursday','Morning Snack')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Thursday-Lunch"><button class="diet-add" onclick="openDayDietPicker('Thursday','Lunch')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Thursday-EveningSnack"><button class="diet-add" onclick="openDayDietPicker('Thursday','Evening Snack')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Thursday-Dinner"><button class="diet-add" onclick="openDayDietPicker('Thursday','Dinner')">＋ Add</button></div>
+
+    <div class="diet-day">Friday</div>
+    <div class="diet-cell" id="diet-cell-Friday-Breakfast"><button class="diet-add" onclick="openDayDietPicker('Friday','Breakfast')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Friday-MorningSnack"><button class="diet-add" onclick="openDayDietPicker('Friday','Morning Snack')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Friday-Lunch"><button class="diet-add" onclick="openDayDietPicker('Friday','Lunch')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Friday-EveningSnack"><button class="diet-add" onclick="openDayDietPicker('Friday','Evening Snack')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Friday-Dinner"><button class="diet-add" onclick="openDayDietPicker('Friday','Dinner')">＋ Add</button></div>
+
+    <div class="diet-day">Saturday</div>
+    <div class="diet-cell" id="diet-cell-Saturday-Breakfast"><button class="diet-add" onclick="openDayDietPicker('Saturday','Breakfast')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Saturday-MorningSnack"><button class="diet-add" onclick="openDayDietPicker('Saturday','Morning Snack')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Saturday-Lunch"><button class="diet-add" onclick="openDayDietPicker('Saturday','Lunch')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Saturday-EveningSnack"><button class="diet-add" onclick="openDayDietPicker('Saturday','Evening Snack')">＋ Add</button></div>
+    <div class="diet-cell" id="diet-cell-Saturday-Dinner"><button class="diet-add" onclick="openDayDietPicker('Saturday','Dinner')">＋ Add</button></div>
+  </div>
+</div>
+
+<div class="weekly-actions">
    <button class="btn" onclick="clearDayDiet()">Clear Week</button>
    <button class="btn greenbtn" onclick="saveDayDiet()">Save Weekly Diet</button>
   </div>
@@ -638,46 +754,53 @@ body[data-role="trainer"] #settings{display:none !important}
   </div>
 </section>
 
+
 <section id="settings" class="page branding-settings-page">
   <div class="header">
-    <div><h1>Settings</h1><p class="muted">Owner-only gym branding and application settings.</p></div>
+    <div>
+      <h1>Settings</h1>
+      <p class="muted">Owner-only gym settings.</p>
+    </div>
   </div>
 
   <div class="card owner-branding-card">
-    <h3>Gym Branding</h3>
-    <p class="muted">Only Owner can change the gym name, tagline and logo. These settings will be used across the application where branding is displayed.</p>
+    <h2>Gym Branding</h2>
+    <p class="muted">Only Owner can change these settings. The selected branding is used by the application.</p>
 
     <div class="branding-form">
       <div>
-        <label><b>Gym Name</b></label>
-        <input id="brandGymName" value="AKHADA">
+        <label for="brandGymName"><b>Gym Name</b></label>
+        <input id="brandGymName" type="text" value="AKHADA" autocomplete="off">
       </div>
+
       <div>
-        <label><b>Tagline</b></label>
-        <input id="brandTagline" value="The Lifestyle Gym">
+        <label for="brandTagline"><b>Tagline</b></label>
+        <input id="brandTagline" type="text" value="The Lifestyle Gym" autocomplete="off">
       </div>
+
       <div class="branding-logo-field">
-        <label><b>Gym Logo</b></label>
+        <label for="brandLogoFile"><b>Gym Logo</b></label>
         <input id="brandLogoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
         <div class="logo-preview-wrap">
           <img id="brandLogoPreview" alt="Logo preview">
-          <span id="brandLogoPlaceholder">No logo selected</span>
+          <span id="brandLogoPlaceholder">Current logo / preview</span>
         </div>
       </div>
     </div>
 
     <div class="branding-actions">
-      <button class="btn" onclick="resetBrandingPreview()">Reset Preview</button>
       <button class="btn greenbtn" onclick="saveGymBranding()">Save Branding</button>
+      <button class="btn" onclick="resetBrandingPreview()">Reset</button>
     </div>
     <p id="brandingStatus" class="muted"></p>
   </div>
 
   <div class="card">
-    <h3>Branding Permission</h3>
-    <p class="muted">Owner: Full access · Manager/Trainer/Member: Cannot change gym name, tagline or logo.</p>
+    <h3>Permission</h3>
+    <p class="muted">Owner: Full access · Manager: View only · Trainer: View only · Member: View only.</p>
   </div>
 </section>
+
 
 
 
@@ -749,7 +872,7 @@ body[data-role="trainer"] #settings{display:none !important}
   <button data-page="reports"><b>▥</b>Reports</button>
 </div>
 
-<div id="modalBack" class="modalback"><div class="modal"><div class="modalhead"><h2 id="modalTitle">Form</h2><button class="close" onclick="closeModal()">×</button></div><div id="modalBody"></div></div></div>
+<div id="modalBack" class="modalback"><div class="modal"><div class="modalhead"><h2 id="modalTitle">Form</h2><button type="button" data-close-modal class="close" onclick="closeModal()" type="button" data-close-modal>×</button></div><div id="modalBody"></div></div></div>
 <div id="toast" class="toast"></div>
 
 <script>
@@ -1041,17 +1164,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
 renderMembers();renderLeads();renderInquiries();renderRoleSelector();switchRole('Owner');renderProgressPage();renderWorkoutPlans();renderDietPlans();
 </script>
 
-<div id="brandingModal" class="modal">
- <div class="modalbox">
-  <button class="close" onclick="closeModal('branding')">×</button>
-  <h2>Gym Branding</h2>
-  <p class="muted">Only Owner can change the gym name, tagline and logo.</p>
-  <label>Gym Name</label><input id="brandName" value="AKHADA">
-  <label>Tagline</label><input id="brandTagline" value="The Lifestyle Gym">
-  <label>Logo URL (optional)</label><input id="brandLogo" placeholder="Paste an image URL">
-  <button class="btn gold" onclick="saveBranding()">Save Branding</button>
- </div>
-</div>
+
 
 <script>
 const dietTemplates = {"1400": {"Weight Loss": {"Vegetarian": [["Breakfast", "Option 1: Oats + low-fat milk + apple", "Option 2: Vegetable poha + curd"], ["Mid-Morning", "Option 1: Orange + 8 almonds", "Option 2: Guava + 2 walnuts"], ["Lunch", "Option 1: 2 roti + dal + mixed vegetables + salad", "Option 2: 1 bowl rice + rajma + salad"], ["Pre-Workout", "Option 1: Banana", "Option 2: Apple + light snack"], ["Post-Workout", "Option 1: Curd + fruit", "Option 2: Milk + roasted chana"], ["Dinner", "Option 1: 2 roti + paneer/tofu + vegetables", "Option 2: Moong dal + vegetables + 1 roti"]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + fruit", "Option 2: 2 eggs + vegetable poha"], ["Mid-Morning", "Option 1: Orange + almonds", "Option 2: Guava + walnuts"], ["Lunch", "Option 1: 2 roti + dal + chicken + salad", "Option 2: Rice + chicken curry + vegetables"], ["Pre-Workout", "Option 1: Banana", "Option 2: Apple + light snack"], ["Post-Workout", "Option 1: Curd + fruit", "Option 2: Milk + egg whites"], ["Dinner", "Option 1: 2 roti + grilled chicken + vegetables", "Option 2: Fish + vegetables + 1 roti"]]}}, "1800": {"Weight Loss": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + seeds", "Option 2: 2 moong chilla + curd + fruit"], ["Mid-Morning", "Option 1: Apple + almonds", "Option 2: Orange + walnuts"], ["Lunch", "Option 1: 2 roti + dal + paneer + salad", "Option 2: Rice + rajma + curd + salad"], ["Pre-Workout", "Option 1: Banana + black coffee", "Option 2: Fruit + roasted chana"], ["Post-Workout", "Option 1: Milk + curd", "Option 2: Paneer/tofu + fruit"], ["Dinner", "Option 1: 2 roti + paneer/tofu + vegetables", "Option 2: Dal + rice + vegetables"]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + fruit", "Option 2: 2 eggs + 2 toast + fruit"], ["Mid-Morning", "Option 1: Apple + almonds", "Option 2: Orange + walnuts"], ["Lunch", "Option 1: 2 roti + chicken + dal + salad", "Option 2: Rice + fish + vegetables"], ["Pre-Workout", "Option 1: Banana + black coffee", "Option 2: Fruit + roasted chana"], ["Post-Workout", "Option 1: Curd + egg whites", "Option 2: Milk + fruit"], ["Dinner", "Option 1: 2 roti + grilled chicken + vegetables", "Option 2: Fish + dal + vegetables"]]}}, "2200": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts", "Option 2: Paneer sandwich + fruit"], ["Mid-Morning", "Option 1: Apple + almonds", "Option 2: Banana + walnuts"], ["Lunch", "Option 1: 3 roti + dal + paneer + salad", "Option 2: Rice + rajma + curd + vegetables"], ["Pre-Workout", "Option 1: Banana + curd", "Option 2: Fruit + roasted chana"], ["Post-Workout", "Option 1: Milk + paneer/tofu", "Option 2: Curd + fruit + nuts"], ["Dinner", "Option 1: 3 roti + dal + vegetables", "Option 2: Rice + paneer + vegetables"]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana", "Option 2: 3 eggs + toast + fruit"], ["Mid-Morning", "Option 1: Apple + almonds", "Option 2: Banana + walnuts"], ["Lunch", "Option 1: 3 roti + chicken + dal + salad", "Option 2: Rice + fish + vegetables + curd"], ["Pre-Workout", "Option 1: Banana + curd", "Option 2: Fruit + roasted chana"], ["Post-Workout", "Option 1: Milk + eggs", "Option 2: Curd + fruit"], ["Dinner", "Option 1: 3 roti + chicken + vegetables", "Option 2: Fish + rice + vegetables"]]}}, "1600": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}, "2000": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}, "2400": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}, "2600": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}, "2800": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}, "3000": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}};
@@ -2106,6 +2219,152 @@ function resetBrandingPreview(){
   applyGymBranding();
 }
 document.addEventListener("DOMContentLoaded",()=>setTimeout(applyGymBranding,100));
+</script>
+
+<script>
+(function(){
+  function closeDynamicPopup(target){
+    const modal = target.closest('.modal, .modal-overlay, .popup, .modalbox')?.closest('.modal, .modal-overlay, .popup') 
+                  || target.closest('.modal, .modal-overlay, .popup');
+    if(modal){
+      modal.style.display='none';
+      modal.removeAttribute('open');
+      if(modal.parentElement && modal.id && /^modal|popup/i.test(modal.id)) modal.parentElement.removeChild(modal);
+      return true;
+    }
+    return false;
+  }
+
+  document.addEventListener('click', function(e){
+    const x=e.target.closest('.modal .close, .modal-overlay .close, .popup .close, [data-close-modal]');
+    if(!x) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Try the app's existing modal function first.
+    try{
+      if(typeof closeModal==='function'){
+        const id=x.getAttribute('data-modal') || x.closest('.modal')?.id;
+        if(id){ closeModal(id); }
+        else { closeModal(); }
+      }
+    }catch(_){}
+
+    // Then force-close/remove the visible popup if it is still present.
+    const m=x.closest('.modal, .modal-overlay, .popup');
+    if(m){
+      m.style.display='none';
+      m.classList.remove('show','open','active');
+      if(m.parentElement) m.parentElement.removeChild(m);
+    }
+  }, true);
+})();
+</script>
+
+<script>
+const akhadaMealSlots=["Breakfast","Morning Snack","Lunch","Evening Snack","Dinner"];
+function mealKey(meal){return meal.replace(/\s+/g,"");}
+function openDayDietPicker(day,meal){
+  const foods=(typeof combinedAkhadaFoods!=="undefined"?combinedAkhadaFoods:(typeof bilingualFoods!=="undefined"?bilingualFoods:[]));
+  openAnyModal(`
+    <h2>${meal} — ${day}</h2>
+    <p class="muted">Choose multiple foods. Main meals should have at least 3 options; each snack has 2 options.</p>
+    <input id="mealFoodSearch" class="library-search" placeholder="Search Hindi/Roman or English food..." oninput="filterMealFoods('${day}','${meal}')">
+    <div id="mealFoodResults" class="master-library-grid"></div>
+    <div class="modal-actions"><button class="btn" onclick="closeAnyModal()">Done</button></div>`);
+  filterMealFoods(day,meal);
+}
+function filterMealFoods(day,meal){
+  const foods=(typeof combinedAkhadaFoods!=="undefined"?combinedAkhadaFoods:(typeof bilingualFoods!=="undefined"?bilingualFoods:[]));
+  const q=(document.getElementById("mealFoodSearch")?.value||"").toLowerCase();
+  const rows=foods.filter(f=>f.join(" ").toLowerCase().includes(q));
+  const box=document.getElementById("mealFoodResults");if(!box)return;
+  box.innerHTML=rows.map((f,i)=>`<div class="master-item food-search-item">
+    <span class="food-photo">🍽️</span>
+    <span><b>${f[0]}</b><div class="english-name">${f[1]}</div><small>${f[2]} kcal/100g · P ${f[3]}g · C ${f[4]}g · F ${f[5]}g</small></span>
+    <button class="btn light" onclick="addMealFood('${day}','${meal}',${i})">Add</button>
+  </div>`).join("");
+}
+function addMealFood(day,meal,i){
+  const foods=(typeof combinedAkhadaFoods!=="undefined"?combinedAkhadaFoods:bilingualFoods);
+  const q=(document.getElementById("mealFoodSearch")?.value||"").toLowerCase();
+  const rows=foods.filter(f=>f.join(" ").toLowerCase().includes(q));
+  const f=rows[i];if(!f)return;
+  dayDietDraft[day]=dayDietDraft[day]||{};
+  dayDietDraft[day][meal]=dayDietDraft[day][meal]||[];
+  dayDietDraft[day][meal].push({name:f[0],english:f[1],grams:100,kcal100:f[2],protein100:f[3],carbs100:f[4],fat100:f[5]});
+  renderMealCell(day,meal);
+}
+function renderMealCell(day,meal){
+  const id="diet-cell-"+day+"-"+mealKey(meal),box=document.getElementById(id);
+  if(!box)return;
+  const items=(dayDietDraft[day]?.[meal]||[]);
+  box.innerHTML=`<button class="diet-add" onclick="openDayDietPicker('${day}','${meal}')">＋ Add</button>`+
+    items.map((f,i)=>`<div class="diet-option"><span>🍽️</span><div><b>${f.name}</b><small>${f.grams}g · ${(f.kcal100*f.grams/100).toFixed(0)} kcal</small></div><button class="diet-remove" onclick="removeMealFood('${day}','${meal}',${i})">×</button></div>`).join("");
+}
+function removeMealFood(day,meal,i){dayDietDraft[day][meal].splice(i,1);renderMealCell(day,meal);}
+function renderAllMealCells(){dayDietDays.forEach(d=>akhadaMealSlots.forEach(m=>renderMealCell(d,m)));}
+</script>
+
+<script>
+(function(){
+  function forceClosePopup(btn){
+    const candidates = [];
+    let n = btn;
+    for(let i=0;i<6 && n;i++,n=n.parentElement) candidates.push(n);
+
+    // Prefer the nearest actual popup/modal container.
+    let popup = candidates.find(x =>
+      x && (x.classList?.contains("modal") ||
+            x.classList?.contains("modal-overlay") ||
+            x.classList?.contains("popup") ||
+            x.getAttribute?.("role")==="dialog")
+    );
+
+    if(!popup){
+      // Fallback: find the closest container with the visible close control.
+      popup = candidates.find(x => x && x.querySelector && x.querySelector(".close,[data-close-modal]"));
+    }
+
+    if(popup){
+      popup.style.display="none";
+      popup.classList.remove("show","open","active","visible");
+      // Remove only dynamically generated popup wrappers, not permanent app pages.
+      if(popup.parentElement && popup.id && (/modal|popup|dialog/i.test(popup.id))){
+        popup.remove();
+      }
+      return true;
+    }
+    return false;
+  }
+
+  document.addEventListener("click", function(e){
+    const btn=e.target.closest(".close,[data-close-modal],[aria-label='Close'],[aria-label='close']");
+    if(!btn) return;
+
+    const text=(btn.textContent||"").trim();
+    const isClose = text==="×" || text==="✕" || btn.matches("[data-close-modal],[aria-label='Close'],[aria-label='close'],.close");
+    if(!isClose) return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    // Try the application's existing helpers too.
+    try{
+      const id=btn.closest(".modal,.modal-overlay,.popup")?.id;
+      if(typeof closeModal==="function") {
+        if(id) closeModal(id);
+        else closeModal();
+      }
+    }catch(_){}
+    try{
+      if(typeof closeAnyModal==="function") closeAnyModal();
+    }catch(_){}
+
+    // Finally force-hide the exact popup containing this X.
+    forceClosePopup(btn);
+  }, true);
+})();
 </script>
 </body>
 </html>
