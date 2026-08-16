@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#111315">
+<meta name="theme-color" content="#111315"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>AKHADA — The Lifestyle Gym</title>
 <style>
 *{box-sizing:border-box}
@@ -57,7 +57,17 @@ textarea{min-height:90px;resize:vertical}
 .close{border:0;border-radius:50%;width:34px;height:34px;background:#eee;cursor:pointer;font-size:20px}
 .toast{position:fixed;right:18px;bottom:18px;background:#111315;color:#fff;padding:12px 16px;border-radius:10px;display:none;z-index:100;font-size:13px}
 .mobilebar{display:none}
-@media(max-width:900px){
+@media(max-width:767px){
+ .sidebar{display:none}.main{margin-left:0;padding:16px 14px 82px}
+ .cards{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.stage{display:flex;overflow:auto}.stagecol{min-width:210px}
+ .mobilebar{display:flex;position:fixed;left:0;right:0;bottom:0;height:66px;background:#fff;border-top:1px solid #ddd;z-index:30}
+ .mobilebar button{flex:1;border:0;background:#fff;color:#777;font-size:10px}.mobilebar b{display:block;font-size:18px}
+ .mobilebar .active{color:#111;font-weight:900}
+}
+
+/* Installed iPad app: intentionally use the mobile-style interface.
+   iPad browser: uses the desktop/laptop interface above. */
+@media (display-mode: standalone) and (min-width:768px) and (max-width:1024px){
  .sidebar{display:none}.main{margin-left:0;padding:16px 14px 82px}
  .cards{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.stage{display:flex;overflow:auto}.stagecol{min-width:210px}
  .mobilebar{display:flex;position:fixed;left:0;right:0;bottom:0;height:66px;background:#fff;border-top:1px solid #ddd;z-index:30}
@@ -81,7 +91,7 @@ textarea{min-height:90px;resize:vertical}
   <button class="navbtn" data-page="attendance">▤ Check-in / Attendance</button>
   <button class="navbtn" data-page="billing">₹ Billing & Payments</button>
   <button class="navbtn" data-page="dues">! Pending Dues</button>
-  <button class="navbtn" data-page="leads">☆ Potential Members</button>
+  <button class="navbtn" data-page="inquiries">☆ Inquiries</button>
   <button class="navbtn" data-page="batches">◷ Batches / Classes</button>
   <button class="navbtn" data-page="staff">♙ Staff & Permissions</button>
   <button class="navbtn" data-page="trainers">♙ Trainers</button>
@@ -178,10 +188,23 @@ textarea{min-height:90px;resize:vertical}
   </div>
 </section>
 
-<section id="leads" class="page">
-  <div class="header"><h1>Potential Members</h1><button class="btn greenbtn" onclick="openModal('lead')">＋ Add Enquiry</button></div>
-  <div class="cards"><div class="card"><div class="label">New Enquiries</div><div class="value">24</div></div><div class="card"><div class="label">Trials</div><div class="value">8</div></div><div class="card"><div class="label">Converted</div><div class="value green">17</div></div><div class="card"><div class="label">Conversion</div><div class="value">20.2%</div></div></div>
-  <div class="card"><h3>Follow-up Stages</h3><div class="stage" id="leadStage"></div></div>
+<section id="inquiries" class="page">
+  <div class="header"><h1>Inquiries</h1><button class="btn greenbtn" onclick="openModal('lead')">＋ Add Enquiry</button></div>
+  <div class="cards">
+    <div class="card clickable"><div class="label">New Enquiries</div><div class="value">24</div></div>
+    <div class="card clickable"><div class="label">Trials</div><div class="value">8</div></div>
+    <div class="card clickable"><div class="label">Follow-ups Due</div><div class="value orange">6</div></div>
+    <div class="card clickable"><div class="label">Converted</div><div class="value green">17</div></div>
+  </div>
+  <div class="card">
+    <h3>Inquiry List</h3>
+    <input id="inquirySearch" class="search" placeholder="Search name, mobile or source..." oninput="renderInquiries()">
+    <div id="inquiryList"></div>
+  </div>
+  <div class="card">
+    <h3>Stage-wise Follow-up</h3>
+    <div class="stage" id="leadStage"></div>
+  </div>
 </section>
 
 <section id="batches" class="page">
@@ -256,6 +279,14 @@ const stages=[
  ["Converted",["Rahul Verma"]],
  ["Lost",["Sanjay Kumar"]]
 ];
+const inquiries=[
+ {name:"Neha Singh",phone:"98XXXXXX31",source:"Walk-in",plan:"Quarterly",stage:"New",follow:"18 Aug 2026",last:"16 Aug 2026",notes:"Interested in morning batch",initials:"NS"},
+ {name:"Vikas Kumar",phone:"97XXXXXX44",source:"Instagram",plan:"Yearly",stage:"New",follow:"19 Aug 2026",last:"16 Aug 2026",notes:"Asked about annual offer",initials:"VK"},
+ {name:"Amit Sharma",phone:"99XXXXXX52",source:"Referral",plan:"Monthly",stage:"Contacted",follow:"17 Aug 2026",last:"15 Aug 2026",notes:"Call back in evening",initials:"AS"},
+ {name:"Pooja Singh",phone:"96XXXXXX18",source:"Website",plan:"Quarterly",stage:"Trial",follow:"20 Aug 2026",last:"16 Aug 2026",notes:"Trial completed",initials:"PS"},
+ {name:"Rahul Verma",phone:"95XXXXXX62",source:"Walk-in",plan:"Yearly",stage:"Converted",follow:"—",last:"12 Aug 2026",notes:"Converted to member",initials:"RV"},
+ {name:"Sanjay Kumar",phone:"94XXXXXX77",source:"Facebook",plan:"Monthly",stage:"Lost",follow:"—",last:"10 Aug 2026",notes:"Not interested currently",initials:"SK"}
+];
 
 function go(id){
  const page=document.getElementById(id);
@@ -292,8 +323,27 @@ function openProfile(i){
  <div class="actions" style="margin-top:14px"><button class="btn greenbtn" onclick="closeModal();go('billing')">Collect Payment</button><button class="btn" onclick="closeModal();openModal('renew')">Renew</button></div>`);
 }
 function renderLeads(){
- document.getElementById("leadStage").innerHTML=stages.map(s=>`<div class="stagecol"><h3>${s[0]}</h3>${s[1].map(n=>`<div class="lead" onclick="openCustom('<h2>Lead: ${n}</h2><p>Stage: ${s[0]}</p><p>Next follow-up: 19 Aug 2026</p><p>Contact mode: WhatsApp</p><textarea placeholder=&quot;Notes&quot;></textarea>')"><b>${n}</b><br><small>Next follow-up: 19 Aug</small></div>`).join("")}</div>`).join("");
+ document.getElementById("leadStage").innerHTML=stages.map(s=>`<div class="stagecol"><h3>${s[0]}</h3>${s[1].map(n=>`<div class="lead" onclick="openInquiryByName('${n}')"><b>${n}</b><br><small>Next follow-up: 19 Aug</small></div>`).join("")}</div>`).join("");
 }
+function renderInquiries(){
+ const q=(document.getElementById("inquirySearch")?.value||"").toLowerCase();
+ const box=document.getElementById("inquiryList");
+ box.innerHTML=inquiries.filter(x=>(x.name+" "+x.phone+" "+x.source+" "+x.plan).toLowerCase().includes(q)).map((x,i)=>`
+ <div class="memberrow" onclick="openInquiry(${i})">
+   <div class="person"><div class="avatar">${x.initials}</div><div><b>${x.name}</b><div class="label">${x.phone} · Interested: ${x.plan}</div><div class="label">${x.source} · Last: ${x.last} · Next: ${x.follow}</div></div></div>
+   <span class="badge ${x.stage==='Converted'?'ok':x.stage==='Lost'?'red':'warn'}">${x.stage}</span>
+ </div>`).join("") || "<p class='muted'>No inquiries found.</p>";
+}
+function openInquiry(i){
+ const x=inquiries[i];
+ openCustom(`<h2>${x.name}</h2>
+ <div class="person" style="margin-bottom:14px"><div class="avatar">${x.initials}</div><div><b>${x.phone}</b><div class="label">${x.source}</div></div></div>
+ ${[["Interested Plan",x.plan],["Stage",x.stage],["Source",x.source],["Last Follow-up",x.last],["Next Follow-up",x.follow],["Notes",x.notes]].map(a=>`<div class="row"><span>${a[0]}</span><b>${a[1]}</b></div>`).join("")}
+ <h3>Follow-up</h3><textarea placeholder="Add follow-up note"></textarea>
+ <div class="actions"><button class="btn greenbtn" onclick="saveDemo('Follow-up')">Save Follow-up</button><button class="btn" onclick="convertInquiry(${i})">Convert to Member</button></div>`);
+}
+function openInquiryByName(name){const i=inquiries.findIndex(x=>x.name===name);if(i>=0)openInquiry(i)}
+function convertInquiry(i){closeModal();toast(inquiries[i].name+" converted to Member in demo");go("members")}
 function openCustom(content){document.getElementById("modalTitle").textContent="Details";document.getElementById("modalBody").innerHTML=content;document.getElementById("modalBack").classList.add("open")}
 function openModal(type){
  const titles={member:"Add Member",plan:"Create Membership Plan",payment:"Collect Fee",lead:"Add Potential Member",batch:"Add Batch",staff:"Invite Staff",trainer:"Add Trainer",workout:"Workout Plan",diet:"Diet Plan",progress:"Add Progress",expense:"Add Expense",message:"Send Message",renew:"Renew Membership"};
@@ -302,7 +352,7 @@ function openModal(type){
  if(type==="member") c=`<label>Photo</label><input type="file" accept="image/*"><label>First Name</label><input placeholder="Rahul"><label>Last Name</label><input placeholder="Sharma"><label>Mobile</label><input placeholder="+91 98765 43210"><label>Email</label><input placeholder="email@example.com"><label>Membership Plan</label><select><option>Monthly — ₹1,000</option><option>Quarterly — ₹2,500</option><option>Half-Yearly — ₹4,500</option><option>Yearly — ₹8,000</option></select><label>Joining Date</label><input type="date"><label>Membership Start Date</label><input type="date"><label>Next Fee Date</label><input type="date"><label>Expiry Date</label><input type="date"><label>Trainer</label><select><option>Raj Kumar</option><option>Amit Verma</option></select><button class="btn greenbtn" onclick="saveDemo('Member')">Save Member</button>`;
  else if(type==="plan") c=`<input placeholder="Plan Name"><input placeholder="Amount ₹"><input placeholder="Duration in days"><textarea placeholder="Plan features"></textarea><button class="btn greenbtn" onclick="saveDemo('Membership Plan')">Create Plan</button>`;
  else if(type==="payment") c=`<select>${members.map(m=>`<option>${m.name}</option>`).join("")}</select><input placeholder="Amount ₹"><select><option>UPI</option><option>Cash</option><option>Card</option></select><input type="date"><button class="btn greenbtn" onclick="saveDemo('Payment')">Save Payment</button>`;
- else if(type==="lead") c=`<input placeholder="First Name"><input placeholder="Last Name"><input placeholder="Phone"><input placeholder="Email"><select><option>Website</option><option>Referral</option><option>Walk-in</option><option>Social media</option><option>Manual</option></select><select><option>New</option><option>Contacted</option><option>Trial</option><option>Converted</option><option>Lost</option></select><label>Next Follow-up</label><input type="date"><textarea placeholder="Notes"></textarea><button class="btn greenbtn" onclick="saveDemo('Potential Member')">Add Enquiry</button>`;
+ else if(type==="lead") c=`<input id="inqName" placeholder="Full Name"><input id="inqPhone" placeholder="Phone"><input placeholder="Email"><select id="inqSource"><option>Website</option><option>Referral</option><option>Walk-in</option><option>Social media</option><option>Manual</option></select><select id="inqStage"><option>New</option><option>Contacted</option><option>Trial</option><option>Converted</option><option>Lost</option></select><select id="inqPlan"><option>Monthly</option><option>Quarterly</option><option>Half-Yearly</option><option>Yearly</option></select><label>Next Follow-up</label><input id="inqFollow" type="date"><textarea id="inqNotes" placeholder="Notes"></textarea><button class="btn greenbtn" onclick="saveInquiry()">Save Enquiry</button>`;
  else if(type==="batch") c=`<input placeholder="Batch Name"><label>Start Time</label><input type="time"><label>End Time</label><input type="time"><input placeholder="Capacity"><select><option>Raj Kumar</option><option>Amit Verma</option></select><button class="btn greenbtn" onclick="saveDemo('Batch')">Save Batch</button>`;
  else if(type==="staff") c=`<input placeholder="First Name"><input placeholder="Last Name"><input placeholder="Email"><select><option>Trainer</option><option>Manager</option><option>Receptionist</option></select><button class="btn greenbtn" onclick="saveDemo('Staff invitation')">Send Invite</button>`;
  else if(type==="trainer") c=`<input placeholder="Trainer Name"><input placeholder="Phone"><select><option>Active</option><option>Inactive</option></select><button class="btn greenbtn" onclick="saveDemo('Trainer')">Save Trainer</button>`;
@@ -315,11 +365,22 @@ function openModal(type){
  document.getElementById("modalBody").innerHTML=c;
  document.getElementById("modalBack").classList.add("open");
 }
+function saveInquiry(){
+ const name=document.getElementById("inqName").value.trim()||"New Enquiry";
+ const phone=document.getElementById("inqPhone").value.trim()||"Not provided";
+ const source=document.getElementById("inqSource").value;
+ const stage=document.getElementById("inqStage").value;
+ const plan=document.getElementById("inqPlan").value;
+ const follow=document.getElementById("inqFollow").value||"Not set";
+ const notes=document.getElementById("inqNotes").value||"";
+ inquiries.unshift({name,phone,source,plan,stage,follow,last:"Today",notes,initials:initials(name)});
+ closeModal(); renderInquiries(); renderLeads(); go("inquiries"); toast("Enquiry saved — now visible in Inquiry List");
+}
 function saveDemo(label){closeModal();toast(label+" saved in demo mode");}
 function closeModal(){document.getElementById("modalBack").classList.remove("open")}
 function toast(t){const x=document.getElementById("toast");x.textContent=t;x.style.display="block";clearTimeout(window._toast);window._toast=setTimeout(()=>x.style.display="none",2200)}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
-renderMembers();renderLeads();
+renderMembers();renderLeads();renderInquiries();
 </script>
 </body>
 </html>
