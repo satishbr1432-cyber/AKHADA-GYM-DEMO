@@ -81,6 +81,25 @@ textarea{min-height:90px;resize:vertical}
 .actions{display:flex;gap:10px;flex-wrap:wrap}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat{background:#fff;border:1px solid #eee;border-radius:14px;padding:18px}.stat span{display:block;color:#777;font-size:13px;margin-bottom:8px}.stat b{font-size:24px}.tablewrap{overflow:auto}.tablewrap table{width:100%;border-collapse:collapse;min-width:760px}.tablewrap th,.tablewrap td{padding:11px 10px;border-bottom:1px solid #e5e5e5;text-align:left;white-space:nowrap}.tablewrap th{font-size:12px;text-transform:uppercase;color:#777}
 @media(max-width:800px){.grid4{grid-template-columns:repeat(2,1fr)}.actions{width:100%}}
 </style>
+
+<style>
+.diet-filters{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:10px;margin:14px 0}
+.diet-filters select{padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff}
+.diet-title{font-size:22px;font-weight:800;margin:16px 0}
+.meal-grid{display:grid;grid-template-columns:repeat(2,minmax(280px,1fr));gap:14px}
+.meal-card{background:#fff;border:1px solid #e7e7e7;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.meal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.food-option{border:1px solid #eee;border-radius:12px;padding:10px;margin:8px 0;display:grid;grid-template-columns:88px 1fr;gap:10px;align-items:center}
+.food-pic{width:88px;height:72px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:34px;background:#f7f3e8}
+.diet-note{margin-top:16px}
+@media(max-width:800px){.diet-filters{grid-template-columns:1fr 1fr}.meal-grid{grid-template-columns:1fr}}
+</style>
+
+<style>
+.locked-record{opacity:.82}
+.btn.danger{border:1px solid #e6b7b7;color:#b42318;background:#fff}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+</style>
 </head>
 <body>
 <div class="app">
@@ -231,10 +250,29 @@ textarea{min-height:90px;resize:vertical}
   <div class="card"><h3>Rahul Kumar · Day 1</h3><div class="row"><span>Bench Press</span><b>4 × 12</b></div><div class="row"><span>Incline Dumbbell Press</span><b>3 × 12</b></div><div class="row"><span>Cable Fly</span><b>3 × 15</b></div><div class="row"><span>Triceps Pushdown</span><b>3 × 15</b></div></div>
 </section>
 
+
 <section id="diet" class="page">
-  <div class="header"><h1>Diet Plans</h1><button class="btn greenbtn" onclick="openModal('diet')">＋ Create / Assign</button></div>
-  <div class="card"><h3>Rahul Kumar · Fat Loss</h3><div class="row"><span>Breakfast</span><b>Oats + Milk + Fruit</b></div><div class="row"><span>Lunch</span><b>Rice/Roti + Dal + Protein</b></div><div class="row"><span>Evening</span><b>Fruit / Whey</b></div><div class="row"><span>Dinner</span><b>Protein + Vegetables</b></div></div>
+ <div class="header">
+  <div><h1>Diet Plans</h1><p class="muted">Only Owner can edit or delete payment records.</p><p class="muted">Ready templates with two choices per meal. Owner/Trainer can assign a template to a member.</p></div>
+ </div>
+ <div class="diet-filters">
+  <select id="dietCalories"></select>
+  <select id="dietGoal"></select>
+  <select id="dietType"></select>
+  <select id="dietAge">
+   <option>18–25 years</option><option>26–35 years</option><option>36–45 years</option>
+   <option>46–55 years</option><option>55+ years</option>
+  </select>
+  <select id="dietWeight">
+   <option>Under 50 kg</option><option>50–60 kg</option><option>60–70 kg</option>
+   <option>70–80 kg</option><option>80–90 kg</option><option>90+ kg</option>
+  </select>
+ </div>
+ <div id="dietPlanTitle" class="diet-title"></div>
+ <div id="dietMeals" class="meal-grid"></div>
+ <div class="card diet-note"><b>Important:</b> These are general gym templates, not medical prescriptions. Final calorie needs can vary with height, sex, activity, goal, allergies and health conditions. A qualified nutrition professional should personalize plans where needed.</div>
 </section>
+
 
 <section id="progress" class="page">
  <div class="header"><div><h1>My Progress</h1><p class="muted">Owner/Trainer view: select a member. Member login sees only their own records.</p></div><button class="btn greenbtn" onclick="openMeasurementModal()">＋ Add Measurement</button></div>
@@ -249,45 +287,41 @@ textarea{min-height:90px;resize:vertical}
  </div>
 </section>
 
+
 <section id="expenses" class="page">
  <div class="header">
-  <div><h1>Expenses</h1><p class="muted">Track staff salaries and every other gym expense with accountability.</p></div>
+  <div><h1>Expenses & Salary</h1><p class="muted">Manager can record new entries. Only Owner can edit or delete saved financial records.</p></div>
   <div class="actions">
-   <button class="btn" onclick="openExpenseModal('other')">＋ Other Expense</button>
-   <button class="btn greenbtn" onclick="openExpenseModal('salary')">＋ Staff Salary</button>
+   <button class="btn" onclick="guardAKHADA('expenseAdd') && openExpenseModal('other')">＋ Other Expense</button>
+   <button class="btn greenbtn" onclick="guardAKHADA('salaryAdd') && openExpenseModal('salary')">＋ Staff Salary</button>
   </div>
  </div>
- <div class="grid4">
-  <div class="stat"><span>Total Expenses</span><b>₹1.72L</b></div>
-  <div class="stat"><span>Staff Salaries</span><b>₹1.05L</b></div>
-  <div class="stat"><span>Other Expenses</span><b>₹67,000</b></div>
-  <div class="stat"><span>This Month</span><b>₹1.72L</b></div>
- </div>
+
  <div class="card">
   <h3>Staff Salary Payments</h3>
-  <p class="muted">Every salary entry records exactly which staff member received the payment.</p>
+  <p class="muted">Each entry records the staff member who received the salary. Saved records are locked for Manager.</p>
   <div class="tablewrap"><table>
-   <thead><tr><th>Date</th><th>Staff Name</th><th>Month</th><th>Amount</th><th>Remarks</th></tr></thead>
+   <thead><tr><th>Date</th><th>Staff Name</th><th>Month</th><th>Amount</th><th>Remarks</th><th>Action</th></tr></thead>
    <tbody>
-    <tr><td>05/08/2026</td><td>Raj Kumar</td><td>Aug 2026</td><td>₹25,000</td><td>Monthly salary</td></tr>
-    <tr><td>05/08/2026</td><td>Amit Verma</td><td>Aug 2026</td><td>₹22,000</td><td>Monthly salary</td></tr>
-    <tr><td>05/08/2026</td><td>Neha Gupta</td><td>Aug 2026</td><td>₹18,000</td><td>Monthly salary</td></tr>
+    <tr data-financial-record><td>05/08/2026</td><td>Raj Kumar</td><td>Aug 2026</td><td>₹25,000</td><td>Monthly salary</td><td><button data-edit class="btn light" onclick="guardAKHADA('salaryEdit','Only Owner can edit salary records.')">Edit</button> <button data-delete class="btn danger" onclick="guardAKHADA('salaryDelete','Only Owner can delete salary records.')">Delete</button></td></tr>
+    <tr data-financial-record><td>05/08/2026</td><td>Amit Verma</td><td>Aug 2026</td><td>₹22,000</td><td>Monthly salary</td><td><button data-edit class="btn light" onclick="guardAKHADA('salaryEdit','Only Owner can edit salary records.')">Edit</button> <button data-delete class="btn danger" onclick="guardAKHADA('salaryDelete','Only Owner can delete salary records.')">Delete</button></td></tr>
    </tbody>
   </table></div>
  </div>
+
  <div class="card">
   <h3>Other Expenses</h3>
-  <p class="muted">Vendor / supplier name is mandatory for accountability.</p>
+  <p class="muted">Vendor / Supplier name is mandatory. Manager can add new records; only Owner can edit/delete.</p>
   <div class="tablewrap"><table>
-   <thead><tr><th>Date</th><th>Category</th><th>Vendor / Supplier</th><th>Amount</th><th>Bill / Invoice</th><th>Details</th></tr></thead>
+   <thead><tr><th>Date</th><th>Category</th><th>Vendor / Supplier</th><th>Amount</th><th>Bill / Invoice</th><th>Details</th><th>Action</th></tr></thead>
    <tbody>
-    <tr><td>08/08/2026</td><td>Electricity</td><td>NBPDCL</td><td>₹12,500</td><td>EL-0826</td><td>Monthly electricity bill</td></tr>
-    <tr><td>10/08/2026</td><td>Cleaning</td><td>CleanPro Services</td><td>₹5,000</td><td>CP-104</td><td>Gym cleaning supplies</td></tr>
-    <tr><td>12/08/2026</td><td>Repair</td><td>Fitness Equipment Care</td><td>₹7,500</td><td>FEC-212</td><td>Treadmill servicing</td></tr>
+    <tr data-financial-record><td>08/08/2026</td><td>Electricity</td><td>NBPDCL</td><td>₹12,500</td><td>EL-0826</td><td>Monthly electricity bill</td><td><button data-edit class="btn light" onclick="guardAKHADA('expenseEdit','Only Owner can edit expenses.')">Edit</button> <button data-delete class="btn danger" onclick="guardAKHADA('expenseDelete','Only Owner can delete expenses.')">Delete</button></td></tr>
+    <tr data-financial-record><td>12/08/2026</td><td>Repair</td><td>Fitness Equipment Care</td><td>₹7,500</td><td>FEC-212</td><td>Treadmill servicing</td><td><button data-edit class="btn light" onclick="guardAKHADA('expenseEdit','Only Owner can edit expenses.')">Edit</button> <button data-delete class="btn danger" onclick="guardAKHADA('expenseDelete','Only Owner can delete expenses.')">Delete</button></td></tr>
    </tbody>
   </table></div>
  </div>
 </section>
+
 
 <section id="messages" class="page"><div class="header"><h1>Messages</h1><button class="btn greenbtn" onclick="openModal('message')">＋ Send Message</button></div><div class="cards"><div class="card"><h3>WhatsApp</h3><p>Fee due reminders, renewal reminders and announcements.</p></div><div class="card"><h3>Email</h3><p>Welcome, renewal and important gym updates.</p></div><div class="card"><h3>Push</h3><p>Member-app notifications.</p></div><div class="card"><h3>Templates</h3><p>Welcome · Due reminder · Renewal · Holiday.</p></div></div></section>
 
@@ -295,7 +329,7 @@ textarea{min-height:90px;resize:vertical}
 
 <section id="notifications" class="page"><h1>Notifications</h1><div class="card"><div class="row"><span>🔴 5 memberships expired</span><b>Now</b></div><div class="row"><span>🟠 8 payments overdue</span><b>Today</b></div><div class="row"><span>🟡 12 memberships expiring this week</span><b>Today</b></div><div class="row"><span>🟢 ₹18,500 collected today</span><b>Today</b></div></div></section>
 
-<section id="settings" class="page"><div class="card"><h3>Data isolation</h3><p>Member accounts are scoped to their own member ID. A member cannot browse the member directory or access another member's attendance, payments, workout, diet or progress. Trainer access is limited to assigned members. These restrictions must also be enforced by the production backend/database, not only by hiding menu items.</p></div><div class="card"><h3>Role-based access</h3><div class="row"><span>Owner</span><b>Full permissions</b></div><div class="row"><span>Manager</span><b>Operational permissions</b></div><div class="row"><span>Trainer</span><b>Assigned members only</b></div><div class="row"><span>Member</span><b>Own profile & services only</b></div><p class="muted">Joining date, membership plan, next fee date, expiry date and payment status remain controlled by Gym/Admin.</p></div><h1>Settings</h1><div class="card"><h3>Gym Profile</h3><div class="row"><span>Gym Name</span><b>AKHADA — The Lifestyle Gym</b></div><div class="row"><span>Payments</span><b>Razorpay / UPI</b></div><div class="row"><span>Member Self Registration</span><b class="green">ON</b></div><div class="row"><span>Member Login</span><b class="green">ON</b></div><div class="row"><span>Auto-disable after expiry</span><b class="green">ON</b></div><div class="row"><span>Staff Permissions</span><button class="btn light" data-go="staff">Manage</button></div></div></section>
+<section id="settings" class="page"><div class="card owner-only"><h3>Gym Branding</h3><p class="muted">Change AKHADA name, tagline and logo.</p><button class="btn gold" onclick="openModal('branding')">Edit Gym Branding</button></div><div class="card"><h3>Data isolation</h3><p>Member accounts are scoped to their own member ID. A member cannot browse the member directory or access another member's attendance, payments, workout, diet or progress. Trainer access is limited to assigned members. These restrictions must also be enforced by the production backend/database, not only by hiding menu items.</p></div><div class="card"><h3>Role-based access</h3><div class="row"><span>Owner</span><b>Full permissions</b></div><div class="row"><span>Manager</span><b>Operational permissions</b></div><div class="row"><span>Trainer</span><b>Assigned members only</b></div><div class="row"><span>Member</span><b>Own profile & services only</b></div><p class="muted">Joining date, membership plan, next fee date, expiry date and payment status remain controlled by Gym/Admin.</p></div><h1>Settings</h1><div class="card"><h3>Gym Profile</h3><div class="row"><span>Gym Name</span><b>AKHADA — The Lifestyle Gym</b></div><div class="row"><span>Payments</span><b>Razorpay / UPI</b></div><div class="row"><span>Member Self Registration</span><b class="green">ON</b></div><div class="row"><span>Member Login</span><b class="green">ON</b></div><div class="row"><span>Auto-disable after expiry</span><b class="green">ON</b></div><div class="row"><span>Staff Permissions</span><button class="btn light" data-go="staff">Manage</button></div></div></section>
 
 
 <section id="memberhome" class="page"><div class="notice member-visible"><b>Member privacy:</b> Only your own profile, membership, attendance, payments, workout, diet and progress are visible.</div>
@@ -629,11 +663,11 @@ function switchRole(role){
      '[data-action="add-member"], [data-action="add-lead"], .add-member-btn, .admin-only, .management-only'
    ).forEach(x=>x.style.display="none");
 
-   toast("Member login: My Data Only");
+   toast("Member login: My Data Only"); lockFinancialRows();
  } else {
    document.querySelectorAll(".member-admin-only").forEach(x=>x.style.display="");
    go("dashboard");
-   toast("Viewing as "+role);
+   toast("Viewing as "+role); lockFinancialRows();
 } }
 function renderRoleSelector(){
  const side=document.querySelector(".sidebar .brand");
@@ -651,6 +685,120 @@ function closeModal(){document.getElementById("modalBack").classList.remove("ope
 function toast(t){const x=document.getElementById("toast");x.textContent=t;x.style.display="block";clearTimeout(window._toast);window._toast=setTimeout(()=>x.style.display="none",2200)}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
 renderMembers();renderLeads();renderInquiries();renderRoleSelector();switchRole('Owner');renderProgressPage();renderWorkoutPlans();renderDietPlans();
+</script>
+
+<div id="brandingModal" class="modal">
+ <div class="modalbox">
+  <button class="close" onclick="closeModal('branding')">×</button>
+  <h2>Gym Branding</h2>
+  <p class="muted">Only Owner can change the gym name, tagline and logo.</p>
+  <label>Gym Name</label><input id="brandName" value="AKHADA">
+  <label>Tagline</label><input id="brandTagline" value="The Lifestyle Gym">
+  <label>Logo URL (optional)</label><input id="brandLogo" placeholder="Paste an image URL">
+  <button class="btn gold" onclick="saveBranding()">Save Branding</button>
+ </div>
+</div>
+
+<script>
+const dietTemplates = {"1400": {"Weight Loss": {"Vegetarian": [["Breakfast", "Option 1: Oats + low-fat milk + apple", "Option 2: Vegetable poha + curd"], ["Mid-Morning", "Option 1: Orange + 8 almonds", "Option 2: Guava + 2 walnuts"], ["Lunch", "Option 1: 2 roti + dal + mixed vegetables + salad", "Option 2: 1 bowl rice + rajma + salad"], ["Pre-Workout", "Option 1: Banana", "Option 2: Apple + light snack"], ["Post-Workout", "Option 1: Curd + fruit", "Option 2: Milk + roasted chana"], ["Dinner", "Option 1: 2 roti + paneer/tofu + vegetables", "Option 2: Moong dal + vegetables + 1 roti"]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + fruit", "Option 2: 2 eggs + vegetable poha"], ["Mid-Morning", "Option 1: Orange + almonds", "Option 2: Guava + walnuts"], ["Lunch", "Option 1: 2 roti + dal + chicken + salad", "Option 2: Rice + chicken curry + vegetables"], ["Pre-Workout", "Option 1: Banana", "Option 2: Apple + light snack"], ["Post-Workout", "Option 1: Curd + fruit", "Option 2: Milk + egg whites"], ["Dinner", "Option 1: 2 roti + grilled chicken + vegetables", "Option 2: Fish + vegetables + 1 roti"]]}}, "1800": {"Weight Loss": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + seeds", "Option 2: 2 moong chilla + curd + fruit"], ["Mid-Morning", "Option 1: Apple + almonds", "Option 2: Orange + walnuts"], ["Lunch", "Option 1: 2 roti + dal + paneer + salad", "Option 2: Rice + rajma + curd + salad"], ["Pre-Workout", "Option 1: Banana + black coffee", "Option 2: Fruit + roasted chana"], ["Post-Workout", "Option 1: Milk + curd", "Option 2: Paneer/tofu + fruit"], ["Dinner", "Option 1: 2 roti + paneer/tofu + vegetables", "Option 2: Dal + rice + vegetables"]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + fruit", "Option 2: 2 eggs + 2 toast + fruit"], ["Mid-Morning", "Option 1: Apple + almonds", "Option 2: Orange + walnuts"], ["Lunch", "Option 1: 2 roti + chicken + dal + salad", "Option 2: Rice + fish + vegetables"], ["Pre-Workout", "Option 1: Banana + black coffee", "Option 2: Fruit + roasted chana"], ["Post-Workout", "Option 1: Curd + egg whites", "Option 2: Milk + fruit"], ["Dinner", "Option 1: 2 roti + grilled chicken + vegetables", "Option 2: Fish + dal + vegetables"]]}}, "2200": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts", "Option 2: Paneer sandwich + fruit"], ["Mid-Morning", "Option 1: Apple + almonds", "Option 2: Banana + walnuts"], ["Lunch", "Option 1: 3 roti + dal + paneer + salad", "Option 2: Rice + rajma + curd + vegetables"], ["Pre-Workout", "Option 1: Banana + curd", "Option 2: Fruit + roasted chana"], ["Post-Workout", "Option 1: Milk + paneer/tofu", "Option 2: Curd + fruit + nuts"], ["Dinner", "Option 1: 3 roti + dal + vegetables", "Option 2: Rice + paneer + vegetables"]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana", "Option 2: 3 eggs + toast + fruit"], ["Mid-Morning", "Option 1: Apple + almonds", "Option 2: Banana + walnuts"], ["Lunch", "Option 1: 3 roti + chicken + dal + salad", "Option 2: Rice + fish + vegetables + curd"], ["Pre-Workout", "Option 1: Banana + curd", "Option 2: Fruit + roasted chana"], ["Post-Workout", "Option 1: Milk + eggs", "Option 2: Curd + fruit"], ["Dinner", "Option 1: 3 roti + chicken + vegetables", "Option 2: Fish + rice + vegetables"]]}}, "1600": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}, "2000": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}, "2400": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}, "2600": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}, "2800": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}, "3000": {"Maintenance": {"Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana + nuts · Higher/lower portion template — adjust portions to target calories.", "Option 2: Paneer sandwich + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + dal + paneer + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + rajma + curd + vegetables · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + paneer/tofu · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit + nuts · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + dal + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + paneer + vegetables · Higher/lower portion template — adjust portions to target calories."]], "Non-Vegetarian": [["Breakfast", "Option 1: Oats + milk + banana · Higher/lower portion template — adjust portions to target calories.", "Option 2: 3 eggs + toast + fruit · Higher/lower portion template — adjust portions to target calories."], ["Mid-Morning", "Option 1: Apple + almonds · Higher/lower portion template — adjust portions to target calories.", "Option 2: Banana + walnuts · Higher/lower portion template — adjust portions to target calories."], ["Lunch", "Option 1: 3 roti + chicken + dal + salad · Higher/lower portion template — adjust portions to target calories.", "Option 2: Rice + fish + vegetables + curd · Higher/lower portion template — adjust portions to target calories."], ["Pre-Workout", "Option 1: Banana + curd · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fruit + roasted chana · Higher/lower portion template — adjust portions to target calories."], ["Post-Workout", "Option 1: Milk + eggs · Higher/lower portion template — adjust portions to target calories.", "Option 2: Curd + fruit · Higher/lower portion template — adjust portions to target calories."], ["Dinner", "Option 1: 3 roti + chicken + vegetables · Higher/lower portion template — adjust portions to target calories.", "Option 2: Fish + rice + vegetables · Higher/lower portion template — adjust portions to target calories."]]}}};
+const foodPics = {
+ "Breakfast":"🍳","Mid-Morning":"🍎","Lunch":"🍛","Pre-Workout":"🍌","Post-Workout":"🥛","Dinner":"🥗"
+};
+function initDietPlans(){
+ const c=document.getElementById("dietCalories");
+ const g=document.getElementById("dietGoal");
+ const t=document.getElementById("dietType");
+ if(!c||!g||!t)return;
+ c.innerHTML=[1400,1600,1800,2000,2200,2400,2600,2800,3000].map(x=>`<option value="${x}">${x} calories</option>`).join("");
+ g.innerHTML=[...new Set(Object.values(dietTemplates).flatMap(x=>Object.keys(x)))].map(x=>`<option>${x}</option>`).join("");
+ t.innerHTML=`<option>Vegetarian</option><option>Non-Vegetarian</option>`;
+ [c,g,t,document.getElementById("dietAge"),document.getElementById("dietWeight")].forEach(x=>x&&x.addEventListener("change",renderDiet));
+ renderDiet();
+}
+function renderDiet(){
+ const kcal=Number(document.getElementById("dietCalories")?.value||1400);
+ const goal=document.getElementById("dietGoal")?.value||"Weight Loss";
+ const type=document.getElementById("dietType")?.value||"Vegetarian";
+ const age=document.getElementById("dietAge")?.value||"18–25 years";
+ const weight=document.getElementById("dietWeight")?.value||"Under 50 kg";
+ let goalBlock=dietTemplates[kcal]?.[goal];
+ if(!goalBlock) goalBlock=dietTemplates[kcal]?.["Maintenance"]||dietTemplates[2200]["Maintenance"];
+ let rows=goalBlock[type]||goalBlock["Vegetarian"];
+ document.getElementById("dietPlanTitle").innerHTML=`${kcal} Calories Food Plan – ${goal} – ${type}<div class="muted" style="font-size:13px;font-weight:500">Age group: ${age} · Weight group: ${weight} · 2 choices per meal</div>`;
+ document.getElementById("dietMeals").innerHTML=rows.map(([meal,a,b])=>`
+  <div class="meal-card">
+   <div class="meal-head"><h3>${meal}</h3><span>${foodPics[meal]||"🍽️"}</span></div>
+   <div class="food-option"><div class="food-pic">${foodPics[meal]||"🍽️"}</div><div><b>Option 1</b><div>${a}</div></div></div>
+   <div class="food-option"><div class="food-pic">${foodPics[meal]||"🍽️"}</div><div><b>Option 2</b><div>${b}</div></div></div>
+  </div>`).join("");
+}
+function saveBranding(){
+ const name=document.getElementById("brandName")?.value.trim()||"AKHADA";
+ const tag=document.getElementById("brandTagline")?.value.trim()||"The Lifestyle Gym";
+ const logo=document.getElementById("brandLogo")?.value.trim()||"";
+ localStorage.setItem("akhada_branding",JSON.stringify({name,tag,logo}));
+ document.querySelectorAll("[data-brand-name]").forEach(x=>x.textContent=name);
+ document.querySelectorAll("[data-brand-tagline]").forEach(x=>x.textContent=tag);
+ if(typeof closeModal==="function")closeModal("branding");
+ if(typeof toast==="function")toast("Branding saved");
+}
+document.addEventListener("DOMContentLoaded",()=>{initDietPlans();
+ const saved=localStorage.getItem("akhada_branding");
+ if(saved){try{const b=JSON.parse(saved);document.querySelectorAll("[data-brand-name]").forEach(x=>x.textContent=b.name);document.querySelectorAll("[data-brand-tagline]").forEach(x=>x.textContent=b.tag);}catch(e){}}
+});
+</script>
+
+<script>
+/* AKHADA FINAL PERMISSION RULES
+   Owner: full control + override + delete
+   Manager: operational entry/edit where explicitly allowed; financial entry only
+   Staff/Trainer: assigned operational work
+   Member: own data only
+*/
+const akhadaPermissions = {
+  Owner: {
+    deleteAll: true, paymentEdit: true, paymentDelete: true,
+    salaryAdd: true, salaryEdit: true, salaryDelete: true,
+    expenseAdd: true, expenseEdit: true, expenseDelete: true,
+    memberOneTimeEdit: true, override: true
+  },
+  Manager: {
+    deleteAll: false, paymentEdit: false, paymentDelete: false,
+    salaryAdd: true, salaryEdit: false, salaryDelete: false,
+    expenseAdd: true, expenseEdit: false, expenseDelete: false,
+    memberOneTimeEdit: true, override: false
+  },
+  Trainer: {
+    deleteAll: false, paymentEdit: false, paymentDelete: false,
+    salaryAdd: false, salaryEdit: false, salaryDelete: false,
+    expenseAdd: false, expenseEdit: false, expenseDelete: false,
+    memberOneTimeEdit: false, override: false
+  },
+  Member: {
+    deleteAll: false, paymentEdit: false, paymentDelete: false,
+    salaryAdd: false, salaryEdit: false, salaryDelete: false,
+    expenseAdd: false, expenseEdit: false, expenseDelete: false,
+    memberOneTimeEdit: false, override: false
+  }
+};
+
+function canAKHADA(action){
+  const p = akhadaPermissions[currentRole || "Owner"];
+  return !!(p && p[action]);
+}
+function guardAKHADA(action, message){
+  if(canAKHADA(action)) return true;
+  if(typeof toast === "function") toast(message || "You do not have permission for this action.");
+  return false;
+}
+function lockFinancialRows(){
+  document.querySelectorAll("[data-financial-record]").forEach(row=>{
+    if((currentRole||"Owner") !== "Owner"){
+      row.querySelectorAll("[data-edit],[data-delete]").forEach(b=>b.style.display="none");
+      row.classList.add("locked-record");
+    }
+  });
+}
 </script>
 </body>
 </html>
