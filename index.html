@@ -100,6 +100,16 @@ textarea{min-height:90px;resize:vertical}
 .btn.danger{border:1px solid #e6b7b7;color:#b42318;background:#fff}
 .actions{display:flex;gap:10px;flex-wrap:wrap}
 </style>
+
+<style>
+.workout-toolbar,.diet-filters{display:grid;grid-template-columns:repeat(3,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.workout-toolbar select,.diet-filters select{padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff}
+.template-grid{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:10px}
+.template-card{padding:14px;border:1px solid #e5e5e5;border-radius:12px;background:#fff;text-align:left;font-weight:700;cursor:pointer}
+.template-card:hover{transform:translateY(-1px)}
+.trainer-workout-actions,.trainer-diet-actions{display:flex;gap:8px}
+@media(max-width:800px){.workout-toolbar,.diet-filters{grid-template-columns:1fr 1fr}.template-grid{grid-template-columns:1fr 1fr}}
+</style>
 </head>
 <body>
 <div class="app">
@@ -136,7 +146,7 @@ textarea{min-height:90px;resize:vertical}
     <div><h1>Good morning 👋</h1><div class="muted">AKHADA · Owner Dashboard</div></div>
     <button class="btn greenbtn" onclick="toast('Demo data is being shown')">Demo Mode</button>
   </div>
-  <div class="cards">
+  <div class="cards" data-module="pending-dues">
     <div class="card clickable" data-go="members"><div class="label">Active Members</div><div class="value">486</div></div>
     <div class="card clickable" data-go="attendance"><div class="label">Today's Check-ins</div><div class="value">127</div></div>
     <div class="card clickable" data-go="billing"><div class="label">Today's Collection</div><div class="value green">₹18,500</div></div>
@@ -245,33 +255,54 @@ textarea{min-height:90px;resize:vertical}
   </div>
 </section>
 
+
 <section id="workout" class="page">
-  <div class="header"><h1>Workout Plans</h1><button class="btn greenbtn" onclick="openModal('workout')">＋ Create / Assign</button></div>
-  <div class="card"><h3>Rahul Kumar · Day 1</h3><div class="row"><span>Bench Press</span><b>4 × 12</b></div><div class="row"><span>Incline Dumbbell Press</span><b>3 × 12</b></div><div class="row"><span>Cable Fly</span><b>3 × 15</b></div><div class="row"><span>Triceps Pushdown</span><b>3 × 15</b></div></div>
+ <div class="header">
+  <div><h1>Workout Plans</h1><p class="muted">Trainer can add/change/remove an assigned member plan. Master template delete remains Owner-only. Pre-fed workout library. Trainer can assign/change a plan for an assigned member. Owner controls the master templates.</p></div>
+  <div class="actions trainer-workout-actions">
+   <button class="btn greenbtn" onclick="trainerCreateWorkout()">＋ Add Workout</button>
+  </div>
+ </div>
+ <div class="card">
+  <div class="workout-toolbar">
+   <select id="workoutCategory"></select>
+   <select id="workoutMember"></select>
+   <button class="btn" onclick="assignSelectedWorkout()">Assign to Member</button>
+  </div>
+  <div id="workoutTitle" class="diet-title"></div>
+  <div id="workoutTable" class="tablewrap"></div>
+ </div>
+ <div class="card">
+  <h3>Workout Template Library</h3>
+  <p class="muted">Chest, Back, Shoulder, Biceps, Triceps, Leg, combination plans and weight-loss cardio circuits are pre-fed.</p>
+  <div id="workoutLibraryCards" class="template-grid"></div>
+ </div>
 </section>
+
+
 
 
 <section id="diet" class="page">
  <div class="header">
-  <div><h1>Diet Plans</h1><p class="muted">Only Owner can edit or delete payment records.</p><p class="muted">Ready templates with two choices per meal. Owner/Trainer can assign a template to a member.</p></div>
+  <div><h1>Diet Plans</h1><p class="muted">Trainer can add/change/remove an assigned member plan. Master template delete remains Owner-only. Calorie-based templates with two meal choices. Trainer can assign/change a member's plan; Owner controls master templates.</p></div>
+  <div class="actions trainer-diet-actions">
+   <button class="btn greenbtn" onclick="trainerCreateDiet()">＋ Add Diet Plan</button>
+  </div>
  </div>
  <div class="diet-filters">
   <select id="dietCalories"></select>
-  <select id="dietGoal"></select>
   <select id="dietType"></select>
-  <select id="dietAge">
-   <option>18–25 years</option><option>26–35 years</option><option>36–45 years</option>
-   <option>46–55 years</option><option>55+ years</option>
-  </select>
-  <select id="dietWeight">
-   <option>Under 50 kg</option><option>50–60 kg</option><option>60–70 kg</option>
-   <option>70–80 kg</option><option>80–90 kg</option><option>90+ kg</option>
-  </select>
+  <select id="dietGoal"></select>
+  <select id="dietAge"><option>18–25 years</option><option>26–35 years</option><option>36–45 years</option><option>46–55 years</option><option>55+ years</option></select>
+  <select id="dietWeight"><option>Under 50 kg</option><option>50–60 kg</option><option>60–70 kg</option><option>70–80 kg</option><option>80–90 kg</option><option>90+ kg</option></select>
+  <select id="dietMember"></select>
+  <button class="btn" onclick="assignSelectedDiet()">Assign to Member</button>
  </div>
  <div id="dietPlanTitle" class="diet-title"></div>
  <div id="dietMeals" class="meal-grid"></div>
- <div class="card diet-note"><b>Important:</b> These are general gym templates, not medical prescriptions. Final calorie needs can vary with height, sex, activity, goal, allergies and health conditions. A qualified nutrition professional should personalize plans where needed.</div>
+ <div class="card diet-note"><b>Important:</b> These are general gym templates, not medical prescriptions. Calorie needs should be personalized where appropriate.</div>
 </section>
+
 
 
 <section id="progress" class="page">
@@ -329,7 +360,10 @@ textarea{min-height:90px;resize:vertical}
 
 <section id="notifications" class="page"><h1>Notifications</h1><div class="card"><div class="row"><span>🔴 5 memberships expired</span><b>Now</b></div><div class="row"><span>🟠 8 payments overdue</span><b>Today</b></div><div class="row"><span>🟡 12 memberships expiring this week</span><b>Today</b></div><div class="row"><span>🟢 ₹18,500 collected today</span><b>Today</b></div></div></section>
 
-<section id="settings" class="page"><div class="card owner-only"><h3>Gym Branding</h3><p class="muted">Change AKHADA name, tagline and logo.</p><button class="btn gold" onclick="openModal('branding')">Edit Gym Branding</button></div><div class="card"><h3>Data isolation</h3><p>Member accounts are scoped to their own member ID. A member cannot browse the member directory or access another member's attendance, payments, workout, diet or progress. Trainer access is limited to assigned members. These restrictions must also be enforced by the production backend/database, not only by hiding menu items.</p></div><div class="card"><h3>Role-based access</h3><div class="row"><span>Owner</span><b>Full permissions</b></div><div class="row"><span>Manager</span><b>Operational permissions</b></div><div class="row"><span>Trainer</span><b>Assigned members only</b></div><div class="row"><span>Member</span><b>Own profile & services only</b></div><p class="muted">Joining date, membership plan, next fee date, expiry date and payment status remain controlled by Gym/Admin.</p></div><h1>Settings</h1><div class="card"><h3>Gym Profile</h3><div class="row"><span>Gym Name</span><b>AKHADA — The Lifestyle Gym</b></div><div class="row"><span>Payments</span><b>Razorpay / UPI</b></div><div class="row"><span>Member Self Registration</span><b class="green">ON</b></div><div class="row"><span>Member Login</span><b class="green">ON</b></div><div class="row"><span>Auto-disable after expiry</span><b class="green">ON</b></div><div class="row"><span>Staff Permissions</span><button class="btn light" data-go="staff">Manage</button></div></div></section>
+<section id="settings" class="page">
+<div class="card role-note"><h3>Trainer / Member dashboard privacy</h3>
+<p class="muted">Pending Dues and Today's Collection are Owner/Manager financial information. They are hidden from Trainer and Member accounts.</p></div>
+<div class="card owner-only"><h3>Gym Branding</h3><p class="muted">Change AKHADA name, tagline and logo.</p><button class="btn gold" onclick="openModal('branding')">Edit Gym Branding</button></div><div class="card"><h3>Data isolation</h3><p>Member accounts are scoped to their own member ID. A member cannot browse the member directory or access another member's attendance, payments, workout, diet or progress. Trainer access is limited to assigned members. These restrictions must also be enforced by the production backend/database, not only by hiding menu items.</p></div><div class="card"><h3>Role-based access</h3><div class="row"><span>Owner</span><b>Full permissions</b></div><div class="row"><span>Manager</span><b>Operational permissions</b></div><div class="row"><span>Trainer</span><b>Assigned members only</b></div><div class="row"><span>Member</span><b>Own profile & services only</b></div><p class="muted">Joining date, membership plan, next fee date, expiry date and payment status remain controlled by Gym/Admin.</p></div><h1>Settings</h1><div class="card"><h3>Gym Profile</h3><div class="row"><span>Gym Name</span><b>AKHADA — The Lifestyle Gym</b></div><div class="row"><span>Payments</span><b>Razorpay / UPI</b></div><div class="row"><span>Member Self Registration</span><b class="green">ON</b></div><div class="row"><span>Member Login</span><b class="green">ON</b></div><div class="row"><span>Auto-disable after expiry</span><b class="green">ON</b></div><div class="row"><span>Staff Permissions</span><button class="btn light" data-go="staff">Manage</button></div></div></section>
 
 
 <section id="memberhome" class="page"><div class="notice member-visible"><b>Member privacy:</b> Only your own profile, membership, attendance, payments, workout, diet and progress are visible.</div>
@@ -663,11 +697,11 @@ function switchRole(role){
      '[data-action="add-member"], [data-action="add-lead"], .add-member-btn, .admin-only, .management-only'
    ).forEach(x=>x.style.display="none");
 
-   toast("Member login: My Data Only"); lockFinancialRows();
+   toast("Member login: My Data Only"); lockFinancialRows(); enforceRoleDashboard();
  } else {
    document.querySelectorAll(".member-admin-only").forEach(x=>x.style.display="");
    go("dashboard");
-   toast("Viewing as "+role); lockFinancialRows();
+   toast("Viewing as "+role); lockFinancialRows(); enforceRoleDashboard();
 } }
 function renderRoleSelector(){
  const side=document.querySelector(".sidebar .brand");
@@ -799,6 +833,81 @@ function lockFinancialRows(){
     }
   });
 }
+</script>
+
+<script>
+function enforceRoleDashboard(){
+  const restrictedForTrainerMember = [
+    '[data-module="pending-dues"]',
+    '[data-module="todays-collection"]',
+    '#pendingDues',
+    '#todaysCollection',
+    '.pending-dues',
+    '.todays-collection'
+  ];
+  if((currentRole==="Trainer" || currentRole==="Member")){
+    restrictedForTrainerMember.forEach(sel=>{
+      document.querySelectorAll(sel).forEach(el=>el.style.display="none");
+    });
+  }
+}
+</script>
+
+<script>
+const workoutTemplates = {"Chest": [["Incline Chest Press", "3", "10–12"], ["Chest Press", "3", "10–12"], ["Pec Fly", "3", "12"], ["Cable Crossover", "3", "12"]], "Back": [["Lat Pulldown", "3", "10–12"], ["Seated Row", "3", "10–12"], ["Lat Pull Down / Cable Row", "3", "10–12"], ["Back Extension", "3", "12–15"]], "Shoulder": [["Shoulder Press", "3", "10–12"], ["Lateral Raise", "3", "12–15"], ["Rear Delt / Reverse Fly", "3", "12–15"], ["Cable Face Pull", "3", "12–15"]], "Biceps": [["Cable Biceps Curl", "3", "10–12"], ["Preacher Curl", "3", "10–12"], ["Dumbbell Curl", "3", "10–12"], ["Hammer Curl", "3", "10–12"]], "Triceps": [["Cable Triceps Pushdown", "3", "10–12"], ["Overhead Cable Extension", "3", "10–12"], ["Assisted Dip / Dip", "3", "8–12"], ["Dumbbell Overhead Extension", "3", "10–12"]], "Leg": [["Leg Press", "4", "10–12"], ["Leg Extension", "3", "12"], ["Leg Curl", "3", "10–12"], ["Calf Raise", "3", "15"]], "Chest + Biceps": [["Incline Chest Press", "3", "10–12"], ["Chest Press", "3", "10–12"], ["Pec Fly", "3", "12"], ["Cable Biceps Curl", "3", "10–12"], ["Preacher Curl", "3", "10–12"]], "Back + Triceps": [["Lat Pulldown", "3", "10–12"], ["Seated Row", "3", "10–12"], ["Cable Row", "3", "10–12"], ["Triceps Pushdown", "3", "10–12"], ["Overhead Cable Extension", "3", "10–12"]], "Shoulder + Triceps": [["Shoulder Press", "3", "10–12"], ["Lateral Raise", "3", "12–15"], ["Rear Delt / Reverse Fly", "3", "12–15"], ["Triceps Pushdown", "3", "10–12"]], "Weight Loss – Full Body + Cardio": [["Treadmill", "1", "10–15 min"], ["Cross Trainer", "1", "8–12 min"], ["Leg Press", "3", "12"], ["Chest Press", "3", "12"], ["Lat Pulldown", "3", "12"], ["Cable Circuit", "2", "12 each"], ["Cycle", "1", "10 min"]], "Weight Loss – Cardio Circuit": [["Treadmill", "1", "10 min"], ["SKI", "1", "5–8 min"], ["Cycle", "1", "8–10 min"], ["Cross Trainer", "1", "8–10 min"], ["Hammer / Strength Circuit", "2", "12 each"]]};
+const dietTemplatesFull = {"1400": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}, "1600": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}, "1800": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}, "2000": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}, "2200": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}, "2400": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}, "2600": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}, "2800": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}, "3000": {"Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Vegetable poha + curd"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + dal + mixed vegetables + salad", "Rice + rajma + curd + salad"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Milk + curd/paneer option", "Roasted chana + fruit"], "Dinner": ["Roti + paneer/tofu + vegetables", "Moong dal + roti + vegetables"]}, "Non-Vegetarian": {"Breakfast": ["Oats + milk + fruit", "Eggs + vegetable poha/toast"], "Mid-Morning": ["Apple + almonds", "Orange/guava + walnuts"], "Lunch": ["Roti + chicken + dal + salad", "Rice + fish + vegetables + curd"], "Pre-Workout": ["Banana", "Fruit + roasted chana"], "Post-Workout": ["Curd + egg whites", "Milk + fruit"], "Dinner": ["Roti + grilled chicken + vegetables", "Fish + rice/roti + vegetables"]}}};
+const workoutCats = Object.keys(workoutTemplates);
+const membersForPlans = ["Rahul Kumar","Priya Sharma","Amit Singh"];
+
+function initWorkoutDiet(){
+ const wc=document.getElementById("workoutCategory"), wm=document.getElementById("workoutMember");
+ if(wc){wc.innerHTML=workoutCats.map(x=>`<option>${x}</option>`).join(""); wc.onchange=renderWorkout;}
+ if(wm)wm.innerHTML='<option value="">Select assigned member</option>'+membersForPlans.map(x=>`<option>${x}</option>`).join("");
+ const dc=document.getElementById("dietCalories"), dt=document.getElementById("dietType"), dg=document.getElementById("dietGoal"), dm=document.getElementById("dietMember");
+ if(dc)dc.innerHTML=["1400 calories", "1600 calories", "1800 calories", "2000 calories", "2200 calories", "2400 calories", "2600 calories", "2800 calories", "3000 calories"].map(x=>`<option>${x}</option>`).join("");
+ if(dt)dt.innerHTML='<option>Vegetarian</option><option>Non-Vegetarian</option>';
+ if(dg)dg.innerHTML='<option>Weight Loss</option><option>Fat Loss</option><option>Maintenance</option><option>Muscle Gain</option><option>Weight Gain</option>';
+ if(dm)dm.innerHTML='<option value="">Select assigned member</option>'+membersForPlans.map(x=>`<option>${x}</option>`).join("");
+ [dc,dt,dg,document.getElementById("dietAge"),document.getElementById("dietWeight")].forEach(x=>x&&x.addEventListener("change",renderDietFull));
+ renderWorkout(); renderDietFull();
+}
+function renderWorkout(){
+ const cat=document.getElementById("workoutCategory")?.value||workoutCats[0];
+ const rows=workoutTemplates[cat]||[];
+ document.getElementById("workoutTitle").innerHTML=`${cat} Workout Plan`;
+ document.getElementById("workoutTable").innerHTML=`<table><thead><tr><th>Exercise</th><th>Sets</th><th>Reps / Duration</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("")}</tbody></table>`;
+ document.getElementById("workoutLibraryCards").innerHTML=workoutCats.map(x=>`<button class="template-card" onclick="document.getElementById('workoutCategory').value='${x.replace(/'/g,"\\'")}';renderWorkout()">${x}</button>`).join("");
+}
+function renderDietFull(){
+ const kcalText=document.getElementById("dietCalories")?.value||"1400 calories";
+ const kcal=Number(kcalText);
+ const type=document.getElementById("dietType")?.value||"Vegetarian";
+ const goal=document.getElementById("dietGoal")?.value||"Weight Loss";
+ const age=document.getElementById("dietAge")?.value||"18–25 years";
+ const weight=document.getElementById("dietWeight")?.value||"Under 50 kg";
+ const rows=(dietTemplatesFull[String(kcal)]||{})[type]||diet_meals[type];
+ document.getElementById("dietPlanTitle").innerHTML=`${kcal} Calories Food Plan – ${goal} – ${type}<div class="muted" style="font-size:13px;font-weight:500">Age: ${age} · Weight: ${weight} · Minimum 2 options per meal</div>`;
+ document.getElementById("dietMeals").innerHTML=Object.entries(rows).map(([meal,opts])=>`<div class="meal-card"><div class="meal-head"><h3>${meal}</h3><span class="food-pic">${meal==="Breakfast"?"🍳":meal==="Mid-Morning"?"🍎":meal==="Lunch"?"🍛":meal==="Pre-Workout"?"🍌":meal==="Post-Workout"?"🥛":"🥗"}</span></div><div class="food-option"><div class="food-pic">🍽️</div><div><b>Option 1</b><div>${opts[0]}</div></div></div><div class="food-option"><div class="food-pic">🍽️</div><div><b>Option 2</b><div>${opts[1]}</div></div></div></div>`).join("");
+}
+function trainerCreateWorkout(){
+ if(currentRole!=="Trainer" && currentRole!=="Owner" && currentRole!=="Manager"){toast("Only Trainer/Manager/Owner can add workout plans.");return;}
+ openCustom(`<h2>Add Workout Plan</h2><p class="muted">This creates a member-level/custom plan. Master template deletion remains Owner-only.</p><input id="customWorkoutName" placeholder="Workout plan name"><textarea id="customWorkoutText" placeholder="Exercises, sets, reps, duration..."></textarea><button class="btn greenbtn" onclick="saveDemo('Custom Workout Plan')">Save Workout Plan</button>`);
+}
+function trainerCreateDiet(){
+ if(currentRole!=="Trainer" && currentRole!=="Owner" && currentRole!=="Manager"){toast("Only Trainer/Manager/Owner can add diet plans.");return;}
+ openCustom(`<h2>Add Diet Plan</h2><p class="muted">Use the calorie library or create a member-specific plan. Master template deletion remains Owner-only.</p><input id="customDietName" placeholder="Diet plan name"><textarea id="customDietText" placeholder="Meals, portions, calories and notes..."></textarea><button class="btn greenbtn" onclick="saveDemo('Custom Diet Plan')">Save Diet Plan</button>`);
+}
+function assignSelectedWorkout(){
+ const m=document.getElementById("workoutMember")?.value;
+ if(!m){toast("Select a member first");return;}
+ toast("Workout assigned to "+m);
+}
+function assignSelectedDiet(){
+ const m=document.getElementById("dietMember")?.value;
+ if(!m){toast("Select a member first");return;}
+ toast("Diet plan assigned to "+m);
+}
+document.addEventListener("DOMContentLoaded", initWorkoutDiet);
 </script>
 </body>
 </html>
