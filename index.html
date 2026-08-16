@@ -212,6 +212,44 @@ body[data-role="trainer"] #settings{display:none !important}
 .supplement-card{margin-top:16px}
 .supplement-card .bilingual-library-card{margin-top:8px}
 </style>
+
+<style>
+.library-search{width:100%;box-sizing:border-box;padding:12px;border:1px solid #ccc;border-radius:10px;margin:10px 0 12px;font-size:15px}
+.selectable-master{cursor:pointer}
+.selectable-master:hover,.food-search-item:hover{background:#fafafa}
+.food-search-item{display:grid;grid-template-columns:42px 1fr auto;gap:8px;align-items:center}
+</style>
+
+<style>
+.member-preview-shell{display:grid;grid-template-columns:230px 1fr;min-height:650px;border:1px solid #e5e5e5;border-radius:16px;overflow:hidden;background:#f7f7f7}
+.member-preview-sidebar{background:#fff;border-right:1px solid #e5e5e5;padding:18px;display:flex;flex-direction:column;gap:7px}
+.member-brand{font-weight:900;font-size:24px;line-height:.9;padding:5px 5px 18px}.member-brand span{font-size:10px;letter-spacing:2px}
+.member-profile{display:flex;gap:9px;align-items:center;padding:10px 5px 16px;border-bottom:1px solid #eee;margin-bottom:6px}.member-profile small{display:block;color:#777}
+.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#eee;font-weight:800}
+.member-nav{border:0;background:transparent;text-align:left;padding:11px;border-radius:9px;cursor:pointer;font-size:14px}.member-nav.active{background:#f0f0f0;font-weight:800}
+.member-preview-main{padding:24px;overflow:auto}.member-welcome{margin-bottom:20px}.member-welcome h2{margin-bottom:4px}
+.member-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.member-stat,.member-card,.member-plan-card,.member-meal,.member-payment-card,.member-profile-card{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:15px}.member-stat small,.member-stat span,.member-diet-heading span{display:block;color:#777}.member-stat b{display:block;font-size:18px;margin:6px 0}
+.member-card{margin-top:14px}.member-filter{margin:12px 0}.member-filter select{padding:9px;border:1px solid #ddd;border-radius:8px}
+.member-exercise-list{display:grid;gap:8px;margin-top:12px}.member-exercise-list div{border:1px solid #eee;border-radius:9px;padding:10px}.member-exercise-list small{display:block;color:#777;margin-top:3px}
+.member-diet-heading{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:14px;margin:12px 0}.member-day-tabs{display:flex;gap:6px;overflow:auto;margin-bottom:10px}.member-day-tabs button{border:1px solid #ddd;background:#fff;padding:8px 12px;border-radius:8px}.member-day-tabs .active{font-weight:800;background:#eee}
+.member-meal{margin:8px 0}.member-meal b{display:block;margin-bottom:6px}.member-meal span{display:inline-block;margin-right:14px;color:#555}
+.member-progress-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}.member-progress-summary>div{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:15px}.member-progress-summary small,.member-progress-summary span{display:block;color:#777}.member-progress-summary b{display:block;font-size:20px;margin:4px 0}
+.member-measure-table{background:#fff;border:1px solid #e5e5e5;border-radius:12px;overflow:hidden}.member-measure-table div{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;padding:10px;border-top:1px solid #eee}.member-measure-table div:first-child{border-top:0;background:#fafafa}.member-profile-card{display:grid;gap:0}.member-profile-card div{display:grid;grid-template-columns:160px 1fr;padding:11px 0;border-bottom:1px solid #eee}.member-profile-card div:last-child{border-bottom:0}
+.member-payment-card{display:grid;gap:6px}.member-payment-card span{font-weight:800}.member-payment-card small{color:#777}
+@media(max-width:800px){.member-preview-shell{grid-template-columns:1fr}.member-preview-sidebar{border-right:0;border-bottom:1px solid #e5e5e5}.member-nav{display:none}.member-profile{border-bottom:0}.member-stat-grid{grid-template-columns:1fr 1fr}.member-preview-main{padding:15px}}
+</style>
+
+<style>
+.today-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.today-header h3{margin:0 0 4px}.today-header p{margin:0}
+.today-badge{padding:5px 9px;border-radius:999px;background:#eef7ee;font-size:12px;font-weight:700}
+.today-exercise-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.today-exercise{display:flex;gap:10px;align-items:center;border:1px solid #e7e7e7;border-radius:10px;padding:10px;background:#fafafa}
+.exercise-visual{font-size:28px;width:42px;text-align:center}
+.today-exercise small{display:block;color:#777;margin-top:3px}
+.today-note{margin:12px 0 0}
+@media(max-width:600px){.today-exercise-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <div class="app">
@@ -384,12 +422,12 @@ body[data-role="trainer"] #settings{display:none !important}
    <div class="weekly-workout-table">
     <div class="week-row week-head"><div>Day</div><div>Workout Plan</div><div>Exercises</div><div>Preview</div></div>
     <div class="week-row"><div><b>Sunday</b><span class="holiday">Holiday</span></div><div>Rest Day</div><div>—</div><div>😴 Rest</div></div>
-    <div class="week-row" data-day="Monday"><div><b>Monday</b></div><div><select class="day-plan" id="verified-plan-Monday"></select></div><div><button class="btn light" onclick="openVerifiedExercisePicker('Monday')">Select Multiple Exercises</button><div id="verified-chips-Monday" class="chips"></div></div><div id="verified-preview-Monday">—</div></div>
-    <div class="week-row" data-day="Tuesday"><div><b>Tuesday</b></div><div><select class="day-plan" id="verified-plan-Tuesday"></select></div><div><button class="btn light" onclick="openVerifiedExercisePicker('Tuesday')">Select Multiple Exercises</button><div id="verified-chips-Tuesday" class="chips"></div></div><div id="verified-preview-Tuesday">—</div></div>
-    <div class="week-row" data-day="Wednesday"><div><b>Wednesday</b></div><div><select class="day-plan" id="verified-plan-Wednesday"></select></div><div><button class="btn light" onclick="openVerifiedExercisePicker('Wednesday')">Select Multiple Exercises</button><div id="verified-chips-Wednesday" class="chips"></div></div><div id="verified-preview-Wednesday">—</div></div>
-    <div class="week-row" data-day="Thursday"><div><b>Thursday</b></div><div><select class="day-plan" id="verified-plan-Thursday"></select></div><div><button class="btn light" onclick="openVerifiedExercisePicker('Thursday')">Select Multiple Exercises</button><div id="verified-chips-Thursday" class="chips"></div></div><div id="verified-preview-Thursday">—</div></div>
-    <div class="week-row" data-day="Friday"><div><b>Friday</b></div><div><select class="day-plan" id="verified-plan-Friday"></select></div><div><button class="btn light" onclick="openVerifiedExercisePicker('Friday')">Select Multiple Exercises</button><div id="verified-chips-Friday" class="chips"></div></div><div id="verified-preview-Friday">—</div></div>
-    <div class="week-row" data-day="Saturday"><div><b>Saturday</b></div><div><select class="day-plan" id="verified-plan-Saturday"></select></div><div><button class="btn light" onclick="openVerifiedExercisePicker('Saturday')">Select Multiple Exercises</button><div id="verified-chips-Saturday" class="chips"></div></div><div id="verified-preview-Saturday">—</div></div>
+    <div class="week-row" data-day="Monday"><div><b>Monday</b></div><div><select class="day-plan" id="verified-plan-Monday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Monday')">Select Multiple Exercises</button><div id="verified-chips-Monday" class="chips"></div></div><div id="verified-preview-Monday">—</div></div>
+    <div class="week-row" data-day="Tuesday"><div><b>Tuesday</b></div><div><select class="day-plan" id="verified-plan-Tuesday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Tuesday')">Select Multiple Exercises</button><div id="verified-chips-Tuesday" class="chips"></div></div><div id="verified-preview-Tuesday">—</div></div>
+    <div class="week-row" data-day="Wednesday"><div><b>Wednesday</b></div><div><select class="day-plan" id="verified-plan-Wednesday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Wednesday')">Select Multiple Exercises</button><div id="verified-chips-Wednesday" class="chips"></div></div><div id="verified-preview-Wednesday">—</div></div>
+    <div class="week-row" data-day="Thursday"><div><b>Thursday</b></div><div><select class="day-plan" id="verified-plan-Thursday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Thursday')">Select Multiple Exercises</button><div id="verified-chips-Thursday" class="chips"></div></div><div id="verified-preview-Thursday">—</div></div>
+    <div class="week-row" data-day="Friday"><div><b>Friday</b></div><div><select class="day-plan" id="verified-plan-Friday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Friday')">Select Multiple Exercises</button><div id="verified-chips-Friday" class="chips"></div></div><div id="verified-preview-Friday">—</div></div>
+    <div class="week-row" data-day="Saturday"><div><b>Saturday</b></div><div><select class="day-plan" id="verified-plan-Saturday"></select></div><div><button class="btn light" onclick="trainerExerciseSearch('Saturday')">Select Multiple Exercises</button><div id="verified-chips-Saturday" class="chips"></div></div><div id="verified-preview-Saturday">—</div></div>
    </div>
    <div class="weekly-actions"><button class="btn" onclick="clearVerifiedWeek()">Clear Week</button><button class="btn greenbtn" onclick="saveVerifiedWorkout()">Save Weekly Workout</button></div>
   </div>
@@ -408,11 +446,12 @@ body[data-role="trainer"] #settings{display:none !important}
 
 
 
+
 <section id="diet" class="page">
  <div class="header">
   <div>
    <h1>Diet Plans</h1>
-   <p class="muted">Day-wise diet assignment with calorie, portion and nutrition information.</p>
+   <p class="muted">Select member → set diet type/goal/calorie target → create a complete Sunday–Saturday diet.</p>
   </div>
   <div class="actions">
    <button class="btn greenbtn owner-template-action" onclick="ownerCreateDietTemplate()">＋ Add Diet Plan</button>
@@ -421,46 +460,41 @@ body[data-role="trainer"] #settings{display:none !important}
 
  <div class="card">
   <div class="diet-assignment-top">
-   <div><label><b>Select Member</b></label><select id="verifiedDietMember"></select></div>
-   <div><label><b>Diet Type</b></label><select id="verifiedDietType"><option>Vegetarian</option><option>Non-Vegetarian</option></select></div>
-   <div><label><b>Goal</b></label><select id="verifiedDietGoal"><option>Weight Loss</option><option>Fat Loss</option><option>Maintenance</option><option>Muscle Gain</option><option>Weight Gain</option></select></div>
-   <div><label><b>Calorie Target</b></label><select id="verifiedDietCalories"></select></div>
-  </div>
-
-  <div class="diet-info-note">
-   <b>Manual food entry:</b> Trainer can select a food item or add a custom food. The item card shows <b>portion, kcal/100g, protein, carbs and fat</b>, and calculates calories for the entered grams.
+   <div><label><b>Select Member</b></label><select id="dayDietMember"></select></div>
+   <div><label><b>Diet Type</b></label><select id="dayDietType"><option>Vegetarian</option><option>Non-Vegetarian</option></select></div>
+   <div><label><b>Goal</b></label><select id="dayDietGoal"><option>Weight Loss</option><option>Fat Loss</option><option>Maintenance</option><option>Muscle Gain</option><option>Weight Gain</option></select></div>
+   <div><label><b>Calorie Target</b></label><select id="dayDietCalories"></select></div>
   </div>
 
   <div class="diet-week-table">
-   <div class="diet-week-row diet-week-head"><div>Day</div><div>Meals / Food Items</div><div>Daily Total</div></div>
-   <div class="diet-week-row"><div><b>Sunday</b><span class="holiday">Optional Rest / Flexible Day</span></div><div><button class="btn light" onclick="openDietDayPicker('Sunday')">＋ Add Food</button><div id="diet-items-Sunday" class="diet-items"></div></div><div id="diet-total-Sunday">0 kcal</div></div>
-   <div class="diet-week-row"><div><b>Monday</b></div><div><button class="btn light" onclick="openDietDayPicker('Monday')">＋ Add Food</button><div id="diet-items-Monday" class="diet-items"></div></div><div id="diet-total-Monday">0 kcal</div></div>
-   <div class="diet-week-row"><div><b>Tuesday</b></div><div><button class="btn light" onclick="openDietDayPicker('Tuesday')">＋ Add Food</button><div id="diet-items-Tuesday" class="diet-items"></div></div><div id="diet-total-Tuesday">0 kcal</div></div>
-   <div class="diet-week-row"><div><b>Wednesday</b></div><div><button class="btn light" onclick="openDietDayPicker('Wednesday')">＋ Add Food</button><div id="diet-items-Wednesday" class="diet-items"></div></div><div id="diet-total-Wednesday">0 kcal</div></div>
-   <div class="diet-week-row"><div><b>Thursday</b></div><div><button class="btn light" onclick="openDietDayPicker('Thursday')">＋ Add Food</button><div id="diet-items-Thursday" class="diet-items"></div></div><div id="diet-total-Thursday">0 kcal</div></div>
-   <div class="diet-week-row"><div><b>Friday</b></div><div><button class="btn light" onclick="openDietDayPicker('Friday')">＋ Add Food</button><div id="diet-items-Friday" class="diet-items"></div></div><div id="diet-total-Friday">0 kcal</div></div>
-   <div class="diet-week-row"><div><b>Saturday</b></div><div><button class="btn light" onclick="openDietDayPicker('Saturday')">＋ Add Food</button><div id="diet-items-Saturday" class="diet-items"></div></div><div id="diet-total-Saturday">0 kcal</div></div>
+   <div class="diet-week-row diet-week-head">
+    <div>Day</div><div>Meals / Food Items</div><div>Daily Total</div>
+   </div>
+   <div class="diet-week-row">
+    <div><b>Sunday</b><span class="holiday">Flexible / Rest Day</span></div>
+    <div><button class="btn light" onclick="trainerFoodSearch('Sunday')">＋ Add Food</button><div id="dayDietItems-Sunday" class="diet-items"></div></div>
+    <div id="dayDietTotal-Sunday">0 kcal</div>
+   </div>
+   <div class="diet-week-row"><div><b>Monday</b></div><div><button class="btn light" onclick="trainerFoodSearch('Monday')">＋ Add Food</button><div id="dayDietItems-Monday" class="diet-items"></div></div><div id="dayDietTotal-Monday">0 kcal</div></div>
+   <div class="diet-week-row"><div><b>Tuesday</b></div><div><button class="btn light" onclick="trainerFoodSearch('Tuesday')">＋ Add Food</button><div id="dayDietItems-Tuesday" class="diet-items"></div></div><div id="dayDietTotal-Tuesday">0 kcal</div></div>
+   <div class="diet-week-row"><div><b>Wednesday</b></div><div><button class="btn light" onclick="trainerFoodSearch('Wednesday')">＋ Add Food</button><div id="dayDietItems-Wednesday" class="diet-items"></div></div><div id="dayDietTotal-Wednesday">0 kcal</div></div>
+   <div class="diet-week-row"><div><b>Thursday</b></div><div><button class="btn light" onclick="trainerFoodSearch('Thursday')">＋ Add Food</button><div id="dayDietItems-Thursday" class="diet-items"></div></div><div id="dayDietTotal-Thursday">0 kcal</div></div>
+   <div class="diet-week-row"><div><b>Friday</b></div><div><button class="btn light" onclick="trainerFoodSearch('Friday')">＋ Add Food</button><div id="dayDietItems-Friday" class="diet-items"></div></div><div id="dayDietTotal-Friday">0 kcal</div></div>
+   <div class="diet-week-row"><div><b>Saturday</b></div><div><button class="btn light" onclick="trainerFoodSearch('Saturday')">＋ Add Food</button><div id="dayDietItems-Saturday" class="diet-items"></div></div><div id="dayDietTotal-Saturday">0 kcal</div></div>
   </div>
 
   <div class="weekly-actions">
-   <button class="btn" onclick="clearVerifiedDiet()">Clear Week</button>
-   <button class="btn greenbtn" onclick="saveVerifiedDiet()">Save Weekly Diet</button>
+   <button class="btn" onclick="clearDayDiet()">Clear Week</button>
+   <button class="btn greenbtn" onclick="saveDayDiet()">Save Weekly Diet</button>
   </div>
  </div>
 
  <div class="card">
-  <h3>Food Library — Hindi (Roman) + English</h3><button class="btn light" onclick="openBilingualFoodLibrary()">🔎 View Full Food Master List</button>
-  <p class="muted">Common food items are pre-fed. Trainer can also enter a custom item manually.</p>
-  <div id="foodLibrary" class="food-library"></div>
-        <div class="card supplement-card">
-          <h3>Gym Foods & Supplements — Indian Market</h3>
-          <p class="muted">Whey, plant protein, protein foods, peanut butter, mass gainer, electrolytes and other common gym-use products.</p>
-          <button class="btn light" onclick="openSupplementLibrary()">🔎 View Supplements & Gym Foods</button>
-          <div id="supplementLibrary" class="food-library" style="margin-top:10px"></div>
-        </div>
-        
+  <h3>How Trainer will use it</h3>
+  <p class="muted">For every day, Trainer can add multiple foods. A food can be selected from the master library or entered manually. Calories are calculated from the entered grams.</p>
  </div>
 </section>
+
 
 
 
@@ -1773,6 +1807,198 @@ document.addEventListener("DOMContentLoaded",()=>setTimeout(renderSupplementLibr
 <script>
 const combinedAkhadaFoods=[...bilingualFoods,...akhadaSupplements];
 function getAkhadaFoodLibrary(){return combinedAkhadaFoods;}
+</script>
+
+<script>
+const dayDietDays=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+let dayDietDraft={};
+
+function initDayDiet(){
+  const m=document.getElementById("dayDietMember");
+  if(!m)return;
+  const members=(typeof membersForPlans!=="undefined"?membersForPlans:["Rahul Kumar","Priya Sharma","Amit Singh"]);
+  m.innerHTML='<option value="">Select Member</option>'+members.map(x=>`<option>${x}</option>`).join("");
+  const c=document.getElementById("dayDietCalories");
+  c.innerHTML=[1400,1600,1800,2000,2200,2400,2600,2800,3000].map(x=>`<option value="${x}">${x} kcal</option>`).join("");
+  dayDietDays.forEach(d=>renderDayDiet(d));
+}
+
+function dayDietFoods(){
+  if(typeof bilingualFoods!=="undefined") return bilingualFoods;
+  return [];
+}
+
+function openDayDietPicker(day){
+  const foods=dayDietFoods();
+  openAnyModal(`
+    <h2>Add Food — ${day}</h2>
+    <p class="muted">Select food, enter grams and add multiple items. Calories are calculated automatically.</p>
+    <div class="food-picker">
+      ${foods.map((f,i)=>`
+        <label class="food-picker-row">
+          <input type="checkbox" value="${i}">
+          <span class="food-photo">🍽️</span>
+          <span><b>${f[0]}</b><div class="english-name">${f[1]}</div><small>${f[2]} kcal/100g · P ${f[3]}g · C ${f[4]}g · F ${f[5]}g /100g</small></span>
+          <input class="food-grams" type="number" min="1" value="100" placeholder="g">
+        </label>`).join("")}
+    </div>
+    <div class="manual-food-box">
+      <h3>Manual Food Item</h3>
+      <div class="manual-grid">
+        <input id="dayManualName" placeholder="Hindi/Roman food name">
+        <input id="dayManualEnglish" placeholder="English name">
+        <input id="dayManualGrams" type="number" placeholder="Grams">
+        <input id="dayManualKcal" type="number" placeholder="kcal / 100g">
+        <input id="dayManualProtein" type="number" placeholder="Protein g / 100g">
+        <input id="dayManualCarbs" type="number" placeholder="Carbs g / 100g">
+        <input id="dayManualFat" type="number" placeholder="Fat g / 100g">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeAnyModal()">Cancel</button>
+      <button class="btn greenbtn" onclick="saveDayDietItems('${day}')">Add to ${day}</button>
+    </div>`);
+}
+
+function saveDayDietItems(day){
+  const foods=dayDietFoods(), items=[];
+  document.querySelectorAll(".food-picker-row").forEach(row=>{
+    const cb=row.querySelector('input[type="checkbox"]');
+    if(cb && cb.checked){
+      const f=foods[Number(cb.value)];
+      const grams=Number(row.querySelector(".food-grams")?.value||100);
+      items.push({name:f[0],english:f[1],grams,kcal100:f[2],protein100:f[3],carbs100:f[4],fat100:f[5]});
+    }
+  });
+
+  const name=document.getElementById("dayManualName")?.value.trim();
+  if(name){
+    items.push({
+      name,
+      english:document.getElementById("dayManualEnglish")?.value.trim()||name,
+      grams:Number(document.getElementById("dayManualGrams")?.value||100),
+      kcal100:Number(document.getElementById("dayManualKcal")?.value||0),
+      protein100:Number(document.getElementById("dayManualProtein")?.value||0),
+      carbs100:Number(document.getElementById("dayManualCarbs")?.value||0),
+      fat100:Number(document.getElementById("dayManualFat")?.value||0)
+    });
+  }
+  if(!items.length){toast("Please select or enter at least one food item.");return;}
+  dayDietDraft[day]=[...(dayDietDraft[day]||[]),...items];
+  closeAnyModal();
+  renderDayDiet(day);
+}
+
+function renderDayDiet(day){
+  const items=dayDietDraft[day]||[];
+  let total=0;
+  const box=document.getElementById("dayDietItems-"+day);
+  if(!box)return;
+  box.innerHTML=items.map((f,i)=>{
+    const kcal=f.kcal100*f.grams/100;
+    total+=kcal;
+    return `<div class="diet-item-card">
+      <span class="food-photo">🍽️</span>
+      <div><b>${f.name}</b><div class="english-name">${f.english}</div>
+      <div>${f.grams} g · <b>${kcal.toFixed(0)} kcal</b></div>
+      <small>${f.kcal100} kcal/100g · P ${(f.protein100*f.grams/100).toFixed(1)}g · C ${(f.carbs100*f.grams/100).toFixed(1)}g · F ${(f.fat100*f.grams/100).toFixed(1)}g</small></div>
+      <button class="btn danger" onclick="removeDayDietItem('${day}',${i})">×</button>
+    </div>`;
+  }).join("");
+  document.getElementById("dayDietTotal-"+day).innerHTML=`<b>${total.toFixed(0)} kcal</b><small>${items.length} items</small>`;
+}
+function removeDayDietItem(day,i){dayDietDraft[day].splice(i,1);renderDayDiet(day);}
+function clearDayDiet(){dayDietDraft={};dayDietDays.forEach(renderDayDiet);}
+function saveDayDiet(){
+  const member=document.getElementById("dayDietMember")?.value;
+  if(!member){toast("Please select a member first.");return;}
+  if(!dayDietDays.some(d=>(dayDietDraft[d]||[]).length)){toast("Please add food to at least one day.");return;}
+  const all=getAssignedPlans();all[member]=all[member]||{};
+  all[member].weeklyDiet={
+    calories:Number(document.getElementById("dayDietCalories").value),
+    type:document.getElementById("dayDietType").value,
+    goal:document.getElementById("dayDietGoal").value,
+    days:JSON.parse(JSON.stringify(dayDietDraft)),
+    updatedBy:currentRole||"Owner",
+    updatedAt:new Date().toISOString()
+  };
+  setAssignedPlans(all);
+  toast("Sunday–Saturday diet saved for "+member);
+}
+document.addEventListener("DOMContentLoaded",()=>setTimeout(initDayDiet,80));
+</script>
+
+<script>
+const akhadaExerciseExtra = [["Machine Chest Press", "Multi Flight", "Chest"], ["Cable Fly", "Cable Cross Over", "Chest"], ["Wide-Grip Lat Pulldown", "Lat Pull Down with Seated Row", "Back"], ["Close-Grip Lat Pulldown", "Lat Pull Down with Seated Row", "Back"], ["Straight-Arm Pulldown", "Cable Cross Over", "Back"], ["Chest-Supported Row", "Mid Row", "Back"], ["Single-Arm Row", "Low Row / Dumbbells", "Back"], ["Assisted Pull-Up", "Assisted Dip Chin", "Back"], ["Smith Incline Press", "Smith with Squat Rack", "Chest"], ["Smith Close-Grip Bench Press", "Smith with Squat Rack", "Triceps"], ["Smith Romanian Deadlift", "Smith with Squat Rack", "Hamstring/Glutes"], ["Smith Split Squat", "Smith with Squat Rack", "Leg"], ["Narrow-Stance Leg Press", "Leg Press with Hack Squat", "Leg"], ["Wide-Stance Leg Press", "Leg Press with Hack Squat", "Leg"], ["Single-Leg Press", "Leg Press with Hack Squat", "Leg"], ["Leg Extension - Single Leg", "Prone Leg Curl with Extension", "Leg"], ["Seated Leg Curl", "Prone Leg Curl with Extension", "Hamstring"], ["Lying Leg Curl", "Prone Leg Curl with Extension", "Hamstring"], ["Hip Abduction", "Abductor & Adductor", "Glutes"], ["Hip Adduction", "Abductor & Adductor", "Adductors"], ["Cable Curl", "Cable Cross Over", "Biceps"], ["High Cable Curl", "Cable Cross Over", "Biceps"], ["Rope Hammer Curl", "Cable Cross Over", "Biceps"], ["Rope Triceps Pushdown", "Cable Cross Over", "Triceps"], ["Single-Arm Cable Pushdown", "Cable Cross Over", "Triceps"], ["Overhead Rope Extension", "Cable Cross Over", "Triceps"], ["Wrist Curl", "Wrist Curl Jungle 3-1", "Forearm"], ["Reverse Wrist Curl", "Wrist Curl Jungle 3-1", "Forearm"], ["Machine Ab Crunch", "Abs Crunch", "Core"], ["Hyperextension", "Hyper Extension", "Back/Core"], ["Torso Rotation", "Double Twister", "Core"], ["Conventional Deadlift", "Dead Lift Platform / Bumper Plates", "Full Body"], ["Romanian Deadlift", "Dead Lift Platform / Bumper Plates", "Hamstring/Glutes"], ["Barbell Bench Press", "Olympic Flat Bench / Bumper Plates", "Chest"], ["Dumbbell Fly", "Olympic Flat Bench / Dumbbells", "Chest"], ["Dumbbell Pullover", "Olympic Flat Bench / Dumbbells", "Chest/Back"], ["Dumbbell Row", "Flat Bench / Dumbbells", "Back"], ["Dumbbell Shrug", "Dumbbells", "Traps"], ["Arnold Press", "Dumbbells", "Shoulder"], ["Dumbbell Lunges", "Dumbbells", "Leg"], ["Dumbbell Romanian Deadlift", "Dumbbells", "Hamstring/Glutes"], ["Plate Front Raise", "Solid Rubberized Plates", "Shoulder"], ["Plate Russian Twist", "Solid Rubberized Plates", "Core"], ["Ski Erg Intervals", "GFF SKI 01", "Cardio"], ["Treadmill Brisk Walk", "GFF PNTH 01 / Treadmill", "Cardio"], ["Treadmill Incline Walk", "GFF PNTH 01 / Treadmill", "Cardio"], ["Cross Trainer Intervals", "GFF Cross 01 / Cross Trainer", "Cardio"], ["Cycle Intervals", "GFF TRANS 01", "Cardio"]];
+const akhadaExerciseSearchList = [
+  ...(typeof bilingualExercises !== "undefined" ? bilingualExercises : []),
+  ...akhadaExerciseExtra
+];
+
+function trainerExerciseSearch(day){
+  openAnyModal(`<h2>Select Exercises — ${day}</h2>
+    <input id="exSearchBox" class="library-search" placeholder="Search exercise, equipment or muscle..." oninput="filterTrainerExercises('${day}')">
+    <div id="exSearchResults" class="master-library-grid"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeAnyModal()">Cancel</button>
+      <button class="btn greenbtn" onclick="useTrainerExercises('${day}')">Use Selected</button>
+    </div>`);
+  filterTrainerExercises(day);
+}
+function filterTrainerExercises(day){
+  const q=(document.getElementById("exSearchBox")?.value||"").toLowerCase();
+  const rows=akhadaExerciseSearchList.filter(x=>x.join(" ").toLowerCase().includes(q));
+  const box=document.getElementById("exSearchResults");
+  box.innerHTML=rows.map((x,i)=>`<label class="master-item selectable-master">
+    <input type="checkbox" value="${x[0]}">
+    <span class="equipment-picture">🏋️</span>
+    <span><b>${x[0]}</b><div class="english-name">Equipment: ${x[1]}</div><small>Muscle: ${x[2]}</small></span>
+  </label>`).join("");
+}
+function useTrainerExercises(day){
+  const selected=[...document.querySelectorAll("#exSearchResults input:checked")].map(x=>x.value);
+  window.akhaSelectedExercises=selected;
+  closeAnyModal();
+  toast(selected.length+" exercises selected for "+day);
+}
+
+function trainerFoodSearch(day){
+  openAnyModal(`<h2>Select Food — ${day}</h2>
+    <input id="foodSearchBox" class="library-search" placeholder="Search Hindi/Roman or English food..." oninput="filterTrainerFoods('${day}')">
+    <div id="foodSearchResults" class="master-library-grid"></div>`);
+  filterTrainerFoods(day);
+}
+function filterTrainerFoods(day){
+  const q=(document.getElementById("foodSearchBox")?.value||"").toLowerCase();
+  const rows=(typeof combinedAkhadaFoods !== "undefined" ? combinedAkhadaFoods :
+    (typeof bilingualFoods !== "undefined" ? bilingualFoods : [])).filter(x=>x.join(" ").toLowerCase().includes(q));
+  const box=document.getElementById("foodSearchResults");
+  box.innerHTML=rows.map((x,i)=>`<div class="master-item food-search-item">
+    <span class="food-photo">🍽️</span>
+    <span><b>${x[0]}</b><div class="english-name">${x[1]}</div><small>${x[2]} kcal/100g · P ${x[3]}g · C ${x[4]}g · F ${x[5]}g</small></span>
+    <button class="btn light" onclick="addSearchedFood('${day}',${i})">Add</button>
+  </div>`).join("");
+}
+function addSearchedFood(day,i){
+  const rows=(typeof combinedAkhadaFoods !== "undefined" ? combinedAkhadaFoods : bilingualFoods);
+  const f=rows.filter(x=>x.join(" ").toLowerCase().includes((document.getElementById("foodSearchBox")?.value||"").toLowerCase()))[i];
+  if(!f)return;
+  dayDietDraft[day]=dayDietDraft[day]||[];
+  dayDietDraft[day].push({name:f[0],english:f[1],grams:100,kcal100:f[2],protein100:f[3],carbs100:f[4],fat100:f[5]});
+  closeAnyModal(); renderDayDiet(day);
+}
+</script>
+
+<script>
+function memberPreviewGo(page){
+  document.querySelectorAll(".member-preview-page").forEach(x=>x.style.display="none");
+  const el=document.getElementById("memberPreview"+page.charAt(0).toUpperCase()+page.slice(1));
+  if(el)el.style.display="block";
+  document.querySelectorAll(".member-nav").forEach(x=>x.classList.remove("active"));
+  const map={home:0,workout:1,diet:2,progress:3,attendance:4,profile:5,payments:6};
+  const nav=document.querySelectorAll(".member-nav")[map[page]??0];
+  if(nav)nav.classList.add("active");
+}
 </script>
 </body>
 </html>
