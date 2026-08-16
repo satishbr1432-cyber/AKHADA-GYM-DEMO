@@ -110,6 +110,24 @@ textarea{min-height:90px;resize:vertical}
 .trainer-workout-actions,.trainer-diet-actions{display:flex;gap:8px}
 @media(max-width:800px){.workout-toolbar,.diet-filters{grid-template-columns:1fr 1fr}.template-grid{grid-template-columns:1fr 1fr}}
 </style>
+
+<style>
+body[data-role="member"] .owner-only,
+body[data-role="trainer"] .owner-only,
+body[data-role="manager"] .owner-only{display:none !important}
+body[data-role="member"] #settings,
+body[data-role="trainer"] #settings{display:none !important}
+</style>
+
+<style>
+.expense-form{max-height:78vh;overflow:auto;padding:4px}
+.expense-form label{display:block;font-weight:700;margin:10px 0 5px}
+.expense-form input,.expense-form select,.expense-form textarea{
+  width:100%;box-sizing:border-box;padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff
+}
+.expense-form textarea{min-height:80px;resize:vertical}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+</style>
 </head>
 <body>
 <div class="app">
@@ -260,7 +278,7 @@ textarea{min-height:90px;resize:vertical}
  <div class="header">
   <div><h1>Workout Plans</h1><p class="muted">Trainer can add/change/remove an assigned member plan. Master template delete remains Owner-only. Pre-fed workout library. Trainer can assign/change a plan for an assigned member. Owner controls the master templates.</p></div>
   <div class="actions trainer-workout-actions">
-   <button class="btn greenbtn" onclick="trainerCreateWorkout()">＋ Add Workout</button>
+   <button class="btn greenbtn owner-template-action" onclick="ownerCreateWorkoutTemplate()">＋ Add Workout</button>
   </div>
  </div>
  <div class="card">
@@ -286,7 +304,7 @@ textarea{min-height:90px;resize:vertical}
  <div class="header">
   <div><h1>Diet Plans</h1><p class="muted">Trainer can add/change/remove an assigned member plan. Master template delete remains Owner-only. Calorie-based templates with two meal choices. Trainer can assign/change a member's plan; Owner controls master templates.</p></div>
   <div class="actions trainer-diet-actions">
-   <button class="btn greenbtn" onclick="trainerCreateDiet()">＋ Add Diet Plan</button>
+   <button class="btn greenbtn owner-template-action" onclick="ownerCreateDietTemplate()">＋ Add Diet Plan</button>
   </div>
  </div>
  <div class="diet-filters">
@@ -374,10 +392,15 @@ textarea{min-height:90px;resize:vertical}
   <div class="card"><div class="label">My Visits</div><div class="value">18</div><div class="muted">This month</div></div>
   <div class="card"><div class="label">My Weight</div><div class="value">80.9 kg</div><div class="muted">Latest measurement</div></div>
  </div>
- <div class="grid2">
+ 
+ <div id="memberAssignedPlans" class="grid2 member-visible">
+  <div class="card"><h3>My Assigned Workout</h3><div id="memberWorkoutAssigned">No workout plan assigned yet.</div></div>
+  <div class="card"><h3>My Assigned Diet</h3><div id="memberDietAssigned">No diet plan assigned yet.</div></div>
+ </div>
+<div class="grid2">
   <div class="card"><h3>My Services</h3>
-   <div class="row"><span>My Workout</span><button class="btn light" onclick="go('workout')">View</button></div>
-   <div class="row"><span>My Diet</span><button class="btn light" onclick="go('diet')">View</button></div>
+   <div class="row"><span>My Workout</span><button class="btn light" onclick="openMyAssignedWorkout()">View</button></div>
+   <div class="row"><span>My Diet</span><button class="btn light" onclick="openMyAssignedDiet()">View</button></div>
    <div class="row"><span>My Progress</span><button class="btn light" onclick="go('progress')">View</button></div>
    <div class="row"><span>My Attendance</span><button class="btn light" onclick="go('attendance')">View</button></div>
   </div>
@@ -662,7 +685,7 @@ const roles={
  Owner:["dashboard","members","plans","attendance","billing","dues","inquiries","batches","staff","trainers","workout","diet","progress","expenses","messages","reports","notifications","settings","memberapp"],
  Manager:["dashboard","members","plans","attendance","billing","dues","inquiries","batches","trainers","workout","diet","progress","reports","notifications"],
  Trainer:["dashboard","members","attendance","trainers","workout","diet","progress"],
- Member:["memberhome","memberapp","attendance","workout","diet","progress","billing"]
+ Member:["memberhome","memberapp","attendance","progress","billing"]
 };
 let currentRole="Owner";
 function switchRole(role){
@@ -697,11 +720,11 @@ function switchRole(role){
      '[data-action="add-member"], [data-action="add-lead"], .add-member-btn, .admin-only, .management-only'
    ).forEach(x=>x.style.display="none");
 
-   toast("Member login: My Data Only"); lockFinancialRows(); enforceRoleDashboard();
+   toast("Member login: My Data Only"); lockFinancialRows(); enforceRoleDashboard(); applyRoleVisibility();
  } else {
    document.querySelectorAll(".member-admin-only").forEach(x=>x.style.display="");
    go("dashboard");
-   toast("Viewing as "+role); lockFinancialRows(); enforceRoleDashboard();
+   toast("Viewing as "+role); lockFinancialRows(); enforceRoleDashboard(); applyRoleVisibility();
 } }
 function renderRoleSelector(){
  const side=document.querySelector(".sidebar .brand");
@@ -908,6 +931,252 @@ function assignSelectedDiet(){
  toast("Diet plan assigned to "+m);
 }
 document.addEventListener("DOMContentLoaded", initWorkoutDiet);
+</script>
+
+<script>
+function applyRoleVisibility(){
+  const role = currentRole || "Owner";
+  document.body.dataset.role = role.toLowerCase();
+  const allowed = roles[role] || roles.Owner;
+
+  document.querySelectorAll(".page").forEach(p=>{
+    const id=p.id;
+    if(role==="Member"){
+      p.classList.toggle("active", id==="memberhome");
+    } else {
+      // Keep only the currently active page if it is allowed.
+      if(!allowed.includes(id)) p.classList.remove("active");
+    }
+  });
+
+  document.querySelectorAll(".owner-only").forEach(el=>{
+    el.style.display = role==="Owner" ? "" : "none";
+  });
+
+  // Financial/admin content is never visible to Trainer or Member.
+  if(role==="Trainer" || role==="Member"){
+    document.querySelectorAll(
+      '[data-module="pending-dues"],[data-module="todays-collection"],' +
+      '#pendingDues,#todaysCollection,.pending-dues,.todays-collection,' +
+      '.financial-admin-only,.admin-finance'
+    ).forEach(el=>el.style.display="none");
+  }
+}
+
+// Wrap navigation so a role can never open a page outside its permissions.
+const _originalGo = window.go;
+window.go = function(id){
+  const role=currentRole || "Owner";
+  const allowed=roles[role] || roles.Owner;
+  if(!allowed.includes(id)){
+    toast("This section is not available for "+role+".");
+    return;
+  }
+  return _originalGo(id);
+};
+</script>
+
+<script>
+function openExpenseModal(type){
+  const isSalary = type === "salary";
+  const title = isSalary ? "Add Staff Salary" : "Add Other Expense";
+  const form = isSalary ? `
+    <label>Payment Date</label><input type="date" id="expDate">
+    <label>Staff Name *</label><input id="salaryStaff" placeholder="Select / enter staff name">
+    <label>Salary Month *</label><input type="month" id="salaryMonth">
+    <label>Amount *</label><input type="number" id="expAmount" placeholder="₹ Amount">
+    <label>Payment Mode</label><select id="expMode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option></select>
+    <label>Remarks</label><textarea id="expRemarks" placeholder="Salary / advance / bonus etc."></textarea>
+  ` : `
+    <label>Expense Date</label><input type="date" id="expDate">
+    <label>Expense Category *</label><select id="expCategory">
+      <option>Electricity</option><option>Equipment Repair</option><option>Maintenance</option>
+      <option>Cleaning</option><option>Rent</option><option>Marketing</option>
+      <option>Supplies</option><option>Other</option>
+    </select>
+    <label>Vendor / Supplier Name *</label><input id="vendorName" placeholder="Vendor name">
+    <label>Amount *</label><input type="number" id="expAmount" placeholder="₹ Amount">
+    <label>Payment Mode</label><select id="expMode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option></select>
+    <label>Bill / Invoice No.</label><input id="invoiceNo" placeholder="Optional">
+    <label>Details / Remarks</label><textarea id="expRemarks" placeholder="Describe the expense"></textarea>
+  `;
+  const content = `
+    <div class="expense-form">
+      <h2>${title}</h2>
+      <p class="muted">${isSalary ? "Manager can add salary entries. Saved salary records can only be edited/deleted by Owner." : "Manager can add expenses. Vendor/Supplier name is mandatory. Saved expenses can only be edited/deleted by Owner."}</p>
+      ${form}
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal('expenseForm')">Cancel</button>
+        <button class="btn greenbtn" onclick="saveExpenseEntry('${type}')">Save ${isSalary ? "Salary" : "Expense"}</button>
+      </div>
+    </div>`;
+  openCustom(content);
+}
+
+function saveExpenseEntry(type){
+  const amount = Number(document.getElementById("expAmount")?.value || 0);
+  if(!amount){ toast("Please enter amount."); return; }
+
+  if(type === "salary"){
+    const staff = document.getElementById("salaryStaff")?.value.trim();
+    const month = document.getElementById("salaryMonth")?.value;
+    if(!staff || !month){ toast("Staff name and salary month are required."); return; }
+  } else {
+    const vendor = document.getElementById("vendorName")?.value.trim();
+    if(!vendor){ toast("Vendor / Supplier name is required."); return; }
+  }
+
+  // Demo persistence so entries remain visible after saving in this browser.
+  const key = type === "salary" ? "akhada_salary_entries" : "akhada_expense_entries";
+  const old = JSON.parse(localStorage.getItem(key) || "[]");
+  old.push({
+    date: document.getElementById("expDate")?.value || new Date().toISOString().slice(0,10),
+    amount,
+    mode: document.getElementById("expMode")?.value || "Cash",
+    staff: document.getElementById("salaryStaff")?.value || "",
+    month: document.getElementById("salaryMonth")?.value || "",
+    category: document.getElementById("expCategory")?.value || "",
+    vendor: document.getElementById("vendorName")?.value || "",
+    invoice: document.getElementById("invoiceNo")?.value || "",
+    remarks: document.getElementById("expRemarks")?.value || "",
+    createdBy: currentRole || "Owner",
+    createdAt: new Date().toISOString()
+  });
+  localStorage.setItem(key, JSON.stringify(old));
+  if(typeof closeModal === "function") closeModal();
+  if(typeof toast === "function") toast((type === "salary" ? "Staff salary" : "Other expense") + " entry saved.");
+  if(typeof go === "function") go("expenses");
+}
+
+function openCustom(content){
+  let m=document.getElementById("customModal");
+  if(!m){
+    m=document.createElement("div");
+    m.id="customModal";
+    m.className="modal";
+    document.body.appendChild(m);
+  }
+  m.innerHTML='<div class="modalbox">'+content+'</div>';
+  m.style.display="flex";
+}
+function closeModal(which){
+  const m=document.getElementById("customModal");
+  if(m) m.style.display="none";
+}
+</script>
+
+<script>
+function openMeasurementModal(){
+  const select=document.getElementById("progressMember");
+  let name=select?.value || "";
+  if((currentRole||"Owner")==="Member") name="Rahul Kumar";
+  if(!name){ toast("Select a member first."); return; }
+
+  const content=`
+    <h2>Add Measurement — ${name}</h2>
+    <p class="muted">This creates a new progress entry. Previous entries remain in history for comparison.</p>
+    <div class="grid2">
+      <input id="measurementDate" type="date" value="${new Date().toISOString().slice(0,10)}">
+      <input id="measurementWeight" type="number" step="0.1" placeholder="Weight (kg)">
+      <input id="measurementWaist" type="number" step="0.1" placeholder="Waist (inch)">
+      <input id="measurementChest" type="number" step="0.1" placeholder="Chest (inch)">
+      <input id="measurementArm" type="number" step="0.1" placeholder="Arm (inch)">
+      <input id="measurementThigh" type="number" step="0.1" placeholder="Thigh (inch)">
+      <input id="measurementBodyfat" type="number" step="0.1" placeholder="Body Fat %">
+    </div>
+    <textarea id="measurementNotes" placeholder="Notes"></textarea>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeAnyModal()">Cancel</button>
+      <button class="btn greenbtn" onclick="saveMeasurementFixed('${name.replace("'","\\'")}')">Save Measurement</button>
+    </div>`;
+  openAnyModal(content);
+}
+function saveMeasurementFixed(name){
+  const row={
+    date:document.getElementById("measurementDate")?.value || new Date().toLocaleDateString("en-GB"),
+    weight:document.getElementById("measurementWeight")?.value || "—",
+    waist:document.getElementById("measurementWaist")?.value || "—",
+    chest:document.getElementById("measurementChest")?.value || "—",
+    arm:document.getElementById("measurementArm")?.value || "—",
+    thigh:document.getElementById("measurementThigh")?.value || "—",
+    bodyfat:document.getElementById("measurementBodyfat")?.value || "—",
+    notes:document.getElementById("measurementNotes")?.value || ""
+  };
+  (memberProgressData[name] ||= []).push(row);
+  closeAnyModal();
+  renderProgress(name);
+  toast("Measurement saved for "+name);
+}
+function openAnyModal(content){
+  const custom=document.getElementById("customModal");
+  if(custom){ custom.innerHTML='<div class="modalbox">'+content+'</div>'; custom.style.display="flex"; return; }
+  const back=document.getElementById("modalBack");
+  if(back){
+    document.getElementById("modalTitle").textContent="Add Measurement";
+    document.getElementById("modalBody").innerHTML=content;
+    back.classList.add("open"); return;
+  }
+}
+function closeAnyModal(){
+  const custom=document.getElementById("customModal"); if(custom) custom.style.display="none";
+  const back=document.getElementById("modalBack"); if(back) back.classList.remove("open");
+}
+</script>
+
+<script>
+function getAssignedPlans(){
+  return JSON.parse(localStorage.getItem("akhada_assigned_plans") || "{}");
+}
+function setAssignedPlans(v){ localStorage.setItem("akhada_assigned_plans", JSON.stringify(v)); }
+
+function assignSelectedWorkout(){
+  const m=document.getElementById("workoutMember")?.value;
+  const cat=document.getElementById("workoutCategory")?.value;
+  if(!m){toast("Select a member first");return;}
+  const all=getAssignedPlans(); all[m]=all[m]||{};
+  all[m].workout={template:cat, assignedBy:currentRole||"Owner", assignedAt:new Date().toISOString()};
+  setAssignedPlans(all);
+  toast("Workout assigned to "+m);
+}
+function assignSelectedDiet(){
+  const m=document.getElementById("dietMember")?.value;
+  const kcal=document.getElementById("dietCalories")?.value;
+  const type=document.getElementById("dietType")?.value;
+  const goal=document.getElementById("dietGoal")?.value;
+  if(!m){toast("Select a member first");return;}
+  const all=getAssignedPlans(); all[m]=all[m]||{};
+  all[m].diet={calories:kcal,type,goal,assignedBy:currentRole||"Owner",assignedAt:new Date().toISOString()};
+  setAssignedPlans(all);
+  toast("Diet plan assigned to "+m);
+}
+function openMyAssignedWorkout(){
+  const p=getAssignedPlans()["Rahul Kumar"]?.workout;
+  if(!p){openAnyModal("<h2>My Workout</h2><p class='muted'>No workout plan has been assigned to you yet.</p>");return;}
+  const rows=workoutTemplates[p.template]||[];
+  openAnyModal(`<h2>${p.template} Workout Plan</h2><p class="muted">Assigned by Gym Staff</p><div class="tablewrap"><table><thead><tr><th>Exercise</th><th>Sets</th><th>Reps / Duration</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("")}</tbody></table></div>`);
+}
+function openMyAssignedDiet(){
+  const p=getAssignedPlans()["Rahul Kumar"]?.diet;
+  if(!p){openAnyModal("<h2>My Diet</h2><p class='muted'>No diet plan has been assigned to you yet.</p>");return;}
+  const rows=(dietTemplatesFull[String(parseInt(p.calories))]||{})[p.type]||{};
+  openAnyModal(`<h2>${p.calories} Food Plan – ${p.goal} – ${p.type}</h2><p class="muted">Assigned by Gym Staff</p>${Object.entries(rows).map(([meal,opts])=>`<div class="meal-card"><h3>${meal}</h3><div class="food-option"><div class="food-pic">🍽️</div><div><b>Option 1</b><div>${opts[0]}</div></div></div><div class="food-option"><div class="food-pic">🍽️</div><div><b>Option 2</b><div>${opts[1]}</div></div></div></div>`).join("")}`);
+}
+function ownerCreateDietTemplate(){
+  if((currentRole||"Owner")!=="Owner"){toast("Only Owner can add master diet templates.");return;}
+  openAnyModal(`<h2>Add Diet Plan Template</h2><p class="muted">Owner-only master template. After saving, Trainers can assign it to members.</p><input placeholder="Plan heading, e.g. 1800 Calories Food Plan – Weight Loss – Vegetarian"><textarea placeholder="Meal options, portions, notes..."></textarea><div class="modal-actions"><button class="btn" onclick="closeAnyModal()">Cancel</button><button class="btn greenbtn" onclick="saveDemo('Master Diet Template')">Save Diet Template</button></div>`);
+}
+function ownerCreateWorkoutTemplate(){
+  if((currentRole||"Owner")!=="Owner"){toast("Only Owner can add master workout templates.");return;}
+  openAnyModal(`<h2>Add Workout Plan Template</h2><p class="muted">Owner-only master template. After saving, Trainers can assign it to members.</p><input placeholder="Plan name"><textarea placeholder="Exercises, sets, reps, duration..."></textarea><div class="modal-actions"><button class="btn" onclick="closeAnyModal()">Cancel</button><button class="btn greenbtn" onclick="saveDemo('Master Workout Template')">Save Workout Template</button></div>`);
+}
+function enforceAssignedMemberPages(){
+  if((currentRole||"Owner")==="Member"){
+    document.querySelectorAll(".page").forEach(p=>{
+      if(["memberhome","attendance","progress","billing"].includes(p.id)) return;
+      if(["workout","diet"].includes(p.id)) p.classList.remove("active");
+    });
+  }
+}
 </script>
 </body>
 </html>
