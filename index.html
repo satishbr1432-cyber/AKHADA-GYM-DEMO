@@ -914,6 +914,38 @@ body[data-theme="dark"] .akhada-theme-navbtn{color:#f4d37c!important}
 })();
 </script>
 
+
+<style id="akhada-v31-reference-ui">
+:root{--v31-accent:var(--v30-accent,#168b63);--v31-bg:var(--v30-bg,#f6f8f7);--v31-card:var(--v30-card,#fff);--v31-text:var(--v30-text,#151817);--v31-muted:var(--v30-muted,#737b78);--v31-border:var(--v30-border,#e1e7e4)}
+body[data-ui-theme]{background:var(--v31-bg);color:var(--v31-text)}
+@media(max-width:767px){
+ .app{min-height:100vh}.main{padding:0 12px 92px!important}
+ .v28-mobile-head{margin:0 -2px 4px;padding:12px 2px 8px;position:sticky;top:0;z-index:80;background:color-mix(in srgb,var(--v31-bg) 94%,transparent);backdrop-filter:blur(12px)}
+ .v28-brand strong{font-size:18px}.v28-brand small{font-size:9px;letter-spacing:.5px}
+ .v28-brand img{width:42px;height:42px;border-radius:12px}
+ .v28-role{border:1px solid var(--v31-border);background:var(--v31-card)!important;color:var(--v31-accent)!important}
+ .header{display:flex!important;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 12px!important;padding:0!important;border:0!important;background:transparent!important}
+ .header h1{font-size:25px!important;line-height:1.1;margin:0}.header .muted{font-size:11px;margin-top:4px}
+ .header>.btn{white-space:nowrap;padding:10px 12px!important;border-radius:12px!important;font-size:12px!important}
+ .cards{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important}
+ .cards .card{min-height:86px;border-radius:16px!important;padding:14px!important;box-shadow:0 4px 16px rgba(20,40,30,.05)}
+ .cards .card .label{font-size:11px!important}.cards .card .value{font-size:20px!important;margin-top:7px}
+ #dashboard>.grid2{display:block!important}.page>.card,.page>.grid2>.card{border-radius:17px!important;box-shadow:0 4px 16px rgba(20,40,30,.05)}
+ #dashboard .actions{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:7px!important}
+ #dashboard .actions .btn{padding:11px 5px!important;font-size:10px!important;min-height:58px;border-radius:13px!important}
+ #dashboard .actions .btn:first-line{font-size:17px}
+ .mobilebar button{color:#8b928f!important}.mobilebar .active{color:var(--v31-accent)!important}.mobilebar .active b{background:color-mix(in srgb,var(--v31-accent) 12%,transparent)!important}
+ .mobilebar{height:66px!important;bottom:9px!important;border-radius:22px!important;background:color-mix(in srgb,var(--v31-card) 94%,transparent)!important;border-color:var(--v31-border)!important}
+ #memberList{padding:4px 12px!important}.memberrow{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--v31-border);padding:14px 0!important}.memberrow:last-child{border-bottom:0}
+ .person{min-width:0}.person b{font-size:14px}.person .label{font-size:10px;line-height:1.45}.memberrow>.person+div{min-width:92px}
+ .search{border-radius:14px!important;background:var(--v31-card)!important;border-color:var(--v31-border)!important;min-height:44px}
+ .actions{gap:8px!important}.btn{border-radius:12px!important}.greenbtn{background:var(--v31-accent)!important}
+ .demo-role-box{display:none!important}
+ .v30-theme-launch{top:auto;bottom:88px;right:14px;font-size:11px;padding:8px 11px;z-index:95}
+ .v30-login{padding:14px!important}.v30-login-box{border-radius:26px!important;padding:22px!important}.v30-login-brand b{font-size:28px}.v30-role-grid{gap:8px}.v30-role-btn{padding:13px 8px!important}
+ .v31-more-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.v31-more-item{border:1px solid var(--v31-border);background:var(--v31-card);color:var(--v31-text);border-radius:15px;padding:14px 5px;text-align:center;font-weight:800;font-size:11px}.v31-more-item b{display:block;font-size:21px;margin-bottom:5px;color:var(--v31-accent)}
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -5123,6 +5155,47 @@ if ('serviceWorker' in navigator) {
   };
   const saved=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();
   document.addEventListener('DOMContentLoaded',()=>applyAkhadaTheme(saved||'light'));
+})();
+</script>
+
+<script id="akhada-v31-reference-ui-js">
+(function(){
+ const ACCESS={
+  Owner:['dashboard','members','plans','attendance','billing','dues','inquiries','batches','staff','trainers','workout','diet','progress','expenses','messages','reports','notifications','settings'],
+  Manager:['dashboard','members','plans','attendance','billing','dues','inquiries','batches','staff','trainers','workout','diet','progress','expenses','messages','reports','notifications','settings'],
+  Trainer:['dashboard','members','attendance','inquiries','batches','trainers','workout','diet','progress','messages','notifications'],
+  Member:['memberhome','memberservices','memberapp']
+ };
+ const labels={Owner:'Admin',Manager:'Manager',Trainer:'Trainer',Member:'Member'};
+ const more=[['reports','▥','Reports'],['billing','₹','Income / Billing'],['expenses','−','Expenses'],['progress','↗','Member Progress'],['workout','⌁','Workout Plans'],['diet','⌁','Diet Plans'],['batches','◷','Batches / Classes'],['notifications','♢','Reminders'],['settings','⚙','Settings']];
+ function role(){return window.currentRole||localStorage.getItem('akhadaDemoRole')||'Owner'}
+ function apply(){
+   const r=role(), allowed=ACCESS[r]||ACCESS.Owner;
+   document.querySelectorAll('.navbtn[data-page]').forEach(b=>{const id=b.dataset.page; b.style.display=allowed.includes(id)?'flex':'none'});
+   const mr=document.getElementById('v28MobileRole');if(mr)mr.textContent=labels[r]||r;
+   document.querySelectorAll('[data-role-caption]').forEach(x=>x.textContent=labels[r]||r);
+   const dash=document.querySelector('#dashboard .muted');if(dash && r!=='Owner')dash.textContent='AKHADA · '+(labels[r]||r)+' Dashboard';
+ }
+ const oldGo=window.go;
+ window.go=function(id){if(!ACCESS[role()]?.includes(id) && !['more'].includes(id)){toast('This section is not available for '+(labels[role()]||role()));return} return oldGo(id)};
+ function buildMore(){
+   const main=document.querySelector('main.main'); if(!main||document.getElementById('v31More'))return;
+   const sec=document.createElement('section');sec.className='page';sec.id='more';
+   sec.innerHTML='<div class="header"><div><h1>More</h1><div class="muted">Tools and management</div></div></div><div class="v31-more-grid"></div><div class="card" style="margin-top:14px"><button class="btn" style="width:100%" onclick="akhadaV30Logout()">↪ Logout</button></div>';
+   main.appendChild(sec);
+   const grid=sec.querySelector('.v31-more-grid');
+   more.forEach(x=>{const b=document.createElement('button');b.className='v31-more-item';b.innerHTML='<b>'+x[1]+'</b>'+x[2];b.onclick=()=>window.go(x[0]);grid.appendChild(b)});
+ }
+ function patchMobileBar(){
+   const bar=document.querySelector('.mobilebar');if(!bar)return;
+   const old=bar.querySelector('[data-page="reports"]');
+   if(old){old.dataset.page='more';old.innerHTML='<b>☰</b>More';}
+ }
+ document.addEventListener('DOMContentLoaded',()=>{buildMore();patchMobileBar();setTimeout(apply,120)});
+ const oldChange=window.changeAkhadaRole;
+ window.changeAkhadaRole=function(r){oldChange&&oldChange(r);setTimeout(apply,30)};
+ const oldLogin=window.akhadaV30Login;
+ window.akhadaV30Login=function(r){oldLogin&&oldLogin(r);setTimeout(apply,30)};
 })();
 </script>
 </body>
@@ -9748,6 +9821,76 @@ window.saveAkhadaStaff=function(){
       return originalInquirySave.apply(this,arguments);
     };
   }
+})();
+</script>
+
+
+
+<!-- AKHADA V30 TRIAL: ROLE LOGIN + 10 THEMES -->
+<style id="akhada-v30-login-theme">
+:root{--v30-accent:#168b63;--v30-accent2:#0e6f50;--v30-bg:#f6f8f7;--v30-card:#fff;--v30-text:#18201d;--v30-muted:#6b746f;--v30-border:#e1e8e4;--v30-soft:#eaf7f1}
+body[data-ui-theme="ocean"]{--v30-accent:#1677c8;--v30-accent2:#0d5b9e;--v30-bg:#f4f8fc;--v30-soft:#eaf4ff}
+body[data-ui-theme="purple"]{--v30-accent:#7b3db3;--v30-accent2:#5f2b8b;--v30-bg:#faf7fc;--v30-soft:#f2e9f8}
+body[data-ui-theme="orange"]{--v30-accent:#ed7416;--v30-accent2:#c85b08;--v30-bg:#fff8f1;--v30-soft:#fff0e2}
+body[data-ui-theme="red"]{--v30-accent:#d8323b;--v30-accent2:#b51f28;--v30-bg:#fff6f6;--v30-soft:#ffe9ea}
+body[data-ui-theme="sky"]{--v30-accent:#129fc1;--v30-accent2:#087c98;--v30-bg:#f3fbfd;--v30-soft:#e6f7fb}
+body[data-ui-theme="gold"]{--v30-accent:#b78a13;--v30-accent2:#8e6a0b;--v30-bg:#fffcf4;--v30-soft:#fbf3d8}
+body[data-ui-theme="rose"]{--v30-accent:#dc4f86;--v30-accent2:#b93268;--v30-bg:#fff7fa;--v30-soft:#ffeaf2}
+body[data-ui-theme="navy"]{--v30-accent:#4d91d8;--v30-accent2:#2e67a3;--v30-bg:#101923;--v30-card:#172536;--v30-text:#f2f6fa;--v30-muted:#aab8c5;--v30-border:#2b3b4d;--v30-soft:#1d3045}
+body[data-ui-theme="forest"]{--v30-accent:#61b77b;--v30-accent2:#3f8f5a;--v30-bg:#0e1d17;--v30-card:#142a21;--v30-text:#eff8f1;--v30-muted:#a8beb0;--v30-border:#294238;--v30-soft:#1b392d}
+body[data-ui-theme="navy"],body[data-ui-theme="forest"]{color:var(--v30-text);background:var(--v30-bg)}
+body[data-ui-theme]:not([data-ui-theme="light"]) .card,body[data-ui-theme]:not([data-ui-theme="light"]) .modal,body[data-ui-theme]:not([data-ui-theme="light"]) .modalback>div{background:var(--v30-card);color:var(--v30-text);border-color:var(--v30-border)}
+body[data-ui-theme] .btn.greenbtn,body[data-ui-theme] button.greenbtn{background:var(--v30-accent)!important;border-color:var(--v30-accent)!important}
+body[data-ui-theme] .mobilebar .active,body[data-ui-theme] .v28-mobile-head .v28-role{color:var(--v30-accent)}
+body[data-ui-theme] .v30-accent{color:var(--v30-accent)!important}
+body[data-ui-theme] .v30-theme-card.selected{outline:3px solid var(--v30-accent);outline-offset:2px}
+.v30-login{position:fixed;inset:0;z-index:999999;background:linear-gradient(135deg,var(--v30-bg),#fff);display:flex;align-items:center;justify-content:center;padding:18px;font-family:inherit}
+.v30-login.hidden{display:none}
+.v30-login-box{width:min(430px,94vw);background:var(--v30-card);border:1px solid var(--v30-border);border-radius:28px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.16)}
+.v30-login-brand{display:flex;align-items:center;gap:13px;margin-bottom:22px}.v30-login-brand img{width:58px;height:58px;border-radius:15px}.v30-login-brand b{font-size:25px}.v30-login-brand span{display:block;color:var(--v30-muted);font-size:13px;margin-top:2px}
+.v30-login h2{margin:0 0 6px;font-size:25px}.v30-login p{color:var(--v30-muted);margin:0 0 18px}
+.v30-role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 18px}.v30-role-btn{border:1px solid var(--v30-border);background:var(--v30-bg);border-radius:15px;padding:14px 10px;font-weight:800;font-size:14px;color:var(--v30-text)}.v30-role-btn.selected{background:var(--v30-soft);border-color:var(--v30-accent);color:var(--v30-accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--v30-accent) 20%,transparent)}
+.v30-login input{width:100%;box-sizing:border-box;padding:13px 14px;border:1px solid var(--v30-border);border-radius:13px;background:var(--v30-bg);color:var(--v30-text);font-size:15px;margin:7px 0 12px}.v30-login .v30-submit{width:100%;border:0;border-radius:14px;padding:14px;background:var(--v30-accent);color:white;font-weight:900;font-size:16px}
+.v30-theme-launch{position:fixed;right:14px;top:78px;z-index:9000;border:1px solid var(--v30-border);background:var(--v30-card);color:var(--v30-text);border-radius:999px;padding:9px 13px;font-weight:800;box-shadow:0 5px 20px rgba(0,0,0,.08)}
+.v30-theme-modal{position:fixed;inset:0;z-index:99990;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;padding:12px}.v30-theme-modal.open{display:flex}.v30-theme-sheet{width:min(760px,100%);max-height:88vh;overflow:auto;background:var(--v30-card);color:var(--v30-text);border-radius:25px;padding:20px;box-sizing:border-box}.v30-theme-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.v30-theme-head h2{margin:0}.v30-close{border:0;background:var(--v30-bg);color:var(--v30-text);border-radius:50%;width:38px;height:38px;font-size:22px}.v30-theme-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.v30-theme-card{border:1px solid var(--v30-border);border-radius:18px;padding:10px;background:var(--v30-card);cursor:pointer;text-align:left}.v30-theme-preview{height:92px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;margin-bottom:8px}.v30-theme-name{font-weight:900}.v30-theme-desc{font-size:11px;color:var(--v30-muted);margin-top:2px}.v30-theme-preview.green{background:#168b63;color:white}.v30-theme-preview.ocean{background:#1677c8;color:white}.v30-theme-preview.purple{background:#7b3db3;color:white}.v30-theme-preview.orange{background:#ed7416;color:white}.v30-theme-preview.red{background:#d8323b;color:white}.v30-theme-preview.sky{background:#129fc1;color:white}.v30-theme-preview.gold{background:#b78a13;color:white}.v30-theme-preview.rose{background:#dc4f86;color:white}.v30-theme-preview.navy{background:#172536;color:white}.v30-theme-preview.forest{background:#173b2c;color:#a8e0b8}
+.v30-settings-card{border:1px solid var(--v30-border);background:var(--v30-card);border-radius:18px;padding:16px;margin-top:14px}.v30-settings-card button{border:1px solid var(--v30-border);background:var(--v30-bg);color:var(--v30-text);border-radius:12px;padding:10px 14px;font-weight:800}
+@media(min-width:800px){.v30-theme-grid{grid-template-columns:repeat(5,1fr)}}
+</style>
+<script id="akhada-v30-role-theme">
+(function(){
+ const THEMES=[['green','AKHADA Green','Classic · Fresh'],['ocean','Ocean Blue','Calm · Professional'],['purple','Royal Purple','Royal · Premium'],['orange','Energy Orange','Vibrant · Bold'],['red','Fitness Red','Strong · Powerful'],['sky','Sky Blue','Light · Clean'],['gold','Golden','Luxury · Rich'],['rose','Rose Pink','Soft · Warm'],['navy','Deep Navy','Dark · Modern'],['forest','Dark Forest','Dark · Nature']];
+ const roleNames={Owner:'Admin',Manager:'Manager',Trainer:'Trainer',Member:'Member'};
+ function esc(x){return String(x).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+ function theme(t){try{localStorage.setItem('akhadaUITheme',t)}catch(e){} document.body.dataset.uiTheme=t; document.documentElement.style.setProperty('--v30-accent',getComputedStyle(document.body).getPropertyValue('--v30-accent')); updateThemeCards();}
+ function updateThemeCards(){document.querySelectorAll('.v30-theme-card').forEach(c=>c.classList.toggle('selected',c.dataset.theme===document.body.dataset.uiTheme));}
+ function openThemes(){let m=document.getElementById('v30ThemeModal');if(m)m.classList.add('open');updateThemeCards();}
+ window.openAkhadaThemes=openThemes;
+ function login(role){
+   currentRole=role; localStorage.setItem('akhadaDemoRole',role); sessionStorage.setItem('akhadaLoggedIn','1'); sessionStorage.setItem('akhadaRole',role);
+   document.body.dataset.role=role.toLowerCase();
+   const r=document.getElementById('demoRole'); if(r)r.value=role;
+   const l=document.getElementById('v30Login'); if(l)l.classList.add('hidden');
+   if(typeof applyRoleUI==='function')applyRoleUI();
+   const mr=document.getElementById('v28MobileRole');if(mr)mr.textContent=roleNames[role]||role;
+   if(typeof toast==='function')toast('Login: '+(roleNames[role]||role));
+ }
+ window.akhadaV30Login=login;
+ function logout(){sessionStorage.removeItem('akhadaLoggedIn');sessionStorage.removeItem('akhadaRole');location.reload()}
+ window.akhadaV30Logout=logout;
+ function build(){
+   let saved='green';try{saved=localStorage.getItem('akhadaUITheme')||'green'}catch(e){} theme(saved);
+   const loginBox=document.createElement('div');loginBox.id='v30Login';loginBox.className='v30-login';
+   loginBox.innerHTML='<div class="v30-login-box"><div class="v30-login-brand"><img src="./icon-192.png" onerror="this.style.display=\'none\'"><div><b>AKHADA</b><span>The Lifestyle Gym</span></div></div><h2>Login to AKHADA</h2><p>Select who is logging in. The dashboard and permissions will change automatically.</p><div class="v30-role-grid">'+THEMES.slice(0,0).map(()=> '').join('')+'<button class="v30-role-btn selected" data-role="Owner">👑 Admin / Owner</button><button class="v30-role-btn" data-role="Manager">📋 Manager</button><button class="v30-role-btn" data-role="Trainer">🏋️ Trainer</button><button class="v30-role-btn" data-role="Member">👤 Member</button></div><input id="v30LoginName" placeholder="Name / Mobile (trial optional)"><input id="v30LoginPin" type="password" placeholder="PIN (trial optional)"><button class="v30-submit" id="v30LoginBtn">Continue to AKHADA</button><div style="font-size:11px;color:var(--v30-muted);margin-top:12px;text-align:center">Trial mode · No server account required</div></div>';
+   document.body.appendChild(loginBox);
+   let selected='Owner'; loginBox.querySelectorAll('.v30-role-btn').forEach(b=>b.onclick=()=>{selected=b.dataset.role;loginBox.querySelectorAll('.v30-role-btn').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')});
+   loginBox.querySelector('#v30LoginBtn').onclick=()=>login(selected);
+   const modal=document.createElement('div');modal.id='v30ThemeModal';modal.className='v30-theme-modal';modal.innerHTML='<div class="v30-theme-sheet"><div class="v30-theme-head"><div><h2>Choose AKHADA Theme</h2><div style="color:var(--v30-muted);font-size:13px">Font, background, buttons, cards and accents change together.</div></div><button class="v30-close">×</button></div><div class="v30-theme-grid">'+THEMES.map(t=>`<button class="v30-theme-card" data-theme="${t[0]}"><div class="v30-theme-preview ${t[0]}">AKHADA</div><div class="v30-theme-name">${esc(t[1])}</div><div class="v30-theme-desc">${esc(t[2])}</div></button>`).join('')+'</div></div>';
+   document.body.appendChild(modal); modal.querySelector('.v30-close').onclick=()=>modal.classList.remove('open'); modal.onclick=e=>{if(e.target===modal)modal.classList.remove('open')}; modal.querySelectorAll('.v30-theme-card').forEach(c=>c.onclick=()=>theme(c.dataset.theme));
+   const launch=document.createElement('button');launch.className='v30-theme-launch';launch.textContent='🎨 Theme';launch.onclick=openThemes;document.body.appendChild(launch);
+   const settings=document.getElementById('settings'); if(settings){const c=document.createElement('div');c.className='v30-settings-card';c.innerHTML='<h3 style="margin-top:0">🎨 Theme</h3><p style="color:var(--v30-muted)">Choose any of the 10 AKHADA themes. Preference is saved on this device.</p><button type="button" onclick="openAkhadaThemes()">Change Theme</button>';settings.appendChild(c)}
+   if(sessionStorage.getItem('akhadaLoggedIn')==='1'){const rr=sessionStorage.getItem('akhadaRole')||localStorage.getItem('akhadaDemoRole')||'Owner';login(rr)}else{loginBox.classList.remove('hidden')}
+ }
+ document.addEventListener('DOMContentLoaded',build);
 })();
 </script>
 
