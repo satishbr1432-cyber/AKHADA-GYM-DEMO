@@ -946,6 +946,68 @@ body[data-ui-theme]{background:var(--v31-bg);color:var(--v31-text)}
  .v31-more-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.v31-more-item{border:1px solid var(--v31-border);background:var(--v31-card);color:var(--v31-text);border-radius:15px;padding:14px 5px;text-align:center;font-weight:800;font-size:11px}.v31-more-item b{display:block;font-size:21px;margin-bottom:5px;color:var(--v31-accent)}
 }
 </style>
+
+<style id="akhada-v32-reference-final">
+/* V32: mobile-first reference UI + clean role selector */
+.v32-login-box{max-width:430px!important}
+.v32-login-brand{align-items:center!important;margin-bottom:20px!important}
+.v32-login-brand img{width:78px!important;height:78px!important;border-radius:20px!important;box-shadow:0 8px 24px rgba(22,139,99,.16)}
+.v32-login-brand b{font-size:31px!important;letter-spacing:.3px}
+.v32-login-brand span{font-size:14px!important}
+.v32-login-title h2{font-size:28px!important;margin:0 0 6px!important}
+.v32-login-title p{line-height:1.45!important;margin-bottom:18px!important}
+.v32-role-label{display:block;font-size:12px;font-weight:900;margin:0 0 6px;color:var(--v30-muted)}
+.v32-role-select{width:100%;box-sizing:border-box;padding:15px 44px 15px 15px;border:1px solid var(--v30-border);border-radius:15px;background:var(--v30-bg);color:var(--v30-text);font-size:16px;font-weight:800;margin:0 0 10px;appearance:auto}
+.v32-submit{margin-top:6px!important;min-height:52px!important;font-size:17px!important;border-radius:15px!important}
+.v32-trial-note{font-size:11px;color:var(--v30-muted);margin-top:12px;text-align:center}
+@media(max-width:767px){
+ .v30-login{padding:12px!important;background:linear-gradient(180deg,#f7faf8 0%,#eef3f0 100%)!important;align-items:center!important}
+ .v32-login-box{width:min(430px,94vw)!important;padding:24px 20px!important;border-radius:28px!important;box-shadow:0 18px 55px rgba(0,0,0,.10)!important}
+ .v32-login-brand img{width:82px!important;height:82px!important}
+ .v32-login-brand b{font-size:30px!important}
+ .v32-login-title h2{font-size:27px!important}
+ .v32-role-select{min-height:52px!important;font-size:15px!important}
+ .v32-submit{min-height:54px!important}
+ /* Reference-style app shell */
+ body{overflow-x:hidden}
+ .sidebar{display:none!important}
+ .app{width:100%!important;min-width:0!important}
+ .main{width:100%!important;box-sizing:border-box!important;padding:0 14px 100px!important;margin:0!important}
+ .v28-mobile-head{display:flex!important;align-items:center!important;justify-content:space-between!important;margin:0 -2px 8px!important;padding:10px 2px 9px!important;position:sticky!important;top:0!important;z-index:80!important}
+ .v28-mobile-head .v28-brand{gap:8px!important}
+ .v28-brand img{width:42px!important;height:42px!important;border-radius:12px!important}
+ .v28-brand strong{font-size:19px!important}
+ .v28-brand small{font-size:9px!important}
+ .v28-role{font-size:11px!important;padding:9px 10px!important;border-radius:13px!important}
+ .header{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;margin:5px 0 12px!important;padding:0!important;border:0!important;background:transparent!important}
+ .header h1{font-size:24px!important;font-weight:900!important}
+ .header .muted{font-size:11px!important}
+ .header>.btn{padding:10px 12px!important;font-size:11px!important;border-radius:12px!important}
+ .cards{grid-template-columns:1fr 1fr!important;gap:9px!important}
+ .cards .card{min-height:86px!important;padding:13px!important;border-radius:16px!important}
+ .card{border-radius:16px!important;box-shadow:0 3px 13px rgba(18,45,33,.045)!important}
+ .cards .card .label{font-size:10px!important}
+ .cards .card .value{font-size:21px!important;font-weight:900!important}
+ #dashboard .grid2{display:block!important}
+ #dashboard .grid2>.card{margin-top:10px!important}
+ #dashboard .actions{grid-template-columns:repeat(4,1fr)!important;gap:7px!important}
+ #dashboard .actions .btn{min-height:60px!important;padding:8px 4px!important;font-size:9px!important;border-radius:12px!important;white-space:normal!important}
+ .search{height:46px!important;min-height:46px!important;border-radius:14px!important;margin-bottom:10px!important}
+ #memberList{padding:4px 12px!important}
+ .memberrow{padding:13px 0!important}
+ .person b{font-size:14px!important}
+ .person .label{font-size:10px!important}
+ .mobilebar{display:grid!important;grid-template-columns:repeat(5,1fr)!important;height:67px!important;bottom:8px!important;border-radius:22px!important}
+ .mobilebar button{font-size:10px!important}
+ .mobilebar button b{font-size:18px!important}
+ .v31-more-grid{grid-template-columns:repeat(3,1fr)!important;gap:9px!important}
+ .v31-more-item{min-height:82px!important;padding:12px 4px!important;border-radius:15px!important}
+ .v31-more-item b{font-size:21px!important}
+ .page>.card,.page>.grid2>.card{margin-bottom:10px!important}
+ .tablewrap{border-radius:14px!important}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -9871,6 +9933,7 @@ body[data-ui-theme] .v30-theme-card.selected{outline:3px solid var(--v30-accent)
    const r=document.getElementById('demoRole'); if(r)r.value=role;
    const l=document.getElementById('v30Login'); if(l)l.classList.add('hidden');
    if(typeof applyRoleUI==='function')applyRoleUI();
+   setTimeout(()=>{ try{ if(typeof window.go==='function') window.go(role==='Member'?'memberhome':'dashboard'); }catch(e){} },30);
    const mr=document.getElementById('v28MobileRole');if(mr)mr.textContent=roleNames[role]||role;
    if(typeof toast==='function')toast('Login: '+(roleNames[role]||role));
  }
@@ -9880,10 +9943,10 @@ body[data-ui-theme] .v30-theme-card.selected{outline:3px solid var(--v30-accent)
  function build(){
    let saved='green';try{saved=localStorage.getItem('akhadaUITheme')||'green'}catch(e){} theme(saved);
    const loginBox=document.createElement('div');loginBox.id='v30Login';loginBox.className='v30-login';
-   loginBox.innerHTML='<div class="v30-login-box"><div class="v30-login-brand"><img src="./icon-192.png" onerror="this.style.display=\'none\'"><div><b>AKHADA</b><span>The Lifestyle Gym</span></div></div><h2>Login to AKHADA</h2><p>Select who is logging in. The dashboard and permissions will change automatically.</p><div class="v30-role-grid">'+THEMES.slice(0,0).map(()=> '').join('')+'<button class="v30-role-btn selected" data-role="Owner">👑 Admin / Owner</button><button class="v30-role-btn" data-role="Manager">📋 Manager</button><button class="v30-role-btn" data-role="Trainer">🏋️ Trainer</button><button class="v30-role-btn" data-role="Member">👤 Member</button></div><input id="v30LoginName" placeholder="Name / Mobile (trial optional)"><input id="v30LoginPin" type="password" placeholder="PIN (trial optional)"><button class="v30-submit" id="v30LoginBtn">Continue to AKHADA</button><div style="font-size:11px;color:var(--v30-muted);margin-top:12px;text-align:center">Trial mode · No server account required</div></div>';
+   loginBox.innerHTML='<div class="v30-login-box v32-login-box"><div class="v30-login-brand v32-login-brand"><img src="./icon-192.png" onerror="this.style.display=\'none\'"><div><b>AKHADA</b><span>The Lifestyle Gym</span></div></div><div class="v32-login-title"><h2>Login to AKHADA</h2><p>Select your role. Dashboard and permissions will change automatically.</p></div><label class="v32-role-label">Login as</label><select id="v30LoginRole" class="v32-role-select"><option value="Owner">👑 Admin / Owner</option><option value="Manager">📋 Manager</option><option value="Trainer">🏋️ Trainer</option><option value="Member">👤 Member</option></select><input id="v30LoginName" placeholder="Name / Mobile (trial optional)"><input id="v30LoginPin" type="password" placeholder="PIN (trial optional)"><button class="v30-submit v32-submit" id="v30LoginBtn">Continue to AKHADA</button><div class="v32-trial-note">Trial mode · No server account required</div></div>';
    document.body.appendChild(loginBox);
-   let selected='Owner'; loginBox.querySelectorAll('.v30-role-btn').forEach(b=>b.onclick=()=>{selected=b.dataset.role;loginBox.querySelectorAll('.v30-role-btn').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')});
-   loginBox.querySelector('#v30LoginBtn').onclick=()=>login(selected);
+   const roleSelect=loginBox.querySelector('#v30LoginRole'); roleSelect.value='Owner';
+   loginBox.querySelector('#v30LoginBtn').onclick=()=>login(roleSelect.value);
    const modal=document.createElement('div');modal.id='v30ThemeModal';modal.className='v30-theme-modal';modal.innerHTML='<div class="v30-theme-sheet"><div class="v30-theme-head"><div><h2>Choose AKHADA Theme</h2><div style="color:var(--v30-muted);font-size:13px">Font, background, buttons, cards and accents change together.</div></div><button class="v30-close">×</button></div><div class="v30-theme-grid">'+THEMES.map(t=>`<button class="v30-theme-card" data-theme="${t[0]}"><div class="v30-theme-preview ${t[0]}">AKHADA</div><div class="v30-theme-name">${esc(t[1])}</div><div class="v30-theme-desc">${esc(t[2])}</div></button>`).join('')+'</div></div>';
    document.body.appendChild(modal); modal.querySelector('.v30-close').onclick=()=>modal.classList.remove('open'); modal.onclick=e=>{if(e.target===modal)modal.classList.remove('open')}; modal.querySelectorAll('.v30-theme-card').forEach(c=>c.onclick=()=>theme(c.dataset.theme));
    const launch=document.createElement('button');launch.className='v30-theme-launch';launch.textContent='🎨 Theme';launch.onclick=openThemes;document.body.appendChild(launch);

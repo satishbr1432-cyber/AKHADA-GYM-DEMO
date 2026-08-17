@@ -1,16 +1,11 @@
-AKHADA V31 — FINAL MOBILE TRIAL
+AKHADA V32 — Final Mobile UI Trial
 
-Upload all files in this folder to the GitHub repository root.
-GitHub Pages should publish the site from main / (root).
+Includes:
+- Mobile-first AKHADA CRM-style interface based on the supplied reference screens.
+- Login role selector: Admin/Owner, Manager, Trainer, Member.
+- Role-based dashboard/navigation and permissions.
+- Dashboard, Members, Membership Plans, Check-in/Attendance, Billing, Dues, Enquiries, Batches, Staff, Trainers, Workout, Diet, Progress, Expenses, Messages, Reports, Notifications, Settings and More.
+- AKHADA green branding and 10 theme support retained.
+- Service-worker cache version bumped to force the new build after deployment.
 
-V31 includes:
-- Login role selection: Admin/Owner, Manager, Trainer, Member.
-- Role-based navigation/access.
-- Mobile CRM-style screens based on the supplied 12-screen reference.
-- Existing AKHADA forms, members, billing, attendance, plans, trainers, staff, enquiries, workout, diet, progress, reports and settings retained.
-- 10 combined themes retained: AKHADA Green, Ocean Blue, Royal Purple, Energy Orange, Fitness Red, Sky Blue, Golden, Rose Pink, Deep Navy, Dark Forest.
-- Day/Night mode retained.
-- PWA manifest, service worker and icons included.
-
-TRIAL DATA:
-Current data is stored in browser/device localStorage. It is not a cloud database.
+Trial mode uses browser/device localStorage/sessionStorage; it is not a cloud database.
