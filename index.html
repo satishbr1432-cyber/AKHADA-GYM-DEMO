@@ -5315,6 +5315,9 @@ if ('serviceWorker' in navigator) {
 })();
 </script>
 
+
+
+
 </body>
 <!-- AKHADA V7.1 HARD FINAL FORM PATCH -->
 <style id="akhada-v71-final-css">
@@ -5992,6 +5995,89 @@ body.akhada-payment-modal-open { overflow:hidden !important; }
 })();
 </script>
 
+<!-- AKHADA V42.1: BILLING LIVE DATA + PAYMENT COLLECTION + DRILL-DOWN -->
+<style id="akhada-v421-billing-css">
+#akhadaBillingModal{position:fixed;inset:0;background:rgba(0,0,0,.48);display:none;align-items:center;justify-content:center;z-index:2147483000;padding:18px;box-sizing:border-box}
+#akhadaBillingModal .abm-box{background:#fff;color:#111;width:min(720px,96vw);max-height:92vh;overflow:auto;border-radius:20px;padding:22px;box-shadow:0 24px 80px rgba(0,0,0,.28)}
+#akhadaBillingModal h2{margin:0;font-size:24px}.abm-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:16px}.abm-close{border:0;background:#f1f3f4;border-radius:10px;width:40px;height:40px;font-size:24px;cursor:pointer}
+.abm-form{display:grid;grid-template-columns:1fr 1fr;gap:13px}.abm-form .full{grid-column:1/-1}.abm-form label{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px}.abm-form input,.abm-form select{padding:12px;border:1px solid #d8dee3;border-radius:10px;font:inherit;background:#fff;box-sizing:border-box}.abm-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}.abm-list{display:grid;gap:8px}.abm-row{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #e8ecef}.abm-row:last-child{border-bottom:0}.abm-muted{color:#667085}.abm-green{color:#138a5b;font-weight:900}.abm-red{color:#c93636;font-weight:900}
+#billing .akhada-billing-card{cursor:pointer}.akhada-billing-card:hover{transform:translateY(-1px)}
+@media(max-width:700px){.abm-form{grid-template-columns:1fr}.abm-form .full{grid-column:1}.abm-actions{flex-direction:column}.abm-actions button{width:100%}}
+</style>
+<script id="akhada-v421-billing-js">
+(function(){
+'use strict';
+const K='akhadaMembers',P='akhadaPayments',A='akhadaAttendance';
+const read=(k,d)=>{try{const v=localStorage.getItem(k);if(v==null)return d;const x=JSON.parse(v);return Array.isArray(x)?x:d}catch(e){return d}};
+const write=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));window.dispatchEvent(new StorageEvent('storage',{key:k,newValue:JSON.stringify(v)}))}catch(e){}};
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=x=>{const n=Number(String(x??0).replace(/[^0-9.-]/g,''));return isFinite(n)?n:0};
+const money=n=>'₹'+Math.round(Number(n)||0).toLocaleString('en-IN');
+function today(){const d=new Date(),z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())}
+function iso(v){if(!v)return '';let s=String(v);if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;let m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);if(m)return m[3]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');const d=new Date(s);return isNaN(d)?'':d.toISOString().slice(0,10)}
+function dueOf(m){return Math.max(0,num(m&& (m.due??m.pendingDue??m.balanceDue)))}
+function expiryOf(m){return iso(m&& (m.expiryISO||m.expiry))}
+function memberDateOf(m){return iso(m&& (m.joiningDateISO||m.startISO||m.joiningDate||m.start))}
+function members(){return read(K,[])}
+function payments(){return read(P,[])}
+function createModal(){let x=document.getElementById('akhadaBillingModal');if(x)return x;x=document.createElement('div');x.id='akhadaBillingModal';x.innerHTML='<div class="abm-box"><div class="abm-head"><h2 id="abmTitle">Billing</h2><button class="abm-close" type="button" id="abmClose">×</button></div><div id="abmBody"></div></div>';document.body.appendChild(x);x.addEventListener('click',e=>{if(e.target===x)close()});x.querySelector('#abmClose').onclick=close;return x}
+function open(title,body){const x=createModal();x.querySelector('#abmTitle').textContent=title;x.querySelector('#abmBody').innerHTML=body;x.style.display='flex'}
+function close(){const x=document.getElementById('akhadaBillingModal');if(x)x.style.display='none'}
+window.closeAkhadaBillingModal=close;
+function detail(title,kind){
+ const ms=members(),ps=payments(),t=today();let html='';
+ if(kind==='today'){
+   const rows=ps.filter(p=>iso(p.date||p.paymentDate||p.at)===t);
+   html=rows.length?rows.map(p=>'<div class="abm-row"><span><b>'+esc(p.member||'Unknown')+'</b><br><span class="abm-muted">'+esc(p.mode||p.method||'—')+(p.ref?' · '+esc(p.ref):'')+'</span></span><b class="abm-green">'+money(p.amount||p.received)+'</b></div>').join(''):'<p class="abm-muted">No payments recorded today.</p>';
+ } else if(kind==='pending'){
+   const rows=ms.filter(m=>dueOf(m)>0);
+   html=rows.length?rows.map((m,i)=>'<div class="abm-row"><span><b>'+esc(m.name||'Member')+'</b><br><span class="abm-muted">'+esc(m.gymId||'')+' · '+esc(m.plan||'')+'</span></span><b class="abm-red">'+money(dueOf(m))+'</b></div>').join(''):'<p class="abm-muted">No pending dues.</p>';
+ } else if(kind==='overdue'){
+   const rows=ms.filter(m=>{const e=expiryOf(m);return e&&e<t});
+   html=rows.length?rows.map(m=>'<div class="abm-row"><span><b>'+esc(m.name||'Member')+'</b><br><span class="abm-muted">Expired: '+esc(m.expiry||expiryOf(m))+'</span></span><b class="abm-red">'+money(dueOf(m))+'</b></div>').join(''):'<p class="abm-muted">No overdue/expired members.</p>';
+ } else if(kind==='month'){
+   const ym=t.slice(0,7),rows=ps.filter(p=>iso(p.date||p.paymentDate||p.at).slice(0,7)===ym);
+   html=rows.length?rows.map(p=>'<div class="abm-row"><span><b>'+esc(p.member||'Unknown')+'</b><br><span class="abm-muted">'+esc(p.date||'')+' · '+esc(p.mode||p.method||'—')+'</span></span><b class="abm-green">'+money(p.amount||p.received)+'</b></div>').join(''):'<p class="abm-muted">No payments recorded this month.</p>';
+ }
+ open(title,'<div class="abm-list">'+html+'</div>');
+}
+function refresh(){
+ const sec=document.getElementById('billing');if(!sec)return;
+ const ms=members(),ps=payments(),t=today(),ym=t.slice(0,7);
+ const collection=ps.filter(p=>iso(p.date||p.paymentDate||p.at)===t).reduce((s,p)=>s+num(p.amount||p.received),0);
+ const pending=ms.reduce((s,m)=>s+dueOf(m),0);
+ const overdue=ms.filter(m=>{const e=expiryOf(m);return e&&e<t}).length;
+ const month=ps.filter(p=>iso(p.date||p.paymentDate||p.at).slice(0,7)===ym).reduce((s,p)=>s+num(p.amount||p.received),0);
+ const cards=sec.querySelectorAll('.cards .card');
+ const vals=[money(collection),money(pending),String(overdue),money(month)];
+ vals.forEach((v,i)=>{if(cards[i]){cards[i].querySelector('.value').textContent=v;cards[i].classList.add('akhada-billing-card');cards[i].onclick=()=>detail(['Today\'s Collection','Pending Dues','Overdue Members','This Month'][i],['today','pending','overdue','month'][i]);}});
+ const recent=sec.querySelector('.card:last-child');if(recent){const rows=ps.slice(0,10);recent.innerHTML='<h3>Recent Payments</h3>'+(rows.length?rows.map((p,i)=>'<div class="row" style="cursor:pointer" data-payment-index="'+i+'"><span>'+esc(p.member||'Unknown')+' · '+esc(p.mode||p.method||'—')+'</span><b>'+money(p.amount||p.received)+'</b></div>').join(''):'<p class="muted">No payments recorded yet.</p>');recent.querySelectorAll('[data-payment-index]').forEach(r=>r.onclick=()=>paymentDetail(rows[+r.dataset.paymentIndex]));}
+}
+function paymentDetail(p){open('Payment Details','<div class="abm-list"><div class="abm-row"><span>Member</span><b>'+esc(p.member||'—')+'</b></div><div class="abm-row"><span>Member ID</span><b>'+esc(p.memberGymId||'—')+'</b></div><div class="abm-row"><span>Amount</span><b class="abm-green">'+money(p.amount||p.received)+'</b></div><div class="abm-row"><span>Date</span><b>'+esc(p.date||p.paymentDate||'—')+'</b></div><div class="abm-row"><span>Mode</span><b>'+esc(p.mode||p.method||'—')+'</b></div><div class="abm-row"><span>Reference</span><b>'+esc(p.ref||'—')+'</b></div><div class="abm-row"><span>Balance Due After Payment</span><b class="abm-red">'+money(p.balanceDue)+'</b></div></div>');}
+function paymentForm(){
+ const ms=members();
+ if(!ms.length){open('Collect Payment','<p class="abm-muted">First add a member, then collect payment.</p>');return}
+ const opts=ms.map((m,i)=>'<option value="'+i+'">'+esc(m.name||'Member')+' · '+esc(m.gymId||'')+' · Due '+money(dueOf(m))+'</option>').join('');
+ open('Collect Payment','<div class="abm-form"><label class="full">Member<select id="abmMember">'+opts+'</select></label><label>Payment Date<input id="abmDate" type="date" value="'+today()+'"></label><label>Amount (₹)<input id="abmAmount" type="number" min="0" step="1" placeholder="Enter amount"></label><label>Payment Mode<select id="abmMode"><option>UPI</option><option>Cash</option><option>Card</option><option>Bank Transfer</option><option>Other</option></select></label><label>Reference / Receipt No.<input id="abmRef" placeholder="Optional"></label><label class="full">Remarks<input id="abmRemarks" placeholder="Optional"></label></div><div id="abmDueHint" class="abm-muted" style="margin-top:10px"></div><div class="abm-actions"><button class="btn" type="button" onclick="closeAkhadaBillingModal()">Cancel</button><button class="btn greenbtn" type="button" id="abmSave">Save Payment</button></div>');
+ const sel=document.getElementById('abmMember'),hint=document.getElementById('abmDueHint');const update=()=>{const m=ms[Number(sel.value)];hint.textContent='Current pending due: '+money(dueOf(m));};sel.onchange=update;update();document.getElementById('abmSave').onclick=savePayment;
+}
+function savePayment(){
+ const ms=members(),idx=Number(document.getElementById('abmMember')?.value),m=ms[idx];const amount=num(document.getElementById('abmAmount')?.value);const date=document.getElementById('abmDate')?.value||today();if(!m||amount<=0){alert('Please select a member and enter a valid payment amount.');return}
+ const oldDue=dueOf(m),newDue=Math.max(0,oldDue-amount);m.due=money(newDue);m.amountPaid=num(m.amountPaid)+amount;m.lastPaymentDate=date;
+ const ps=payments();const id='AKH-P-'+Date.now()+'-'+Math.floor(Math.random()*1000);ps.unshift({paymentId:id,member:m.name,memberGymId:m.gymId||'',amount,date,mode:document.getElementById('abmMode')?.value||'UPI',ref:document.getElementById('abmRef')?.value||'',remarks:document.getElementById('abmRemarks')?.value||'',existingDue:money(oldDue),balanceDue:money(newDue),at:new Date().toISOString()});
+ write(K,ms);window.members=ms;write(P,ps);close();refresh();if(typeof window.renderMembers==='function')window.renderMembers();if(typeof window.refreshAkhadaDashboard==='function')window.refreshAkhadaDashboard();if(typeof window.renderBillingPayments==='function')window.renderBillingPayments();if(typeof window.toast==='function')window.toast('Payment saved: '+money(amount));else alert('Payment saved: '+money(amount));
+}
+window.akhadaBillingRefresh=refresh;window.akhadaOpenCollectPayment=paymentForm;
+function install(){
+ const sec=document.getElementById('billing');if(!sec)return;
+ const btn=sec.querySelector('.header .greenbtn');if(btn){btn.onclick=paymentForm;}
+ refresh();
+}
+ document.addEventListener('DOMContentLoaded',()=>setTimeout(install,250));
+ window.addEventListener('storage',()=>setTimeout(refresh,20));
+ setInterval(()=>{if(document.getElementById('billing'))refresh()},2000);
+})();
+</script>
 </html>
 <script id="akhada-diet-expense-final-patch">
 (function(){
@@ -10248,3 +10334,527 @@ var oldLogin=window.akhadaV30Login;
 window.akhadaV30Login=function(r){var out=oldLogin&&oldLogin.apply(this,arguments);setTimeout(build,30);setTimeout(build,300);return out;};
 })();
 </script>
+<!-- AKHADA V44.0: PLAN VISIBILITY + REPORTS + QR TEST/SCAN FIX -->
+<style id="akhada-v44-css">
+#akhadaStaffServices .card{margin-bottom:14px}
+#akhadaStaffServices pre{font-size:14px;line-height:1.5}
+</style>
+<script id="akhada-v44-fixes">
+(function(){
+'use strict';
+const J=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
+const S=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>'₹'+Math.round(Number(n)||0).toLocaleString('en-IN');
+const iso=v=>{if(!v)return'';let s=String(v);if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;let m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);if(m)return m[3]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');let d=new Date(s);return isNaN(d)?'':d.toISOString().slice(0,10)};
+const today=()=>{let d=new Date(),z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())};
+const members=()=>J('akhadaMembers',[]);
+const payments=()=>J('akhadaPayments',[]);
+const assigned=()=>J('akhada_assigned_plans',{});
+const role=()=>window.currentRole||localStorage.getItem('akhadaDemoRole')||'Owner';
+const due=m=>Math.max(0,Number(String(m?.due??m?.pendingDue??m?.balanceDue??0).replace(/[^0-9.-]/g,''))||0);
+function toast2(msg){if(typeof window.toast==='function')window.toast(msg);else alert(msg)}
+
+/* ---------- Diet save/status ---------- */
+function addDietStatus(){
+ const sel=document.getElementById('dayDietMember'); if(!sel||document.getElementById('akhadaDietAssignStatus'))return;
+ const d=document.createElement('div');d.id='akhadaDietAssignStatus';d.className='notice';d.style.marginTop='12px';sel.parentElement.appendChild(d);
+ const update=()=>{const n=sel.value,p=assigned()[n]?.weeklyDiet;d.innerHTML=n?(p?`<b>✓ Diet already assigned</b> · Last updated ${esc(p.updatedAt?new Date(p.updatedAt).toLocaleString('en-IN'):'saved')}. Select this member to edit the existing plan.`:'<b>No diet plan assigned yet.</b>'):'Select a member to see assignment status.'};
+ sel.addEventListener('change',update); update();
+}
+const oldSaveDiet=window.saveWorkingDiet;
+if(typeof oldSaveDiet==='function'&&!window.__v44DietWrap){
+ window.__v44DietWrap=true;
+ window.saveWorkingDiet=function(){
+   oldSaveDiet.apply(this,arguments);
+   setTimeout(()=>{addDietStatus();const b=document.getElementById('akhadaDietAssignStatus');if(b&&document.getElementById('dayDietMember')?.value)b.innerHTML='<b>✓ Weekly diet saved successfully.</b> The same member will show this plan next time you select them.';},50);
+ };
+}
+const oldSaveVerifiedDiet=window.saveVerifiedDiet;
+if(typeof oldSaveVerifiedDiet==='function'&&!window.__v44VerifiedDietWrap){
+ window.__v44VerifiedDietWrap=true;
+ window.saveVerifiedDiet=function(){oldSaveVerifiedDiet.apply(this,arguments);setTimeout(()=>{toast2('Diet plan saved successfully. Select the same member again to view/edit the assigned plan.');},50)};
+}
+
+/* ---------- Staff: Member Profiles & Plans ---------- */
+function planFor(name){return assigned()[name]||{}}
+function planText(p,type){
+ if(!p)return 'Not assigned.';
+ if(type==='workout'){
+   const w=p.weeklyWorkout;if(!w)return 'No workout plan assigned.';
+   let out=[`Workout Goal: ${w.goal||'—'}`,`Level: ${w.level||'—'}`];
+   Object.entries(w.days||{}).forEach(([day,v])=>{if(v?.plan||v?.exercises?.length)out.push(`${day}: ${v.plan||''}${v.exercises?.length?' — '+v.exercises.join(', '):''}`)});return out.join('\n');
+ }
+ const d=p.weeklyDiet||p.diet;if(!d)return 'No diet plan assigned.';
+ let out=[`Diet Goal: ${d.goal||'—'}`,`Type: ${d.type||'—'}`,`Calories: ${d.calories||'—'} kcal`];
+ Object.entries(d.days||d||{}).forEach(([day,v])=>{if(Array.isArray(v)&&v.length)out.push(`${day}: ${v.map(x=>`${x.name||x.food||''} ${x.grams||''}g`).join(', ')}`)});return out.join('\n');
+}
+function downloadText(filename,text){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function printPlan(title,text){const w=window.open('','_blank','width=800,height=900');if(!w){toast2('Please allow pop-ups for printing.');return}w.document.write(`<html><head><title>${esc(title)}</title><style>body{font-family:Arial;padding:30px;line-height:1.6}h1{margin-bottom:4px}.box{white-space:pre-wrap;border:1px solid #ddd;padding:20px;border-radius:12px}</style></head><body><h1>AKHADA</h1><h2>${esc(title)}</h2><div class="box">${esc(text)}</div><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()}
+function openStaffServices(){
+ const ms=members();
+ const opts=ms.map(m=>`<option value="${esc(m.name)}">${esc(m.name)} · ${esc(m.gymId||'')}</option>`).join('');
+ if(!document.getElementById('akhadaStaffServices')){const sec=document.createElement('section');sec.className='page';sec.id='akhadaStaffServices';sec.innerHTML=`<div class="header"><div><h1>Member Profiles & Plans</h1><p class="muted">Admin / Manager / Trainer can view member profile, assigned workout and diet plans.</p></div></div><div class="card"><label><b>Select Member</b></label><select id="staffSvcMember" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin-top:8px"><option value="">Select Member</option>${opts}</select><div id="staffSvcBody" style="margin-top:16px"></div></div>`;document.querySelector('main')?.appendChild(sec);}
+ const sel=document.getElementById('staffSvcMember'); if(sel){sel.innerHTML='<option value="">Select Member</option>'+opts;sel.onchange=renderStaffService;}
+ go('akhadaStaffServices');
+}
+function renderStaffService(){
+ const name=document.getElementById('staffSvcMember')?.value,box=document.getElementById('staffSvcBody');if(!box)return;if(!name){box.innerHTML='<p class="muted">Select a member.</p>';return}
+ const m=members().find(x=>x.name===name)||{},p=planFor(name),wt=planText(p,'workout'),dt=planText(p,'diet');
+ box.innerHTML=`<div class="grid2"><div class="card"><h3>Member Profile</h3>${[['Name',m.name],['Gym ID',m.gymId||'—'],['Mobile',m.phone||'—'],['Plan',m.plan||'—'],['Joining',m.start||'—'],['Expiry',m.expiry||'—'],['Status',m.status||'—'],['Due',m.due||'₹0']].map(x=>`<div class="row"><span>${esc(x[0])}</span><b>${esc(x[1])}</b></div>`).join('')}</div><div class="card"><h3>Assigned Plans</h3><div class="row"><span>Workout</span><b>${p.weeklyWorkout?'Assigned':'Not assigned'}</b></div><div class="row"><span>Diet</span><b>${p.weeklyDiet?'Assigned':'Not assigned'}</b></div></div></div><div class="grid2"><div class="card"><h3>Workout Plan</h3><pre style="white-space:pre-wrap;font:inherit">${esc(wt)}</pre><div class="actions"><button class="btn" onclick="downloadText('${esc(name)}_Workout.txt',planText(planFor('${esc(name)}'),'workout'))">Download</button><button class="btn light" onclick="printPlan('${esc(name)} Workout Plan',planText(planFor('${esc(name)}'),'workout'))">Print</button></div></div><div class="card"><h3>Diet Plan</h3><pre style="white-space:pre-wrap;font:inherit">${esc(dt)}</pre><div class="actions"><button class="btn" onclick="downloadText('${esc(name)}_Diet.txt',planText(planFor('${esc(name)}'),'diet'))">Download</button><button class="btn light" onclick="printPlan('${esc(name)} Diet Plan',planText(planFor('${esc(name)}'),'diet'))">Print</button></div></div></div>`;
+}
+window.downloadText=downloadText;window.printPlan=printPlan;window.planFor=planFor;window.planText=planText;window.openStaffServices=openStaffServices;
+function addStaffServiceEntry(){
+ const membersPage=document.getElementById('members');if(membersPage&&!document.getElementById('staffSvcBtn')){const h=membersPage.querySelector('.header');if(h){const b=document.createElement('button');b.id='staffSvcBtn';b.className='btn';b.textContent='👤 Profiles & Plans';b.onclick=openStaffServices;h.appendChild(b)}}
+ const nav=document.querySelector('.navbtn[data-page="members"]');
+ if(nav&&!document.querySelector('.navbtn[data-page="akhadaStaffServices"]')){const b=nav.cloneNode(true);b.dataset.page='akhadaStaffServices';b.textContent='👤 Member Profiles & Plans';b.onclick=openStaffServices;nav.parentElement.appendChild(b)}
+}
+
+/* ---------- Functional Reports ---------- */
+function reportData(kind){
+ const ms=members(),ps=payments(),att=J('akhadaAttendance',[]),sal=J('akhadaSalaryRows',[]),ex=J('akhadaExpenseRows',[]),t=today();
+ if(kind==='revenue')return ps.map(p=>({Date:p.date||p.paymentDate||'',Member:p.member||'',Amount:Number(p.amount||p.received||0),Mode:p.mode||p.method||'',Reference:p.ref||''}));
+ if(kind==='attendance')return att.map(a=>({Date:a.date||a.at||'',Member:a.member||a.memberName||'',Method:a.method||'Gym QR'}));
+ if(kind==='members')return ms.map(m=>({GymID:m.gymId||'',Name:m.name||'',Mobile:m.phone||'',Plan:m.plan||'',Status:m.status||'',Due:Number(String(m.due||0).replace(/[^0-9.-]/g,''))||0,Expiry:m.expiry||''}));
+ if(kind==='dues')return ms.filter(m=>due(m)>0).map(m=>({GymID:m.gymId||'',Name:m.name||'',Plan:m.plan||'',Due:due(m),Status:m.status||'',Expiry:m.expiry||''}));
+ return [];
+}
+function csv(rows){if(!rows.length)return '';const keys=Object.keys(rows[0]);const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';return [keys.map(q).join(','),...rows.map(r=>keys.map(k=>q(r[k])).join(','))].join('\n')}
+function showReport(kind,title){
+ const rows=reportData(kind);const cols=rows.length?Object.keys(rows[0]):[];
+ const body=rows.length?`<div class="tablewrap"><table><thead><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td>${esc(r[c])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'<p class="muted">No records found yet. Add records and this report will update automatically.</p>';
+ openAnyModal(`<h2>${esc(title)}</h2><p class="muted">Live data from AKHADA trial records.</p>${body}<div class="modal-actions"><button class="btn" onclick="downloadText('${kind}_report.csv',csv(reportData('${kind}')))" type="button">Download CSV</button><button class="btn greenbtn" onclick="printPlan('${esc(title)}','${esc(rows.map(r=>Object.values(r).join(' | ')).join('\n'))}')" type="button">Print</button></div>`)
+}
+function refreshReports(){
+ const sec=document.getElementById('reports');if(!sec)return;const ps=payments(),ex=J('akhadaExpenseRows',[]),sal=J('akhadaSalaryRows',[]);const rev=ps.reduce((s,p)=>s+Number(p.amount||p.received||0),0),expenses=ex.concat(sal).reduce((s,p)=>s+Number(p.amount||0),0),profit=rev-expenses;const cards=sec.querySelectorAll('.cards .card');const vals=[money(rev),money(expenses),money(profit),(rev?((profit/rev)*100):0).toFixed(1)+'%'];vals.forEach((v,i)=>{if(cards[i])cards[i].querySelector('.value').textContent=v});const rows=[['Revenue Report','revenue'],['Attendance Report','attendance'],['Member Report','members'],['Dues & Renewals','dues']];const list=sec.querySelector('.card:last-child');if(list)list.innerHTML='<h3>Reports</h3>'+rows.map(x=>`<div class="row"><span>${x[0]}</span><button class="btn light" type="button" onclick="showReport('${x[1]}','${x[0]}')">View</button></div>`).join('')}
+window.showReport=showReport;window.refreshReports=refreshReports;window.csv=csv;window.reportData=reportData;
+
+/* ---------- QR attendance: real camera where supported + working test scan ---------- */
+function recordCheckin(name,method='Gym QR'){
+ const ms=members(),m=ms.find(x=>x.name===name);if(!m){toast2('Member not found.');return}
+ const rows=J('akhadaAttendance',[]);const now=new Date();rows.unshift({attendanceId:'AKH-A-'+Date.now(),member:name,memberGymId:m.gymId||'',date:today(),at:now.toISOString(),method});S('akhadaAttendance',rows);toast2(name+' checked in successfully.');
+ if(typeof window.akhadaRefreshDashboard==='function')window.akhadaRefreshDashboard();
+}
+function qrTest(){const ms=members();openAnyModal(`<h2>Test QR Scan</h2><p class="muted">Choose the member whose gym QR scan you want to simulate.</p><select id="qrTestMember" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:10px">${ms.map(m=>`<option>${esc(m.name)}</option>`).join('')}</select><div class="modal-actions"><button class="btn" onclick="closeAnyModal()">Cancel</button><button class="btn greenbtn" onclick="recordCheckin(document.getElementById('qrTestMember').value,'Test QR')">Confirm Scan</button></div>`)}
+async function scanQR(){
+ if(!navigator.mediaDevices?.getUserMedia){qrTest();return}
+ if(!('BarcodeDetector' in window)){qrTest();return}
+ let stream=null;openAnyModal(`<h2>Scan Gym QR</h2><video id="akhadaQRVideo" autoplay playsinline style="width:100%;border-radius:14px;background:#111"></video><p id="qrScanStatus" class="muted">Point the camera at the gym QR code.</p><div class="modal-actions"><button class="btn" onclick="stopAkhadaQR()">Cancel</button><button class="btn light" onclick="qrTest()">Test Scan</button></div>`);
+ try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});window.__akhadaQRStream=stream;const v=document.getElementById('akhadaQRVideo');v.srcObject=stream;const det=new BarcodeDetector({formats:['qr_code']});const tick=async()=>{if(!document.getElementById('akhadaQRVideo'))return;try{const codes=await det.detect(v);if(codes.length){const raw=codes[0].rawValue||'';const ms=members();const m=ms.find(x=>x.gymId===raw||x.name===raw||String(raw).includes(x.gymId||'___'));if(m){stopAkhadaQR();recordCheckin(m.name,'Gym QR');return}else document.getElementById('qrScanStatus').textContent='QR detected, but member ID was not recognized. Use Test Scan.'}}catch(e){}requestAnimationFrame(tick)};requestAnimationFrame(tick)
+ }catch(e){stopAkhadaQR();qrTest()}
+}
+function stopAkhadaQR(){if(window.__akhadaQRStream){window.__akhadaQRStream.getTracks().forEach(t=>t.stop());window.__akhadaQRStream=null}closeAnyModal()}
+window.recordCheckin=recordCheckin;window.qrTest=qrTest;window.scanQR=scanQR;window.stopAkhadaQR=stopAkhadaQR;
+
+function patchAttendance(){const sec=document.getElementById('attendance');if(!sec)return;const h=sec.querySelector('.header .btn');if(h){h.textContent='Scan QR';h.onclick=scanQR}const t=sec.querySelector('.darkbox .btn');if(t){t.textContent='Test Scan';t.onclick=qrTest}}
+function patchReports(){refreshReports()}
+function patchAll(){addStaffServiceEntry();addDietStatus();patchAttendance();patchReports()}
+document.addEventListener('DOMContentLoaded',()=>setTimeout(patchAll,500));
+const oldGo=window.go;if(typeof oldGo==='function'&&!window.__v44GoWrap){window.__v44GoWrap=true;window.go=function(id){const r=oldGo(id);if(id==='reports')setTimeout(refreshReports,30);if(id==='attendance')setTimeout(patchAttendance,30);if(id==='workout'||id==='diet')setTimeout(()=>{addDietStatus();},30);return r}}
+setInterval(()=>{if(document.getElementById('reports')?.classList.contains('active'))refreshReports()},2500);
+})();
+</script>
+(function(){
+'use strict';
+const J=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>'₹'+Math.round(Number(n)||0).toLocaleString('en-IN');
+function parseDate(v){ if(!v)return null; const s=String(v).trim(); if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s+'T00:00:00'); const m=s.match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/); if(m){const mm={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11}; return mm[m[2]]==null?null:new Date(+m[3],mm[m[2]],+m[1]);} const d=new Date(s); return isNaN(d)?null:d; }
+function isoDate(v){const d=parseDate(v);return d?d.toISOString().slice(0,10):''}
+function today0(){const d=new Date();d.setHours(0,0,0,0);return d}
+function dueNum(m){return Math.max(0,Number(String(m?.due??m?.pendingDue??m?.balanceDue??0).replace(/[^0-9.-]/g,''))||0)}
+function paymentInfo(name){
+ const rows=J('akhadaPayments',[]).filter(p=>String(p.member||p.memberName||'').trim()===String(name).trim());
+ rows.sort((a,b)=>String(b.date||b.paymentDate||b.at||'').localeCompare(String(a.date||a.paymentDate||a.at||'')));
+ const p=rows[0]||{};
+ return {date:p.date||p.paymentDate||'',amount:Number(p.amount||p.received||0)||0,mode:p.mode||p.method||'',ref:p.ref||p.reference||''};
+}
+function filteredMembers(){
+ const ms=J('akhadaMembers',[]), q=(document.getElementById('akhadaMemberSearch')?.value||'').toLowerCase().trim();
+ const status=document.getElementById('akhadaFilterStatus')?.value||'all';
+ const gender=document.getElementById('akhadaFilterGender')?.value||'all';
+ const plan=document.getElementById('akhadaFilterPlan')?.value||'all';
+ const expiry=document.getElementById('akhadaFilterExpiry')?.value||'all';
+ const pay=document.getElementById('akhadaFilterPayment')?.value||'all';
+ const now=today0();
+ return ms.filter(m=>{
+   const p=paymentInfo(m.name), ed=parseDate(m.expiryISO||m.expiry), days=ed?Math.ceil((ed-now)/86400000):null;
+   const text=[m.name,m.phone,m.email,m.plan,m.gymId,m.gender,m.status].join(' ').toLowerCase();
+   if(q&&!text.includes(q))return false;
+   if(status!=='all'&&String(m.status||'').toLowerCase()!==status)return false;
+   if(gender!=='all'&&String(m.gender||'').toLowerCase()!==gender)return false;
+   if(plan!=='all'&&String(m.plan||'')!==plan)return false;
+   if(pay==='due'&&dueNum(m)<=0)return false;
+   if(pay==='paid'&&dueNum(m)>0)return false;
+   if(expiry==='expired'&&!(days!==null&&days<0))return false;
+   if(expiry==='7'&&!(days!==null&&days>=0&&days<=7))return false;
+   if(expiry==='30'&&!(days!==null&&days>=0&&days<=30))return false;
+   if(expiry==='active'&&!(days!==null&&days>=0))return false;
+   return true;
+ });
+}
+function memberExportRows(){
+ return filteredMembers().map(m=>{const p=paymentInfo(m.name);return {
+   'Member ID':m.gymId||'', 'Name':m.name||'', 'Gender':m.gender||'', 'Mobile':m.phone||'', 'Email':m.email||'',
+   'Plan':m.plan||'', 'Joining Date':m.joiningDate||m.start||'', 'Expiry Date':m.expiry||'', 'Status':m.status||'',
+   'Last Payment Date':p.date||'', 'Last Payment Amount':p.amount||0, 'Payment Mode':p.mode||'', 'Payment Reference':p.ref||'',
+   'Pending Due':dueNum(m)
+ };});
+}
+function csvRows(rows){if(!rows.length)return '';const keys=Object.keys(rows[0]);const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';return [keys.map(q).join(','),...rows.map(r=>keys.map(k=>q(r[k])).join(','))].join('\n');}
+function dl(text,name,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),800);}
+function exportFiltered(kind){
+ const rows=memberExportRows(); if(!rows.length){if(window.toast)toast('No members match the selected filters.');return;}
+ const stamp=new Date().toISOString().slice(0,10); const suffix=kind==='xls'?'xls':'csv';
+ if(kind==='csv'){dl(csvRows(rows),`AKHADA_Filtered_Members_${stamp}.csv`,'text/csv;charset=utf-8');}
+ else {
+   const keys=Object.keys(rows[0]); const cell=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+   const xmlRows=[`<Row>${keys.map(k=>`<Cell><Data ss:Type="String">${cell(k)}</Data></Cell>`).join('')}</Row>`,...rows.map(r=>`<Row>${keys.map(k=>`<Cell><Data ss:Type="String">${cell(r[k])}</Data></Cell>`).join('')}</Row>`)];
+   const xml=`<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Members"><Table>${xmlRows.join('')}</Table></Worksheet></Workbook>`;
+   dl(xml,`AKHADA_Filtered_Members_${stamp}.xls`,'application/vnd.ms-excel');
+ }
+ if(window.toast)toast(`${rows.length} filtered member record${rows.length===1?'':'s'} exported.`);
+}
+function addToolbar(){
+ const sec=document.getElementById('members'); if(!sec||document.getElementById('akhadaMemberFilterBar'))return;
+ const old=document.getElementById('memberSearch');
+ if(old)old.style.display='none';
+ const bar=document.createElement('div');bar.id='akhadaMemberFilterBar';bar.className='card';bar.style.marginTop='12px';
+ const plans=[...new Set(J('akhadaMembers',[]).map(m=>m.plan).filter(Boolean))];
+ bar.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px">
+   <input id="akhadaMemberSearch" class="search" style="margin:0" placeholder="Search name, mobile, ID...">
+   <select id="akhadaFilterStatus"><option value="all">All Status</option><option value="active">Active</option><option value="expiring">Expiring</option><option value="expired">Expired</option><option value="inactive">Inactive</option></select>
+   <select id="akhadaFilterGender"><option value="all">All Gender</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select>
+   <select id="akhadaFilterPlan"><option value="all">All Plans</option>${plans.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('')}</select>
+   <select id="akhadaFilterExpiry"><option value="all">All Expiry</option><option value="expired">Expired</option><option value="7">Expiry within 7 days</option><option value="30">Expiry within 30 days</option><option value="active">Not expired</option></select>
+   <select id="akhadaFilterPayment"><option value="all">All Payment Status</option><option value="due">Pending Due</option><option value="paid">No Pending Due</option></select>
+ </div>
+ <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center">
+   <b id="akhadaFilterCount" class="muted">0 members</b>
+   <span style="flex:1"></span>
+   <button class="btn" type="button" onclick="exportFilteredMembers('csv')">⬇ CSV</button>
+   <button class="btn" type="button" onclick="exportFilteredMembers('xls')">⬇ Excel</button>
+   <button class="btn light" type="button" onclick="printFilteredMembers()">🖨 Print</button>
+ </div>
+ <div class="muted" style="font-size:11px;margin-top:8px">Download includes Name, Gender, Mobile, Email, Member ID, Plan, Joining Date, Expiry Date, Status, Last Payment Date/Amount/Mode and Pending Due.</div>`;
+ sec.insertBefore(bar,sec.querySelector('#memberList'));
+ ['akhadaMemberSearch','akhadaFilterStatus','akhadaFilterGender','akhadaFilterPlan','akhadaFilterExpiry','akhadaFilterPayment'].forEach(id=>document.getElementById(id)?.addEventListener('input',()=>window.renderMembers?.()));
+}
+function renderFilteredMembers(){
+ const list=document.getElementById('memberList');if(!list)return;
+ const rows=filteredMembers(); const count=document.getElementById('akhadaFilterCount');if(count)count.textContent=`${rows.length} member${rows.length===1?'':'s'} found`;
+ list.innerHTML=rows.map(m=>{
+   const ms=J('akhadaMembers',[]), i=ms.findIndex(x=>(x.gymId&&m.gymId&&x.gymId===m.gymId)||x.name===m.name);
+   const p=paymentInfo(m.name), due=dueNum(m);
+   return `<div class="memberrow" onclick="openProfile(${i})"><div class="person"><div class="avatar">${esc(m.initials||String(m.name||'').split(' ').map(x=>x[0]).slice(0,2).join(''))}</div><div><b>${esc(m.name)}</b><div class="label">${esc(m.phone||'')} · ${esc(m.gender||'')} · ${esc(m.plan||'')}</div><div class="label">Joining: ${esc(m.start||'—')} · Expiry: ${esc(m.expiry||'—')}</div><div class="label">Last Payment: ${esc(p.date||'—')} ${p.amount?`· ${money(p.amount)}`:''}</div></div></div><div style="text-align:right"><span class="badge ${m.status==='Active'?'ok':m.status==='Expired'?'red':'warn'}">${esc(m.status||'')}</span><div style="margin-top:6px;font-weight:900">${money(due)}</div><div style="display:flex;gap:6px;justify-content:flex-end;margin-top:7px"><button class="btn light" onclick="event.stopPropagation();editAkhadaMember(${i})">✎ Edit</button><button class="btn greenbtn" onclick="event.stopPropagation();openModal('payment')">₹ Pay</button></div></div></div>`;
+ }).join('')||"<p class='muted'>No members found for the selected filters.</p>";
+ if(typeof updateNotificationCounts==='function')updateNotificationCounts();
+}
+function printFilteredMembers(){
+ const rows=memberExportRows();if(!rows.length){if(window.toast)toast('No members match the selected filters.');return;}
+ const cols=Object.keys(rows[0]);const w=window.open('','_blank','width=1000,height=800');if(!w){if(window.toast)toast('Please allow pop-ups for printing.');return;}
+ w.document.write(`<html><head><title>AKHADA Filtered Members</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #ddd;padding:7px;text-align:left}th{background:#eee}h2{margin:0 0 12px}</style></head><body><h2>AKHADA — Filtered Member List</h2><table><thead><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td>${esc(r[c])}</td>`).join('')}</tr>`).join('')}</tbody></table><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();
+}
+window.exportFilteredMembers=exportFiltered;window.printFilteredMembers=printFilteredMembers;window.memberExportRows=memberExportRows;
+const old=window.renderMembers;
+window.renderMembers=function(){addToolbar();renderFilteredMembers();};
+function boot(){addToolbar();renderFilteredMembers();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+setTimeout(boot,300);setTimeout(boot,1000);
+})();
+/* AKHADA V46 final member fixes */
+(function(){
+  const J=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
+  const S=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+  const V=id=>document.getElementById(id)?.value?.trim()||'';
+  const isoToday=()=>{const d=new Date(),z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())};
+  const fmt=iso=>{if(!iso)return '—';const d=new Date(iso+'T00:00:00');return isNaN(d)?iso:d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})};
+  function deriveStatus(expiry,manual){
+    if(String(manual||'').toLowerCase()==='inactive') return 'Inactive';
+    if(!expiry) return 'Active';
+    const e=new Date(expiry+'T00:00:00'), t=new Date(isoToday()+'T00:00:00');
+    if(isNaN(e)) return 'Active';
+    const days=Math.round((e-t)/86400000);
+    if(days<0) return 'Expired';
+    if(days<=7) return 'Expiring';
+    return 'Active';
+  }
+  function closeAll(){
+    if(typeof window.closeAnyModal==='function') window.closeAnyModal();
+    else if(typeof window.close==='function') window.close();
+    else document.querySelectorAll('.modal').forEach(x=>x.style.display='none');
+  }
+  function toast(msg){
+    if(typeof window.toast==='function') window.toast(msg);
+    else if(typeof window.notify==='function') window.notify(msg);
+    else alert(msg);
+  }
+  function refresh(){
+    window.members=J('akhadaMembers',[]);
+    try{ if(typeof window.renderMembers==='function') window.renderMembers(); }catch(e){}
+    try{ if(typeof window.renderDashboard==='function') window.renderDashboard(); }catch(e){}
+    try{ if(typeof window.renderHome==='function') window.renderHome(); }catch(e){}
+    try{ if(typeof window.updateDashboardLive==='function') window.updateDashboardLive(); }catch(e){}
+    try{ if(typeof window.updateNotificationCounts==='function') window.updateNotificationCounts(); }catch(e){}
+    try{ if(typeof window.go==='function' && document.getElementById('dashboard')?.style.display!=='none') window.go('dashboard'); }catch(e){}
+  }
+
+  /* Final save handler: always calculates status from the expiry date. */
+  window.saveAkhadaMemberV60=function(){
+    const name=V('fMemberName'), phone=V('fMemberPhone');
+    if(!name||!phone){toast('Member name and mobile are required.');return;}
+    let rows=J('akhadaMembers',[]);
+    const idxRaw=document.getElementById('fMemberIndex')?.value;
+    const idx=idxRaw===''||idxRaw==null?NaN:Number(idxRaw);
+    const existing=Number.isInteger(idx)&&idx>=0&&idx<rows.length?rows[idx]:null;
+    const m=existing?Object.assign({},existing):{};
+    const start=V('fMemberStart')||isoToday();
+    const plan=V('fMemberPlan');
+    const plans=J('akhadaMembershipPlans',[{name:'Monthly',days:30,price:1000},{name:'Quarterly',days:90,price:2500},{name:'Half-Yearly',days:180,price:4500},{name:'Yearly',days:365,price:8000}]);
+    const p=plans.find(x=>x.name===plan)||{};
+    let expiry=V('fMemberExpiry');
+    if(!expiry){const d=new Date(start+'T00:00:00');d.setDate(d.getDate()+Number(p.days||30)-1);expiry=d.toISOString().slice(0,10);}
+    const manualStatus=V('fMemberStatus');
+    const planPrice=Number(V('fMemberPlanPrice')||p.price||0);
+    const received=Number(V('fMemberAmountReceived')||V('fMemberAmount')||0);
+    const dueField=V('fMemberDueAmount');
+    const due=dueField!==''?Math.max(0,Number(dueField)||0):Math.max(0,planPrice-received);
+    const gymId=m.gymId||V('fMemberGymId')||('AKH-M-'+String(rows.length+1).padStart(4,'0'));
+    Object.assign(m,{
+      gymId,name,phone,email:V('fMemberEmail'),dob:V('fMemberDob'),gender:V('fMemberGender'),
+      idType:V('fMemberIdType'),idNumber:V('fMemberIdNumber'),address:V('fMemberAddress'),city:V('fMemberCity'),state:V('fMemberState'),pin:V('fMemberPin'),
+      emergencyName:V('fMemberEmergencyName'),emergency:V('fMemberEmergency'),emergencyRel:V('fMemberEmergencyRel'),
+      plan,joiningDateISO:start,startISO:start,start:fmt(start),planPrice,amountPaid:received,amount:received,due:'₹'+due.toLocaleString('en-IN'),
+      expiryISO:expiry,expiry:fmt(expiry),nextPaymentDate:V('fMemberNextPayment'),renewalDate:V('fMemberRenewal'),
+      status:deriveStatus(expiry,manualStatus),height:V('fMemberHeight'),weight:V('fMemberWeight'),waist:V('fMemberWaist'),chest:V('fMemberChest'),arm:V('fMemberArm'),thigh:V('fMemberThigh'),bodyfat:V('fMemberBodyfat'),measurementDate:V('fMemberMeasureDate'),notes:V('fMemberNotes'),
+      initials:(name.trim().split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase())
+    });
+    if(existing) rows[idx]=m; else rows.push(m);
+    S('akhadaMembers',rows); window.members=rows;
+    closeAll(); refresh();
+    toast(existing?'Member details updated successfully.':'Member added successfully.');
+  };
+
+  /* Make the visible Add Member button independent of older onclick overrides. */
+  function wireAddButtons(){
+    document.querySelectorAll('button').forEach(b=>{
+      const t=(b.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+      if(t.includes('add member') && !b.dataset.v46wired){
+        b.dataset.v46wired='1';
+        b.onclick=function(e){e.preventDefault();e.stopPropagation();
+          if(typeof window.openModal==='function') window.openModal('member');
+          else toast('Member form is not available. Please refresh once.');
+        };
+      }
+    });
+  }
+  function boot(){wireAddButtons();}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+  setTimeout(boot,300);setTimeout(boot,1000);setTimeout(boot,2000);
+  const mo=new MutationObserver(()=>wireAddButtons());
+  try{mo.observe(document.body,{childList:true,subtree:true});}catch(e){}
+})();
+/* AKHADA V47 - Staff/Batch/Notifications/Photo reliability patch */
+(function(){
+  const J=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
+  const S=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+  const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const role=()=>String(window.currentRole||localStorage.getItem('akhadaDemoRole')||'Owner');
+  const admin=()=>role()==='Owner'||role==='Admin';
+  const today=()=>new Date().toISOString().slice(0,10);
+  const notify=m=>typeof window.toast==='function'?window.toast(m):alert(m);
+  const close=()=>{try{window.closeAnyModal&&window.closeAnyModal()}catch(e){};try{window.closeModal&&window.closeModal()}catch(e){}};
+
+  /* ---------- Photo controls: upload + remove for member/staff/trainer ---------- */
+  const oldPhotoBlock=window.__akhadaV47PhotoBlock;
+  function photoBlockV47(id,src,name){
+    return '<div class="akhada-photo-box akhada-v47-photo">'+
+      '<img id="'+id+'Preview" class="akhada-photo-preview" src="'+esc(src||'')+'" '+(src?'':'style="display:none"')+' alt="Photo">'+
+      '<div><label>Profile Photo<input id="'+id+'" type="file" accept="image/*"></label>'+ 
+      '<div style="display:flex;gap:8px;align-items:center;margin-top:7px"><button type="button" class="btn light" onclick="removeAkhadaPhotoV47(\''+id+'\')">Remove Photo</button><small class="muted">JPG/PNG image</small></div></div></div>';
+  }
+  window.removeAkhadaPhotoV47=function(id){
+    const p=document.getElementById(id+'Preview'),f=document.getElementById(id);if(!p)return;
+    p.src='';p.style.display='none';p.dataset.value='';if(f)f.value='';notify('Photo removed. Save the form to keep the change.');
+  };
+  function wirePhotoV47(id){setTimeout(()=>{const f=document.getElementById(id),p=document.getElementById(id+'Preview');if(!f||!p)return;f.onchange=()=>{const file=f.files&&f.files[0];if(!file)return;const rd=new FileReader();rd.onload=()=>{p.src=rd.result;p.style.display='block';p.dataset.value=rd.result};rd.readAsDataURL(file)}},30)}
+
+  /* ---------- Reliable batch modal ---------- */
+  function batchFormV47(){
+    const trainers=J('akhadaTrainers',[]);
+    return '<div class="grid2">'+
+      '<label>Batch / Class Name *<input id="v47BatchName" placeholder="e.g. Morning Strength"></label>'+ 
+      '<label>Trainer<select id="v47BatchTrainer"><option value="">Select Trainer</option>'+trainers.map(t=>'<option>'+esc(t.name)+'</option>').join('')+'</select></label>'+ 
+      '<label>Start Time<input id="v47BatchStart" type="time" value="06:00"></label>'+ 
+      '<label>End Time<input id="v47BatchEnd" type="time" value="08:00"></label>'+ 
+      '<label>Days<input id="v47BatchDays" value="Mon, Tue, Wed, Thu, Fri, Sat"></label>'+ 
+      '<label>Capacity<input id="v47BatchCapacity" type="number" min="1" value="40"></label>'+ 
+      '<label class="full">Description<textarea id="v47BatchDescription" rows="3"></textarea></label>'+ 
+      '</div><div class="modal-actions"><button class="btn" type="button" onclick="closeAnyModal()">Cancel</button><button class="btn greenbtn" type="button" onclick="saveAkhadaBatchV47()">Save Batch</button></div>';
+  }
+  window.saveAkhadaBatchV47=function(){
+    const name=document.getElementById('v47BatchName')?.value.trim();
+    if(!name){notify('Batch / class name is required.');return;}
+    const rows=J('akhadaBatches',[]);if(!Array.isArray(rows))return;
+    const ids=rows.map(x=>Number(String(x.batchId||'').replace(/\D/g,''))).filter(Boolean);const id='AKH-B-'+String((Math.max(0,...ids)+1)).padStart(4,'0');
+    rows.push({batchId:id,name,trainer:document.getElementById('v47BatchTrainer')?.value||'',start:document.getElementById('v47BatchStart')?.value||'',end:document.getElementById('v47BatchEnd')?.value||'',days:document.getElementById('v47BatchDays')?.value||'',capacity:Number(document.getElementById('v47BatchCapacity')?.value)||40,description:document.getElementById('v47BatchDescription')?.value||''});
+    S('akhadaBatches',rows);close();if(typeof window.renderBatches==='function')window.renderBatches();notify('Batch added successfully.');
+  };
+  window.renderBatchesV47=function(){
+    const sec=document.getElementById('batches');if(!sec)return;const rows=J('akhadaBatches',[]);
+    sec.innerHTML='<div class="header"><div><h1>Batches / Classes</h1><p class="muted">Create and manage gym batches without overwriting existing records.</p></div><button class="btn greenbtn" onclick="openModal(\'batch\')">＋ Add Batch</button></div><div class="card">'+rows.map((r,i)=>'<div class="row"><span><b>'+esc(r.name)+'</b><br><small>'+esc(r.start||'')+'–'+esc(r.end||'')+' · '+esc(r.trainer||'')+' · '+esc(r.days||'')+' · '+esc(r.batchId||'')+'</small></span><b>0/'+esc(r.capacity||40)+'</b></div>').join('')+' </div>';
+  };
+
+  /* ---------- Final openModal wrapper: guarantee Staff and Batch are handled ---------- */
+  const prevOpen=window.openModal;
+  window.openModal=function(type,data){
+    const t=String(type||'').toLowerCase();
+    if(t==='batch'){
+      window.openAnyModal('<h2>Add Batch / Class</h2><div class="akhada-form akhada-large-modal">'+batchFormV47()+'</div>');return;
+    }
+    if(t==='staff' || t==='trainer' || t==='member'){
+      /* existing V60 handler already contains complete forms; use it, but ensure photo wiring/removal */
+      try{prevOpen.apply(this,arguments);}
+      catch(e){console.error(e);notify('Unable to open form: '+e.message);return;}
+      const p=t==='staff'?'fStaffPhoto':t==='trainer'?'fTrainerPhoto':'fMemberPhoto';wirePhotoV47(p);
+      return;
+    }
+    return prevOpen.apply(this,arguments);
+  };
+
+  /* ---------- Actual notifications + detail + print/PDF ---------- */
+  function parseDate(s){if(!s)return null;const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})$/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);const d=new Date(s);return isNaN(d)?null:d;}
+  function notificationGroups(){
+    const ms=J('akhadaMembers',Array.isArray(window.members)?window.members:[]);const t=new Date();t.setHours(0,0,0,0);const w=new Date(t);w.setDate(w.getDate()+7);
+    const expired=[],overdue=[],expiring=[],collected=[];
+    ms.forEach((m,i)=>{const d=parseDate(m.expiryISO||m.expiry);const due=Number(String(m.due||0).replace(/[^0-9.-]/g,''))||0;if(d&&d<t)expired.push({m,i});else if(String(m.status)==='Expired')expired.push({m,i});if(due>0)overdue.push({m,i});if(d&&d>=t&&d<=w)expiring.push({m,i});});
+    const payments=J('akhadaPayments',[]);const todayKey=today();payments.forEach(p=>{const ds=p.date||p.paymentDate||p.createdAt||'';if(String(ds).slice(0,10)===todayKey)collected.push(p)});
+    return {expired,overdue,expiring,collected};
+  }
+  window.updateNotificationCountsV47=function(){const g=notificationGroups();const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('notifExpiredCount',g.expired.length);set('notifOverdueCount',g.overdue.length);set('notifExpiringCount',g.expiring.length);const total=g.collected.reduce((a,p)=>a+Number(p.amount||p.paid||0),0);set('notifCollected','₹'+total.toLocaleString('en-IN'));};
+  window.openNotificationDetailsV47=function(type){
+    const g=notificationGroups();const map={expired:['🔴','Expired Memberships',g.expired],overdue:['🟠','Payment Overdue',g.overdue],expiring:['🟡','Expiring Within 7 Days',g.expiring]};
+    if(type==='collected'){
+      const rows=g.collected;window.openAnyModal('<h2>🟢 Today\'s Collections</h2><p class="muted">Actual payment records for '+today()+'</p><div class="notification-detail-list">'+(rows.map(p=>'<div class="row"><span><b>'+esc(p.memberName||p.name||'Member')+'</b><br><small>'+esc(p.mode||p.paymentMode||'')+' · '+esc(p.date||p.paymentDate||'')+'</small></span><b>₹'+Number(p.amount||p.paid||0).toLocaleString('en-IN')+'</b></div>').join('')||'<p class="muted">No payment recorded today.</p>')+'</div><div class="modal-actions"><button class="btn greenbtn" onclick="printAkhadaNotificationV47(\'collected\')">Download / Print PDF</button></div>');return;
+    }
+    const d=map[type];if(!d)return;const rows=d[2];window.openAnyModal('<h2>'+d[0]+' '+d[1]+'</h2><p class="muted">Actual current records: '+rows.length+'</p><div class="notification-detail-list">'+(rows.map(x=>'<button class="notification-detail-item" type="button" onclick="closeAnyModal();openProfile('+x.i+')"><span><b>'+esc(x.m.name)+'</b><br><small>'+esc(x.m.phone||'')+' · '+esc(x.m.plan||'')+'</small><br><small>Expiry: '+esc(x.m.expiry||'—')+' · Due: '+esc(x.m.due||'₹0')+'</small></span><span>›</span></button>').join('')||'<p class="muted">No matching members.</p>')+'</div><div class="modal-actions"><button class="btn greenbtn" onclick="printAkhadaNotificationV47(\''+type+'\')">Download / Print PDF</button></div>');
+  };
+  window.printAkhadaNotificationV47=function(type){
+    const g=notificationGroups();let rows=[];let title='AKHADA Notification Report';if(type==='expired'){rows=g.expired;title='Expired Memberships'}else if(type==='overdue'){rows=g.overdue;title='Payment Overdue'}else if(type==='expiring'){rows=g.expiring;title='Memberships Expiring Within 7 Days'}else{title="Today's Collections"}
+    let body= type==='collected' ? g.collected.map(p=>'<tr><td>'+esc(p.memberName||p.name||'Member')+'</td><td>'+esc(p.date||p.paymentDate||'')+'</td><td>'+esc(p.mode||p.paymentMode||'')+'</td><td>₹'+Number(p.amount||p.paid||0).toLocaleString('en-IN')+'</td></tr>').join('') : rows.map(x=>'<tr><td>'+esc(x.m.name)+'</td><td>'+esc(x.m.phone||'')+'</td><td>'+esc(x.m.plan||'')+'</td><td>'+esc(x.m.expiry||'')+'</td><td>'+esc(x.m.due||'₹0')+'</td></tr>').join('');
+    const w=window.open('','_blank');if(!w){notify('Please allow pop-ups for PDF/print.');return;}w.document.write('<html><head><title>'+title+'</title><style>body{font-family:Arial;padding:30px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:8px;text-align:left}h1{margin-bottom:4px}</style></head><body><h1>AKHADA — '+title+'</h1><p>Generated: '+new Date().toLocaleString('en-IN')+'</p><table><thead><tr>'+(type==='collected'?'<th>Member</th><th>Date</th><th>Mode</th><th>Amount</th>':'<th>Name</th><th>Mobile</th><th>Plan</th><th>Expiry</th><th>Due</th>')+'</tr></thead><tbody>'+body+'</tbody></table></body></html>');w.document.close();setTimeout(function(){w.print()},250);
+  };
+  /* Replace notification buttons with actual handlers after DOM is ready */
+  function patchNotificationUI(){
+    const sec=document.getElementById('notifications');if(!sec)return;
+    const btns=sec.querySelectorAll('.notification-row');if(btns.length>=4){btns[0].onclick=()=>openNotificationDetailsV47('expired');btns[1].onclick=()=>openNotificationDetailsV47('overdue');btns[2].onclick=()=>openNotificationDetailsV47('expiring');btns[3].onclick=()=>openNotificationDetailsV47('collected');}
+    updateNotificationCountsV47();
+  }
+  window.addEventListener('load',()=>setTimeout(patchNotificationUI,300));
+  setTimeout(patchNotificationUI,500);
+  /* If app navigation re-renders notifications, patch it again periodically but cheaply. */
+  setInterval(()=>{if(document.getElementById('notifications'))patchNotificationUI()},2500);
+
+  /* Expose direct helper for testing from console if needed. */
+  window.akhadaV47Test={notificationGroups,updateNotificationCountsV47};
+})();
+(function(){
+  'use strict';
+  const KEY='akhadaMemberProgressData';
+  const read=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
+  const write=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}};
+  const escx=s=>{if(typeof window.esc==='function')return window.esc(s==null?'':String(s));return String(s==null?'':s).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]))};
+  const todayISO=()=>new Date().toISOString().slice(0,10);
+  const close=()=>{if(typeof window.closeAnyModal==='function')window.closeAnyModal();else{const m=document.getElementById('customModal');if(m)m.style.display='none';document.body.classList.remove('modal-open')}};
+  const toastx=m=>{if(typeof window.toast==='function')window.toast(m);else alert(m)};
+
+  // ---------------- Staff Salary: direct, reliable modal + persistence ----------------
+  function openSalaryV48(){
+    const staff=Array.isArray(window.members)?[]:[];
+    let staffRows=read('akhadaStaff',[]);
+    const trainerRows=read('akhadaTrainers',[]);
+    const names=[...staffRows,...trainerRows].map(x=>x&&x.name).filter(Boolean);
+    const options=[...new Set(names)].map(n=>`<option value="${escx(n)}">${escx(n)}</option>`).join('');
+    const body=`<h2>Add Staff Salary</h2><p class="muted">Record an actual salary payment. The entry is saved separately and will remain after refresh.</p>
+      <div class="grid2">
+        <label>Staff Name *${options?`<select id="v48SalaryStaff"><option value="">Select staff</option>${options}</select>`:`<input id="v48SalaryStaff" placeholder="Enter staff name">`}</label>
+        <label>Salary Month *<input id="v48SalaryMonth" type="month" value="${todayISO().slice(0,7)}"></label>
+        <label>Amount (₹) *<input id="v48SalaryAmount" type="number" min="1" step="1" placeholder="Enter amount"></label>
+        <label>Payment Date *<input id="v48SalaryDate" type="date" value="${todayISO()}"></label>
+        <label>Payment Mode<select id="v48SalaryMode"><option>Cash</option><option>Bank Transfer</option><option>UPI</option><option>Cheque</option></select></label>
+        <label>Reference / Transaction No.<input id="v48SalaryRef" placeholder="Optional"></label>
+        <label class="full">Remarks<textarea id="v48SalaryRemarks" placeholder="Optional"></textarea></label>
+      </div>
+      <div class="modal-actions"><button class="btn" type="button" onclick="closeAnyModal()">Cancel</button><button class="btn greenbtn" type="button" id="v48SalarySave">Save Salary</button></div>`;
+    if(typeof window.openAnyModal==='function')window.openAnyModal(body);else{const m=document.getElementById('customModal');if(m){m.innerHTML='<div class="modalbox">'+body+'</div>';m.style.display='flex'}}
+    setTimeout(()=>{const b=document.getElementById('v48SalarySave');if(b)b.onclick=saveSalaryV48},0);
+  }
+  function saveSalaryV48(){
+    const staff=(document.getElementById('v48SalaryStaff')?.value||'').trim();
+    const month=document.getElementById('v48SalaryMonth')?.value||'';
+    const amount=Number(document.getElementById('v48SalaryAmount')?.value||0);
+    const date=document.getElementById('v48SalaryDate')?.value||todayISO();
+    if(!staff||!month||amount<=0){toastx('Staff Name, Salary Month and Amount are required.');return}
+    const rows=read('akhadaSalaryRows',[]);
+    rows.unshift({id:'SAL-'+Date.now(),date,staff,month,amount,mode:document.getElementById('v48SalaryMode')?.value||'Cash',reference:document.getElementById('v48SalaryRef')?.value||'',remarks:document.getElementById('v48SalaryRemarks')?.value||''});
+    write('akhadaSalaryRows',rows);write('akhada_salary_entries',rows);
+    close();
+    if(typeof window.renderExpensesData==='function')window.renderExpensesData();
+    toastx('Staff salary saved successfully.');
+  }
+  window.akhadaV48OpenSalary=openSalaryV48;
+
+  // ---------------- Member Progress: direct modal + persistence ----------------
+  function progressStore(){
+    const stored=read(KEY,null);
+    if(stored && typeof stored==='object'){
+      window.memberProgressData=stored;
+    }else{
+      window.memberProgressData=window.memberProgressData||{};
+      write(KEY,window.memberProgressData);
+    }
+    return window.memberProgressData;
+  }
+  function saveProgressStore(){write(KEY,window.memberProgressData||{})}
+  function openMeasurementV48(){
+    const sel=document.getElementById('progressMember');
+    const name=sel?.value || (Array.isArray(window.members)&&window.members[0]?.name) || '';
+    if(!name){toastx('Select a member first.');return}
+    const body=`<h2>Add Measurement — ${escx(name)}</h2><p class="muted">Previous measurements will remain in the member's complete progress history.</p>
+      <div class="grid2">
+       <label>Date *<input id="v48MeasureDate" type="date" value="${todayISO()}"></label>
+       <label>Weight (kg)<input id="v48MeasureWeight" type="number" step="0.1"></label>
+       <label>Waist (inch)<input id="v48MeasureWaist" type="number" step="0.1"></label>
+       <label>Chest (inch)<input id="v48MeasureChest" type="number" step="0.1"></label>
+       <label>Arm (inch)<input id="v48MeasureArm" type="number" step="0.1"></label>
+       <label>Thigh (inch)<input id="v48MeasureThigh" type="number" step="0.1"></label>
+       <label>Body Fat (%)<input id="v48MeasureBodyfat" type="number" step="0.1"></label>
+       <label class="full">Notes<textarea id="v48MeasureNotes" placeholder="Optional notes"></textarea></label>
+      </div>
+      <div class="modal-actions"><button class="btn" type="button" onclick="closeAnyModal()">Cancel</button><button class="btn greenbtn" type="button" id="v48MeasureSave">Save Measurement</button></div>`;
+    if(typeof window.openAnyModal==='function')window.openAnyModal(body);else{const m=document.getElementById('customModal');if(m){m.innerHTML='<div class="modalbox">'+body+'</div>';m.style.display='flex'}}
+    setTimeout(()=>{const b=document.getElementById('v48MeasureSave');if(b)b.onclick=()=>saveMeasurementV48(name)},0);
+  }
+  function saveMeasurementV48(name){
+    progressStore();
+    const row={id:'MEAS-'+Date.now(),date:document.getElementById('v48MeasureDate')?.value||todayISO(),weight:document.getElementById('v48MeasureWeight')?.value||'—',waist:document.getElementById('v48MeasureWaist')?.value||'—',chest:document.getElementById('v48MeasureChest')?.value||'—',arm:document.getElementById('v48MeasureArm')?.value||'—',thigh:document.getElementById('v48MeasureThigh')?.value||'—',bodyfat:document.getElementById('v48MeasureBodyfat')?.value||'—',notes:document.getElementById('v48MeasureNotes')?.value||''};
+    (window.memberProgressData[name] ||= []).push(row);saveProgressStore();
+    close();
+    if(typeof window.renderProgress==='function')window.renderProgress(name);
+    toastx('Measurement saved for '+name+'.');
+  }
+  window.akhadaV48OpenMeasurement=openMeasurementV48;
+
+  // Capture the two visible buttons before old inline handlers can swallow them.
+  document.addEventListener('click',function(e){
+    const b=e.target.closest('button');if(!b)return;
+    const txt=(b.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+    if(txt.includes('staff salary')){e.preventDefault();e.stopImmediatePropagation();openSalaryV48();return}
+    if(txt.includes('add measurement')){e.preventDefault();e.stopImmediatePropagation();openMeasurementV48();return}
+  },true);
+
+  // Also expose stable inline handlers for any navigation/re-rendered button.
+  window.openStaffSalaryForm=openSalaryV48;
+  window.openMeasurementModal=openMeasurementV48;
+  progressStore();
+})();
