@@ -15,130 +15,422 @@ html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden;backgr
 <script>
 (function(){
 'use strict';
+
+/* Keep the existing stable AKHADA application as the base, and add a
+   compatibility/fix layer for the issues reported in the live build. */
 var OLD_URL='https://raw.githubusercontent.com/satishbr1432-cyber/AKHADA-GYM-DEMO/eaab56e08500a3991f408e0195046ead1f723cd7/index.html';
 
-function esc(v){return String(v==null?'':v).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c})}
-function read(k,d){try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}}
-function allLocal(){var o={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);try{o[k]=JSON.parse(localStorage.getItem(k))}catch(e){o[k]=localStorage.getItem(k)}}}catch(e){}return o}
-function pickDiet(member){
-  var a=allLocal(), keys=Object.keys(a), out=[];
-  keys.forEach(function(k){
-    if(!/diet/i.test(k))return;
-    var v=a[k];
-    if(!v)return;
-    var s='';try{s=JSON.stringify(v)}catch(e){s=String(v)}
-    if(!member || s.toLowerCase().indexOf(String(member).toLowerCase())>=0 || /assignment|draft|plan|option/i.test(k))out.push({key:k,value:v});
+function esc(v){
+  return String(v==null?'':v).replace(/[&<>"]/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c;
   });
-  return out;
 }
-function flattenFoods(v){
-  var foods=[];
-  function walk(x,path){
-    if(x==null)return;
-    if(Array.isArray(x)){x.forEach(function(y){walk(y,path)});return}
-    if(typeof x==='object'){
-      var name=x.name||x.food||x.foodName||x.item||x.title||x.label;
-      var grams=x.grams||x.qty||x.quantity||x.amount||x.weight;
-      if(name && typeof name==='string' && name.length<120 && !/plan|goal|member|calorie|diet/i.test(name))foods.push({name:name,grams:grams});
-      Object.keys(x).forEach(function(k){if(!/name|food|foodName|item|title|label|grams|qty|quantity|amount|weight/i.test(k))walk(x[k],path+'.'+k)});
+function readJSON(k,d){
+  try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}
+}
+function writeJSON(k,v){
+  try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}
+}
+function allLocal(){
+  var o={};
+  try{
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i);
+      try{o[k]=JSON.parse(localStorage.getItem(k))}catch(e){o[k]=localStorage.getItem(k)}
     }
-  }
-  walk(v,'');
-  var seen={};return foods.filter(function(f){var k=f.name+'|'+(f.grams||'');if(seen[k])return false;seen[k]=1;return true});
+  }catch(e){}
+  return o;
 }
-function currentMemberFromText(){
-  var els=['dietMember','dietMemberSelect','workingDietMember','assignedDietMember','memberDietSelect'];
-  for(var i=0;i<els.length;i++){var e=document.getElementById(els[i]);if(e&&e.value)return e.value}
-  var s=document.querySelector('#diet select');if(s&&s.value)return s.value;
+function clean(s){return String(s||'').replace(/\s+/g,' ').trim()}
+function buttons(){
+  return Array.prototype.slice.call(document.querySelectorAll('button,a,[role="button"]'));
+}
+function bt(el){return clean(el.textContent).toLowerCase()}
+
+/* ---------- Full-width mobile layout ---------- */
+function installLayout(){
+  var st=document.getElementById('akhada-final-layout-fix')||document.createElement('style');
+  st.id='akhada-final-layout-fix';
+  st.textContent=[
+    'html,body,#root,.app{width:100%!important;min-width:0!important;margin:0!important;padding:0!important;overflow-x:hidden!important}',
+    '.main{width:100%!important;max-width:none!important;margin-left:0!important;margin-right:0!important;box-sizing:border-box!important}',
+    '.page{width:100%!important;max-width:none!important;box-sizing:border-box!important}',
+    '@media(max-width:767px){.main{padding-left:8px!important;padding-right:8px!important}.card{width:100%!important;box-sizing:border-box!important}}',
+    '.modalback{padding:8px!important}.modal{max-width:calc(100vw - 16px)!important}'
+  ].join('');
+  document.head.appendChild(st);
+}
+
+/* ---------- Permanent Gym IDs ---------- */
+function nextGymId(rows){
+  var max=0;
+  (rows||[]).forEach(function(m){
+    var x=String(m&&m.gymId||'').match(/AKH-M-(\d+)/i);
+    if(x)max=Math.max(max,parseInt(x[1],10)||0);
+  });
+  return 'AKH-M-'+String(max+1).padStart(4,'0');
+}
+function ensureGymIds(){
+  var rows=readJSON('akhadaMembers',[]);
+  if(!Array.isArray(rows))rows=[];
+  var changed=false;
+  var used={};
+  rows.forEach(function(m){if(m&&m.gymId)used[String(m.gymId)]=1});
+  rows.forEach(function(m){
+    if(!m)return;
+    if(!m.gymId){
+      var id=nextGymId(rows);
+      while(used[id]){var n=parseInt(id.split('-').pop(),10)+1;id='AKH-M-'+String(n).padStart(4,'0')}
+      m.gymId=id;used[id]=1;changed=true;
+    }
+  });
+  if(changed)writeJSON('akhadaMembers',rows);
+  try{window.members=rows}catch(e){}
+  return rows;
+}
+function currentMemberName(){
+  var ids=['dayDietMember','dietMember','dietMemberSelect','workingDietMember','assignedDietMember','memberDietSelect'];
+  for(var i=0;i<ids.length;i++){
+    var e=document.getElementById(ids[i]);
+    if(e&&e.value)return e.value;
+  }
   return '';
 }
-function pdfWindow(title,member,type){
-  var w=window.open('','_blank','width=900,height=900');
-  if(!w){try{window.toast&&window.toast('Please allow pop-ups for PDF')}catch(e){}return null}
-  var records=pickDiet(member), foods=[];
-  records.forEach(function(r){foods=foods.concat(flattenFoods(r.value))});
-  var seen={};foods=foods.filter(function(f){var k=f.name+'|'+f.grams;if(seen[k])return false;seen[k]=1;return true});
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+esc(title)+'</title><style>body{font-family:Arial,sans-serif;padding:28px;color:#111}h1{margin:0 0 6px}h2{margin-top:24px;border-bottom:1px solid #ddd;padding-bottom:6px}.meta{padding:14px;border:1px solid #ddd;border-radius:10px;margin:18px 0}.food{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:9px 0}.muted{color:#666}@media print{body{padding:16px}}</style></head><body>';
-  html+='<h1>AKHADA</h1><h2>'+esc(member||'Diet Plan')+'</h2><div class="meta"><b>Plan:</b> '+esc(type||'Diet Plan')+'<br><b>Generated:</b> '+esc(new Date().toLocaleDateString('en-IN'))+'</div>';
-  if(foods.length){html+='<h2>Recommended Food</h2>'+foods.map(function(f){return '<div class="food"><span>'+esc(f.name)+'</span><b>'+esc(f.grams||'')+(f.grams?' g':'')+'</b></div>'}).join('')}
-  else html+='<p class="muted">Food details are stored in the current diet plan and will be shown here when available.</p>';
-  html+='<script>window.onload=function(){setTimeout(function(){window.print()},250)}<\\/script></body></html>';
-  w.document.open();w.document.write(html);w.document.close();return w;
+function findMember(name){
+  var rows=ensureGymIds();
+  return rows.filter(function(m){return m&&String(m.name||'')===String(name||'')})[0]||null;
 }
-function installPatch(){
+function showGymIdInProfile(){
+  ensureGymIds();
+  var name=currentMemberName();
+  if(!name)return;
+  var m=findMember(name);
+  if(!m)return;
+  var roots=document.querySelectorAll('#memberProfile,.member-profile,.profile-card,[data-profile],.card');
+  Array.prototype.forEach.call(roots,function(root){
+    var txt=clean(root.textContent);
+    if(!/Member Profile|Name\s+/i.test(txt))return;
+    var rows=root.querySelectorAll('.row,div');
+    var done=false;
+    Array.prototype.forEach.call(rows,function(r){
+      if(done)return;
+      if(clean(r.textContent).toLowerCase()==='gym id'){
+        var value=r.querySelector('b,strong,span:last-child');
+        if(value){value.textContent=m.gymId;done=true}
+      }
+    });
+    if(!done && /Gym ID/i.test(txt)){
+      var all=root.querySelectorAll('*');
+      Array.prototype.forEach.call(all,function(el){
+        if(clean(el.textContent)==='—' && el.children.length===0){
+          var p=el.parentElement;
+          if(p && /Gym ID/i.test(clean(p.textContent))){el.textContent=m.gymId;done=true}
+        }
+      });
+    }
+  });
+}
+
+/* ---------- Diet storage: preserve food data explicitly ---------- */
+function assignedPlans(){
   try{
-    var st=document.createElement('style');st.id='akhada-final-layout-fix';st.textContent='html,body{width:100%!important;min-width:0!important;margin:0!important;padding:0!important;overflow-x:hidden!important}.app{width:100%!important;max-width:none!important}.main{width:100%!important;max-width:none!important;box-sizing:border-box!important;margin-right:0!important}.page{width:100%!important;max-width:none!important}';document.head.appendChild(st);
+    if(typeof window.getAssignedPlans==='function'){
+      var x=window.getAssignedPlans();
+      if(x&&typeof x==='object')return x;
+    }
   }catch(e){}
-  function btnText(b){return (b.textContent||'').replace(/\\s+/g,' ').trim().toLowerCase()}
-  function wireAdd(){
-    document.querySelectorAll('button').forEach(function(b){
-      if(b.dataset.akhadaAddFix)return;
-      if(btnText(b).indexOf('add member')>=0){
-        b.dataset.akhadaAddFix='1';
-        b.addEventListener('click',function(e){
-          setTimeout(function(){
-            var modal=document.querySelector('.modalback.open,.modalback[style*="display: flex"],#memberModal,#addMemberModal');
-            if(modal)return;
-            try{if(typeof window.openModal==='function'){window.openModal('member');return}}catch(x){}
-            var candidates=['member','members'];
-            for(var i=0;i<candidates.length;i++){var el=document.getElementById(candidates[i]);if(el){el.classList.add('active');el.style.display='block';break}}
-          },0);
-        },false);
-      }
-    });
+  var keys=['akhadaAssignedPlans','assignedPlans','akhadaDietAssignments','dietAssignments'];
+  for(var i=0;i<keys.length;i++){
+    var v=readJSON(keys[i],null);
+    if(v&&typeof v==='object')return v;
   }
-  function clearDietForm(){
-    setTimeout(function(){
-      var roots=['#diet','#dietPlan','[data-page="diet"]'];
-      roots.forEach(function(sel){var root=document.querySelector(sel);if(root){root.querySelectorAll('input,textarea').forEach(function(e){if(!e.readOnly&&!e.disabled)e.value=''});root.querySelectorAll('select').forEach(function(e){if(e.options.length)e.selectedIndex=0});root.querySelectorAll('[data-selected],[data-food-selected]').forEach(function(e){e.removeAttribute('data-selected');e.removeAttribute('data-food-selected')});}});
-    },50);
-  }
-  function wireDietSave(){
-    document.querySelectorAll('button').forEach(function(b){
-      if(b.dataset.akhadaDietFix)return;
-      if(btnText(b).indexOf('save weekly diet')>=0){
-        b.dataset.akhadaDietFix='1';
-        b.addEventListener('click',function(){setTimeout(clearDietForm,120)},true);
-      }
-    });
-  }
-  function wirePlanPDF(){
-    document.querySelectorAll('button,a').forEach(function(el){
-      if(el.dataset.akhadaPdfFix)return;
-      var t=btnText(el);if(!/download/.test(t)||!/diet|workout|plan/.test(t))return;
-      el.dataset.akhadaPdfFix='1';
-      el.addEventListener('click',function(e){
-        var member=currentMemberFromText();
-        if(/diet/.test(t)){e.preventDefault();e.stopImmediatePropagation();pdfWindow('AKHADA Diet Plan',member,'Diet Plan');}
-      },true);
-    });
-  }
-  function overduePdf(){
-    var member='';
-    var pop=document.querySelector('.modalback.open')||document.body;
-    var text=pop.textContent||'';
-    var m=text.match(/Overdue Members/i);
-    if(!m)return;
-    var rows=[];
-    var cards=pop.querySelectorAll('.row,.memberrow,li,[data-member]');cards.forEach(function(c){var s=(c.textContent||'').replace(/\\s+/g,' ').trim();if(s&&/₹/.test(s))rows.push(s)});
-    var w=window.open('','_blank','width=900,height=900');if(!w)return;
-    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>AKHADA Overdue Members</title><style>body{font-family:Arial;padding:28px}h1{margin-bottom:20px}.r{padding:12px;border-bottom:1px solid #ddd}</style></head><body><h1>AKHADA — Overdue Members</h1>'+rows.map(function(r){return '<div class="r">'+esc(r)+'</div>'}).join('')+'<script>window.onload=function(){setTimeout(function(){window.print()},250)}<\\/script></body></html>');w.document.close();
-  }
-  function addOverdueButton(){
-    var pops=document.querySelectorAll('.modalback,.modal,[role="dialog"]');pops.forEach(function(p){
-      if(!/overdue members/i.test(p.textContent||''))return;
-      if(p.querySelector('[data-akhada-overdue-pdf]'))return;
-      var b=document.createElement('button');b.type='button';b.className='btn light';b.dataset.akhadaOverduePdf='1';b.textContent='⬇ PDF';b.style.marginTop='12px';b.onclick=overduePdf;
-      var host=p.querySelector('.modal-actions')||p.querySelector('.modalhead')||p;b.className+=' greenbtn';host.appendChild(b);
-    });
-  }
-  function tick(){wireAdd();wireDietSave();wirePlanPDF();addOverdueButton()}
-  tick();setInterval(tick,800);
+  return {};
 }
-fetch(OLD_URL,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('Existing AKHADA build unavailable');return r.text()}).then(function(source){
+function extractFoodObjects(value,out){
+  out=out||[];
+  function add(name,grams,cal){
+    if(!name)return;
+    name=clean(name);
+    if(!name||/no food assigned/i.test(name))return;
+    out.push({name:name,grams:grams==null?'':grams,calories:cal==null?'':cal});
+  }
+  function walk(x){
+    if(x==null)return;
+    if(Array.isArray(x)){x.forEach(walk);return}
+    if(typeof x!=='object')return;
+    var name=x.name||x.foodName||x.food||x.itemName||x.item||x.title||x.label;
+    var grams=x.grams??x.qty??x.quantity??x.amount??x.weight??x.g;
+    var cal=x.calories??x.kcal??x.cal;
+    if(name && typeof name==='string')add(name,grams,cal);
+    Object.keys(x).forEach(function(k){
+      if(!/^(name|foodName|food|itemName|item|title|label|grams|qty|quantity|amount|weight|g|calories|kcal|cal)$/i.test(k))walk(x[k]);
+    });
+  }
+  walk(value);
+  return out;
+}
+function uniqueFoods(arr){
+  var seen={};
+  return arr.filter(function(f){
+    var key=clean(f.name).toLowerCase()+'|'+String(f.grams||'')+'|'+String(f.calories||'');
+    if(seen[key])return false;seen[key]=1;return true;
+  });
+}
+function getDietForMember(member){
+  var plans=assignedPlans(), p=plans[member]||null, foods=[];
+  if(p){
+    extractFoodObjects(p.weeklyDiet||p.diet||p,foods);
+    extractFoodObjects(p.weeklyDiet&&p.weeklyDiet.days,foods);
+    extractFoodObjects(p.weeklyDiet&&p.weeklyDiet.options,foods);
+  }
+  /* Fallback: inspect all localStorage diet/assignment records. */
+  if(!foods.length){
+    var a=allLocal();
+    Object.keys(a).forEach(function(k){
+      if(!/diet|assign/i.test(k))return;
+      var s='';
+      try{s=JSON.stringify(a[k])}catch(e){}
+      if(!member || s.toLowerCase().indexOf(String(member).toLowerCase())>=0)
+        extractFoodObjects(a[k],foods);
+    });
+  }
+  return {plan:p,foods:uniqueFoods(foods)};
+}
+
+/* Capture the currently visible weekly diet BEFORE the original save clears
+   or rerenders it. This guarantees PDF/export has the actual food list. */
+function captureVisibleDiet(member){
+  if(!member)return;
+  var foods=[];
+  var selectors=[
+    '.meal-card .food-option',
+    '.meal-card .food-chip',
+    '.meal-card .exercise-chip',
+    '[data-food-name]',
+    '[data-food]',
+    '.selected-food',
+    '.food-selected'
+  ];
+  selectors.forEach(function(sel){
+    document.querySelectorAll(sel).forEach(function(el){
+      var name=el.getAttribute('data-food-name')||el.getAttribute('data-food')||'';
+      if(!name){
+        var h=el.querySelector('b,strong,.food-name,h4');
+        name=h?h.textContent:'';
+      }
+      var grams=el.getAttribute('data-grams')||el.getAttribute('data-qty')||'';
+      if(!grams){
+        var t=clean(el.textContent);
+        var gm=t.match(/(\d+(?:\.\d+)?)\s*g\b/i);
+        if(gm)grams=gm[1];
+      }
+      if(name)foods.push({name:name,grams:grams});
+    });
+  });
+  /* Also parse the visible cards in the exact format shown by the Food Master UI. */
+  if(!foods.length){
+    document.querySelectorAll('.meal-card').forEach(function(card){
+      card.querySelectorAll('.food-option,.row,.food-card').forEach(function(el){
+        var t=clean(el.textContent);
+        var gm=t.match(/(\d+(?:\.\d+)?)\s*g\b/i);
+        var name=t.replace(/(\d+(?:\.\d+)?)\s*g\b.*$/i,'').replace(/×/g,'').trim();
+        if(name && !/no food assigned/i.test(name))foods.push({name:name,grams:gm?gm[1]:''});
+      });
+    });
+  }
+  foods=uniqueFoods(foods);
+  if(!foods.length)return;
+  var plans=assignedPlans();
+  plans[member]=plans[member]||{};
+  plans[member].__pdfFoodList=foods;
+  writeJSON('akhadaAssignedPlans',plans);
+  try{if(typeof window.setAssignedPlans==='function')window.setAssignedPlans(plans)}catch(e){}
+}
+
+/* ---------- Diet form reset after Save Weekly Diet ---------- */
+function hardClearDietForm(){
+  try{if(typeof window.clearWorkingDiet==='function')window.clearWorkingDiet()}catch(e){}
+  var ids=['dayDietCalories','dayDietType','dayDietGoal','dayDietMember'];
+  ids.forEach(function(id){
+    var e=document.getElementById(id);
+    if(!e)return;
+    if(e.tagName==='SELECT')e.selectedIndex=0;
+    else e.value='';
+  });
+  document.querySelectorAll('input,textarea,select').forEach(function(e){
+    var id=e.id||'';
+    if(/^dayDiet/.test(id) && id!=='dayDietMember'){
+      if(e.tagName==='SELECT')e.selectedIndex=0; else e.value='';
+    }
+  });
+  /* Remove selected/filled food chips from the working editor only. */
+  document.querySelectorAll('#diet .food-option.selected,#diet .food-selected,[data-diet-draft] .food-option.selected').forEach(function(e){
+    e.classList.remove('selected');
+  });
+  try{if(typeof window.renderAllWorkingDiet==='function')window.renderAllWorkingDiet()}catch(e){}
+}
+function wireDietSave(){
+  buttons().forEach(function(b){
+    if(b.dataset.akhadaDietSaveFix)return;
+    if(!/save weekly diet/i.test(bt(b)))return;
+    b.dataset.akhadaDietSaveFix='1';
+    b.addEventListener('click',function(){
+      var member=currentMemberName();
+      captureVisibleDiet(member);
+      setTimeout(function(){
+        captureVisibleDiet(member);
+        hardClearDietForm();
+      },80);
+      setTimeout(function(){hardClearDietForm()},250);
+    },true);
+  });
+}
+
+/* ---------- PDF: one clear PDF action, with full food list ---------- */
+function pdfHtml(title,member,type,foods){
+  var m=findMember(member)||{};
+  var h='<!doctype html><html><head><meta charset="utf-8"><title>'+esc(title)+'</title><style>'+
+    'body{font-family:Arial,sans-serif;padding:28px;color:#111;max-width:900px;margin:auto}'+
+    'h1{margin:0 0 5px}h2{margin:22px 0 10px;border-bottom:1px solid #ddd;padding-bottom:7px}'+
+    '.meta{border:1px solid #ddd;border-radius:10px;padding:14px;margin:16px 0}'+
+    'table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px;border-bottom:1px solid #eee}th{background:#f7f7f7}'+
+    '.right{text-align:right}@media print{body{padding:12px}button{display:none}}'+
+    '</style></head><body>';
+  h+='<h1>AKHADA</h1><div class="meta"><b>Member:</b> '+esc(member||'—')+
+     '<br><b>Gym ID:</b> '+esc(m.gymId||'—')+
+     '<br><b>Plan:</b> '+esc(type||'Diet Plan')+
+     '<br><b>Date:</b> '+esc(new Date().toLocaleDateString('en-IN'))+'</div>';
+  h+='<h2>Recommended Food</h2>';
+  if(foods.length){
+    h+='<table><thead><tr><th>Food</th><th>Quantity</th><th class="right">Calories</th></tr></thead><tbody>';
+    h+=foods.map(function(f){return '<tr><td>'+esc(f.name)+'</td><td>'+esc(f.grams||'—')+(f.grams?' g':'')+'</td><td class="right">'+esc(f.calories||'—')+'</td></tr>'}).join('');
+    h+='</tbody></table>';
+  }else{
+    h+='<p>No food items are currently saved in this diet plan.</p>';
+  }
+  h+='<p style="margin-top:28px;color:#666;font-size:12px">Generated by AKHADA — The Lifestyle Gym</p>';
+  h+='<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>';
+  return h;
+}
+function openPlanPDF(kind){
+  var member=currentMemberName();
+  if(!member){
+    var sel=document.querySelector('#diet select,#workout select');
+    if(sel)member=sel.value||'';
+  }
+  var data=getDietForMember(member);
+  var foods=data.foods;
+  if(data.plan && Array.isArray(data.plan.__pdfFoodList))foods=uniqueFoods(foods.concat(data.plan.__pdfFoodList));
+  var w=window.open('','_blank','width=900,height=900');
+  if(!w){alert('Please allow pop-ups for AKHADA PDF.');return}
+  w.document.open();w.document.write(pdfHtml('AKHADA '+kind+' Plan',member,kind+' Plan',foods));w.document.close();
+}
+function wirePlanDownloads(){
+  buttons().forEach(function(b){
+    if(b.dataset.akhadaPdfFix)return;
+    var t=bt(b);
+    if(!/download|pdf/.test(t)||!/diet|workout|plan/.test(t))return;
+    b.dataset.akhadaPdfFix='1';
+    b.addEventListener('click',function(e){
+      if(/diet/.test(t)){
+        e.preventDefault();e.stopImmediatePropagation();
+        openPlanPDF('Diet');
+      }else if(/workout/.test(t)){
+        e.preventDefault();e.stopImmediatePropagation();
+        openPlanPDF('Workout');
+      }
+    },true);
+  });
+}
+
+/* ---------- Add Member: call the app's real modal directly ---------- */
+function wireAddMember(){
+  buttons().forEach(function(b){
+    if(b.dataset.akhadaAddMemberFix)return;
+    if(!/add member/i.test(bt(b)))return;
+    b.dataset.akhadaAddMemberFix='1';
+    b.addEventListener('click',function(e){
+      try{
+        if(typeof window.openModal==='function'){
+          e.preventDefault();e.stopImmediatePropagation();
+          window.openModal('member');
+        }
+      }catch(x){}
+    },true);
+  });
+}
+
+/* ---------- Overdue popup: add PDF button once ---------- */
+function overdueRows(){
+  var out=[];
+  document.querySelectorAll('.modalback.open .row,.modalback.open .memberrow,.modalback.open li,[role="dialog"] .row,[role="dialog"] .memberrow').forEach(function(el){
+    var t=clean(el.textContent);
+    if(t && /₹/.test(t))out.push(t);
+  });
+  return Array.from(new Set(out));
+}
+function overduePDF(){
+  var rows=overdueRows();
+  var w=window.open('','_blank','width=900,height=900');
+  if(!w){alert('Please allow pop-ups for AKHADA PDF.');return}
+  var h='<!doctype html><html><head><meta charset="utf-8"><title>AKHADA Overdue Members</title><style>body{font-family:Arial;padding:28px}h1{margin-bottom:20px}.r{padding:12px;border-bottom:1px solid #ddd}</style></head><body><h1>AKHADA — Overdue Members</h1>';
+  h+=rows.map(function(r){return '<div class="r">'+esc(r)+'</div>'}).join('');
+  h+='<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>';
+  w.document.write(h);w.document.close();
+}
+function addOverdueButton(){
+  document.querySelectorAll('.modalback.open,.modal[role="dialog"],[role="dialog"]').forEach(function(p){
+    if(!/overdue members/i.test(clean(p.textContent)))return;
+    if(p.querySelector('[data-akhada-overdue-pdf]'))return;
+    var b=document.createElement('button');
+    b.type='button';b.dataset.akhadaOverduePdf='1';b.className='btn greenbtn';
+    b.textContent='⬇ Download PDF';b.style.marginTop='12px';b.onclick=overduePDF;
+    var host=p.querySelector('.modal-actions')||p.querySelector('.modalhead')||p;
+    host.appendChild(b);
+  });
+}
+
+/* ---------- Prevent the unwanted injected/duplicate font styling ---------- */
+function fontCleanup(){
+  var st=document.getElementById('akhada-font-cleanup')||document.createElement('style');
+  st.id='akhada-font-cleanup';
+  st.textContent='html,body,button,input,select,textarea{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}';
+  document.head.appendChild(st);
+}
+
+/* Make the profile's missing ID deterministic whenever the member is rendered. */
+function repairMembersAndProfile(){
+  ensureGymIds();
+  try{
+    if(typeof window.renderMembers==='function' && !window.__akhadaRenderWrapped){
+      var old=window.renderMembers;
+      window.renderMembers=function(){ensureGymIds();return old.apply(this,arguments)};
+      window.__akhadaRenderWrapped=true;
+    }
+  }catch(e){}
+  showGymIdInProfile();
+}
+
+function tick(){
+  installLayout();fontCleanup();wireAddMember();wireDietSave();wirePlanDownloads();addOverdueButton();repairMembersAndProfile();
+}
+function startPatches(){
+  tick();
+  setInterval(tick,700);
+  /* Re-run after navigation/render cycles. */
+  document.addEventListener('click',function(){setTimeout(repairMembersAndProfile,100)},true);
+}
+
+/* Load the original application first. */
+fetch(OLD_URL,{cache:'no-store'}).then(function(r){
+  if(!r.ok)throw new Error('Existing AKHADA build unavailable');
+  return r.text();
+}).then(function(source){
   document.open();document.write(source);document.close();
-  setTimeout(installPatch,300);
-}).catch(function(err){document.getElementById('akhadaLoader').innerHTML='<div style="padding:24px;text-align:center;font-family:system-ui"><h2>AKHADA could not load</h2><p>'+esc(err.message)+'</p><p>Refresh after internet is available.</p></div>'});
+  setTimeout(startPatches,350);
+}).catch(function(err){
+  document.getElementById('akhadaLoader').innerHTML='<div style="padding:24px;text-align:center;font-family:system-ui"><h2>AKHADA could not load</h2><p>'+esc(err.message)+'</p><p>Refresh after internet is available.</p></div>';
+});
 })();
 </script>
 </body>

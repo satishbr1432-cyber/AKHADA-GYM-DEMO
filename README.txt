@@ -1,12 +1,21 @@
-AKHADA GYM FIXED BUILD
+AKHADA FIXED BUILD
+===================
 
-Replace the existing index.html in the GitHub Pages repository with this index.html.
-Keep the existing manifest.webmanifest, icon-192.png, icon-512.png and service-worker.js files.
+Upload/replace:
+- index.html
+- service-worker.js
 
-Fixes included:
-1. Removes the JavaScript/source-code text leak by loading the previous AKHADA build as HTML instead of nesting it inside a script tag.
-2. Diet Save closes/clears the diet form after saving.
-3. Diet/plan PDF action is repaired so the generated print/PDF page includes saved food information when present in localStorage.
-4. Add Member button has a fallback opener.
-5. Main app uses the full available viewport width and removes the right-side layout gap.
-6. Overdue Members popup gets a PDF button that opens a print-ready overdue-members report.
+This build keeps the existing AKHADA application and adds a compatibility layer for:
+1. Weekly diet save -> editor is cleared after save.
+2. Diet PDF -> includes saved food names, quantities and calories where available.
+3. Workout PDF -> routed through the same PDF handler.
+4. Add Member -> directly calls openModal('member').
+5. Member Gym IDs -> missing IDs are generated as AKH-M-0001 style IDs and persisted.
+6. Overdue Members -> Download PDF button is added once to the popup.
+7. Mobile layout -> full-width page with no desktop side margin.
+8. Font cleanup -> removes accidental/extra font styling.
+
+IMPORTANT:
+The app stores data in browser localStorage. Existing member/diet data remains in the browser.
+After replacing files on GitHub Pages, reload the site once with the old page closed.
+If an iPhone/iPad home-screen PWA still shows an older version, remove the old home-screen app and add it again after the new GitHub Pages version is live.
