@@ -1,25 +1,12 @@
-AKHADA V49 – FINAL REPAIR LOADER
+AKHADA GYM FIXED BUILD
 
-Upload index.html from this folder to the root of the existing AKHADA-GYM-DEMO
-GitHub Pages repository and replace the current index.html.
+Replace the existing index.html in the GitHub Pages repository with this index.html.
+Keep the existing manifest.webmanifest, icon-192.png, icon-512.png and service-worker.js files.
 
-This replacement keeps the existing application by loading the last working
-repository version from a fixed Git commit, then repairs the broken V46–V48
-JavaScript block and applies the final UI fixes.
-
-Included fixes:
-1. Raw JavaScript/code no longer appears on the page.
-2. Diet Plan: Save Weekly Diet persists the current diet data, closes the
-   popup, and shows a small “✓ Saved” blink.
-3. Add Member gets a reliable fallback click handler.
-4. Owner/ Admin gets a Member Permissions panel under Staff & Permissions.
-5. Member permissions are stored separately in localStorage.
-6. Existing staff, batch, notification, photo, salary and progress fixes from
-   the previous build are preserved.
-
-Important:
-- This index intentionally loads the previous application from a fixed public
-  GitHub commit, because the current repository write connector is unavailable.
-- Keep manifest.webmanifest, icon files and other existing files unchanged.
-- After upload, open the GitHub Pages site in a private/incognito tab once to
-  avoid an old cached page/service-worker copy.
+Fixes included:
+1. Removes the JavaScript/source-code text leak by loading the previous AKHADA build as HTML instead of nesting it inside a script tag.
+2. Diet Save closes/clears the diet form after saving.
+3. Diet/plan PDF action is repaired so the generated print/PDF page includes saved food information when present in localStorage.
+4. Add Member button has a fallback opener.
+5. Main app uses the full available viewport width and removes the right-side layout gap.
+6. Overdue Members popup gets a PDF button that opens a print-ready overdue-members report.
