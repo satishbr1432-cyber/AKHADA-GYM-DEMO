@@ -10118,3 +10118,56 @@ body[data-role="trainer"] .navbtn[data-page="dashboard"]{display:flex!important;
   };
 })();
 </script>
+
+<!-- AKHADA V34 FINAL MOBILE NAV OVERRIDE -->
+<style id="akhada-v34-final-nav-css">
+@media (max-width:799px){
+  .mobilebar{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;}
+  .mobilebar button{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;visibility:visible!important;opacity:1!important;min-width:0!important;flex:1 1 0!important;}
+  .mobilebar button[data-page="dashboard"],.mobilebar button[data-page="members"],.mobilebar button[data-page="attendance"],.mobilebar button[data-page="billing"],.mobilebar button[data-page="more"]{display:flex!important;visibility:visible!important;opacity:1!important;}
+}
+</style>
+<script id="akhada-v34-final-nav-script">
+(function(){
+'use strict';
+function getRole(){return String(window.currentRole||localStorage.getItem('akhadaDemoRole')||'Owner');}
+function build(){
+ var bar=document.querySelector('.mobilebar');
+ if(!bar)return;
+ var member=getRole().toLowerCase()==='member';
+ var items=member
+  ? [['memberhome','⌂','Home'],['memberservices','◉','Services'],['memberapp','◎','Account'],['attendance','▤','Check-in'],['more','☰','More']]
+  : [['dashboard','⌂','Home'],['members','◉','Members'],['attendance','▤','Check-in'],['billing','₹','Billing'],['more','☰','More']];
+ var sig=items.map(function(x){return x[0];}).join('|');
+ if(bar.dataset.v34Sig!==sig || bar.children.length!==5){
+   bar.innerHTML='';
+   items.forEach(function(item){
+     var b=document.createElement('button');
+     b.type='button'; b.dataset.page=item[0];
+     b.innerHTML='<b>'+item[1]+'</b><span>'+item[2]+'</span>';
+     b.onclick=function(e){e.preventDefault();if(item[0]==='more'){if(typeof window.go==='function')window.go('more');return;}if(typeof window.go==='function')window.go(item[0]);};
+     bar.appendChild(b);
+   });
+   bar.dataset.v34Sig=sig;
+ }
+ Array.from(bar.children).forEach(function(b){
+   var allowed=items.some(function(x){return x[0]===b.dataset.page;});
+   b.style.setProperty('display',allowed?'flex':'none','important');
+   b.style.setProperty('visibility','visible','important');
+   b.style.setProperty('opacity','1','important');
+ });
+ var active=document.body.dataset.activePage|| (member?'memberhome':'dashboard');
+ bar.querySelectorAll('button').forEach(function(b){b.classList.toggle('active',b.dataset.page===active);});
+}
+function start(){
+ build();
+ [50,150,300,600,1200,2000,3500].forEach(function(t){setTimeout(build,t);});
+ var bar=document.querySelector('.mobilebar');
+ if(bar && window.MutationObserver){new MutationObserver(function(){build();}).observe(bar,{childList:true,attributes:true,subtree:true});}
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+window.addEventListener('load',build);
+var oldLogin=window.akhadaV30Login;
+window.akhadaV30Login=function(r){var out=oldLogin&&oldLogin.apply(this,arguments);setTimeout(build,30);setTimeout(build,300);return out;};
+})();
+</script>
