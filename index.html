@@ -9957,3 +9957,164 @@ body[data-ui-theme] .v30-theme-card.selected{outline:3px solid var(--v30-accent)
 })();
 </script>
 
+
+<!-- AKHADA V33 MOBILE NAVIGATION + THEME LOCATION FIX -->
+<style id="akhada-v33-mobile-fix">
+/* Keep the mobile navigation exactly five items. */
+@media (max-width: 799px){
+  .mobilebar{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;}
+  .mobilebar button{min-width:0!important;overflow:hidden!important;white-space:nowrap!important;}
+}
+/* Theme must live inside More > Settings, not as a floating control. */
+.v30-theme-launch{display:none!important;}
+#akhada-v33-theme-launch{display:none!important;}
+/* Non-member roles retain access to the main Dashboard/Home. */
+body[data-role="owner"] .navbtn[data-page="dashboard"],
+body[data-role="manager"] .navbtn[data-page="dashboard"],
+body[data-role="trainer"] .navbtn[data-page="dashboard"]{display:flex!important;}
+</style>
+<script id="akhada-v33-mobile-fix-script">
+(function(){
+  'use strict';
+  function role(){return String(window.currentRole||localStorage.getItem('akhadaDemoRole')||'Owner');}
+  function isMember(){return role().toLowerCase()==='member';}
+
+  function rebuildMobileBar(){
+    var bar=document.querySelector('.mobilebar');
+    if(!bar)return;
+    /* Remove every legacy/duplicate mobile button. */
+    bar.innerHTML='';
+    var items=isMember()
+      ? [
+          ['memberhome','⌂','Home'],
+          ['memberservices','◉','Services'],
+          ['memberapp','◎','Account'],
+          ['attendance','▤','Check-in'],
+          ['more','☰','More']
+        ]
+      : [
+          ['dashboard','⌂','Home'],
+          ['members','◉','Members'],
+          ['attendance','▤','Check-in'],
+          ['billing','₹','Billing'],
+          ['more','☰','More']
+        ];
+    items.forEach(function(item){
+      var b=document.createElement('button');
+      b.type='button';
+      b.dataset.page=item[0];
+      b.innerHTML='<b>'+item[1]+'</b>'+item[2];
+      b.addEventListener('click',function(e){
+        e.preventDefault();
+        if(item[0]==='more'){
+          var page=document.getElementById('more');
+          if(page && typeof window.go==='function') window.go('more');
+          else if(typeof window.openAkhadaMore==='function') window.openAkhadaMore();
+          return;
+        }
+        if(typeof window.go==='function') window.go(item[0]);
+      });
+      bar.appendChild(b);
+    });
+    syncMobileActive();
+  }
+
+  function syncMobileActive(){
+    var bar=document.querySelector('.mobilebar');
+    if(!bar)return;
+    var active=document.body.dataset.activePage||((role().toLowerCase()==='member')?'memberhome':'dashboard');
+    bar.querySelectorAll('button').forEach(function(b){
+      b.classList.toggle('active',b.dataset.page===active || (b.dataset.page==='more' && active==='more'));
+    });
+  }
+
+  function removeFloatingTheme(){
+    document.querySelectorAll('.v30-theme-launch,#akhada-v33-theme-launch').forEach(function(x){x.remove();});
+  }
+
+  function ensureMorePage(){
+    var main=document.querySelector('main.main');
+    if(!main)return;
+    var page=document.getElementById('more');
+    if(!page){
+      page=document.createElement('section');
+      page.className='page';
+      page.id='more';
+      main.appendChild(page);
+    }
+    page.innerHTML='<div class="header"><div><h1>More</h1><div class="muted">Tools and management</div></div></div>'+
+      '<div class="v31-more-grid" id="akhadaV33MoreGrid"></div>'+
+      '<div class="card" style="margin-top:14px"><button class="btn" style="width:100%" onclick="akhadaV30Logout()">↪ Logout</button></div>';
+    var grid=document.getElementById('akhadaV33MoreGrid');
+    var items=[
+      ['reports','▥','Reports'],['billing','₹','Income / Billing'],['expenses','−','Expenses'],
+      ['progress','↗','Member Progress'],['workout','⌁','Workout Plans'],['diet','⌁','Diet Plans'],
+      ['batches','◷','Batches / Classes'],['notifications','♢','Reminders'],['inquiries','☆','Enquiries'],
+      ['trainers','♙','Trainers'],['staff','♙','Staff / Roles'],['settings','⚙','Settings']
+    ];
+    items.forEach(function(x){
+      var b=document.createElement('button');
+      b.type='button'; b.className='v31-more-item';
+      b.innerHTML='<b>'+x[1]+'</b>'+x[2];
+      b.addEventListener('click',function(){if(typeof window.go==='function')window.go(x[0]);});
+      grid.appendChild(b);
+    });
+  }
+
+  function patchGo(){
+    if(window.__akhadaV33GoPatched)return;
+    var base=window.go;
+    if(typeof base!=='function')return;
+    window.go=function(id){
+      if(id==='more'){
+        ensureMorePage();
+      }
+      var r=role().toLowerCase();
+      if(r!=='member' && id==='dashboard'){
+        document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active','akhada-page-visible');p.style.setProperty('display','none','important');});
+        var d=document.getElementById('dashboard');
+        if(d){d.classList.add('active','akhada-page-visible');d.style.setProperty('display','block','important');}
+        document.body.dataset.activePage='dashboard';
+        syncMobileActive();
+        window.scrollTo({top:0,behavior:'smooth'});
+        return;
+      }
+      var out=base.apply(this,arguments);
+      setTimeout(syncMobileActive,0);
+      return out;
+    };
+    window.__akhadaV33GoPatched=true;
+  }
+
+  function apply(){
+    removeFloatingTheme();
+    ensureMorePage();
+    rebuildMobileBar();
+    patchGo();
+    /* Make Dashboard/Home visible for Owner, Manager and Trainer. */
+    if(!isMember()){
+      document.querySelectorAll('.sidebar .navbtn[data-page="dashboard"]').forEach(function(b){b.style.setProperty('display','flex','important');});
+    }
+    syncMobileActive();
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    apply();
+    [150,500,1200,2500].forEach(function(t){setTimeout(apply,t);});
+  });
+
+  var oldLogin=window.akhadaV30Login;
+  window.akhadaV30Login=function(r){
+    var out=oldLogin&&oldLogin.apply(this,arguments);
+    setTimeout(apply,60);
+    setTimeout(apply,400);
+    return out;
+  };
+  var oldRole=window.changeAkhadaRole;
+  window.changeAkhadaRole=function(r){
+    var out=oldRole&&oldRole.apply(this,arguments);
+    setTimeout(apply,60);
+    return out;
+  };
+})();
+</script>

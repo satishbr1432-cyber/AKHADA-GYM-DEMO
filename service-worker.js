@@ -1,4 +1,4 @@
-const CACHE = "akhada-v32-final-ui-v1";
+const CACHE = "akhada-v33-mobile-nav-fix-v1";
 const APP_SHELL = [
   "./index.html",
   "./manifest.webmanifest",
