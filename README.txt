@@ -1,8 +1,19 @@
-AKHADA V48 — Staff Salary + Member Progress Button Fix
+AKHADA V48.3 – ALL-ROLE LOGIN RECOVERY
 
-Upload all files in this folder to the GitHub Pages repository.
-This version keeps V47 features and adds direct, reliable handlers for:
-1. Add Staff Salary — modal opens, validates, persists salary rows and refreshes Expenses.
-2. Add Measurement — modal opens, saves member progress to localStorage and refreshes history.
+Login recovery now works for the currently selected role:
+Owner / Manager / Trainer / Member.
 
-Test both buttons after deployment and refresh.
+The recovery button is intentionally simple:
+Forgot Login ID / PIN?
+
+Recovery resets only that role's local login ID and PIN to the trial defaults:
+Owner: owner / 123456
+Manager: manager / 123456
+Trainer: trainer / 123456
+Member: member / 123456
+
+Recovery does NOT delete gym data such as members, payments, attendance,
+staff, plans, measurements, expenses or other localStorage records.
+
+Deploy the files in the repository root. If an older service worker is active,
+reload the GitHub Pages site after deployment.

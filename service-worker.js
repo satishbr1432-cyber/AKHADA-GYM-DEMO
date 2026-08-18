@@ -1,4 +1,4 @@
-const CACHE = "akhada-v41-mobile-nav-fix-v1";
+const CACHE = "akhada-v48-2-recovery";
 const APP_SHELL = [
   "./index.html",
   "./manifest.webmanifest",
@@ -17,44 +17,40 @@ self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+        keys.filter(k => k.startsWith("akhada-") && k !== CACHE)
+          .map(k => caches.delete(k))
       )
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", event => {
-  const request = event.request;
+  const req = event.request;
+  if (req.method !== "GET") return;
 
-  if (request.method !== "GET") return;
-  if (new URL(request.url).origin !== self.location.origin) return;
-
-  // IMPORTANT:
-  // Let Cloudflare/Safari handle document navigation directly.
-  // Returning a redirect response from a Service Worker can cause:
-  // "Response served by service worker has redirections".
-  if (request.mode === "navigate") {
+  // Always prefer the latest deployed index.html so an old/broken page
+  // cannot remain stuck in the service-worker cache.
+  if (new URL(req.url).pathname.endsWith("/index.html") ||
+      new URL(req.url).pathname === "/") {
     event.respondWith(
-      fetch(request).catch(() => caches.match("./index.html"))
+      fetch(req, { cache: "no-store" })
+        .then(res => {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(req, copy));
+          return res;
+        })
+        .catch(() => caches.match(req).then(r => r || caches.match("./index.html")))
     );
     return;
   }
 
   event.respondWith(
-    caches.match(request).then(cached => {
-      if (cached) return cached;
-
-      return fetch(request).then(response => {
-        // Never put redirect/error responses into the cache.
-        if (!response.ok || response.type === "opaqueredirect") {
-          return response;
-        }
-
-        const copy = response.clone();
-        caches.open(CACHE).then(cache => cache.put(request, copy));
-        return response;
-      });
-    })
+    caches.match(req).then(cached =>
+      cached || fetch(req).then(res => {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(req, copy));
+        return res;
+      })
+    )
   );
 });
