@@ -1,14 +1,13 @@
-AKHADA V36 - DATA IMPORT / EXPORT TRIAL
-Excel-compatible CSV templates and import/export are included for:
-Members, Trainers, Inquiries, Payments, Expenses, Staff and Check-ins.
-
-Workflow:
-1. Open More/Settings -> Import / Export Data.
-2. Download the required template.
-3. Open the CSV in Excel and fill the rows without changing column headers.
-4. Save as CSV UTF-8.
-5. Select the module and import the CSV.
-6. Export after entry to verify the stored data.
-
-Import appends records; records with matching ID fields are updated.
-Data remains local to the device/browser. No cloud database is included.
+AKHADA V41 - MULTI-RECORD PERSISTENCE FIX
+Purpose:
+- Prevent new Members, Trainers, Staff, Inquiries, Payments, Expenses, Check-ins etc. from overwriting the previous record.
+- Known collection keys now append new object records and update an existing record only when a stable ID matches.
+- Existing array writes are preserved.
+- Includes window.akhadaV41RunRecordCheck() for testing record counts.
+- Trial remains localStorage-based; production database/auth will replace local persistence later.
+Testing:
+1. Add 3+ records in each module.
+2. Reload.
+3. Verify all records remain.
+4. Edit one record and verify only that record changes.
+5. Export and compare with Excel.
