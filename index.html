@@ -5260,6 +5260,61 @@ if ('serviceWorker' in navigator) {
  window.akhadaV30Login=function(r){oldLogin&&oldLogin(r);setTimeout(apply,30)};
 })();
 </script>
+
+<!-- AKHADA V41.1: trial authentication + live dashboard calculations -->
+<script id="akhada-v41-1-working-fix">
+(function(){
+  'use strict';
+  const read=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
+  const money=n=>'₹'+Number(n||0).toLocaleString('en-IN');
+  const isoToday=()=>{const d=new Date(),z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())};
+  const toISO=v=>{
+    if(!v)return '';
+    const x=String(v);
+    if(/^\d{4}-\d{2}-\d{2}$/.test(x))return x;
+    const m=x.match(/^(\d{1,2})[\/ -](\d{1,2})[\/ -](\d{4})$/);
+    if(m)return m[3]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');
+    const d=new Date(x);return isNaN(d)?'':d.toISOString().slice(0,10);
+  };
+  const num=v=>Number(String(v??0).replace(/[^0-9.-]/g,''))||0;
+  function refresh(){
+    const sec=document.getElementById('dashboard'); if(!sec)return;
+    const ms=read('akhadaMembers',[]);
+    const pays=read('akhadaPayments',[]);
+    const att=read('akhadaAttendance',[]);
+    const today=isoToday();
+    const now=new Date(today+'T00:00:00');
+    const end7=new Date(now); end7.setDate(end7.getDate()+7);
+    const end7ISO=end7.toISOString().slice(0,10);
+    const active=ms.filter(m=>{const e=toISO(m.expiryISO||m.expiry); return String(m.status||'').toLowerCase()!=='expired' && (!e||e>=today)}).length;
+    const checks=att.filter(a=>toISO(a.day||a.date||a.at)===today).length;
+    const collection=pays.filter(p=>toISO(p.date||p.paymentDate||p.at)===today).reduce((s,p)=>s+num(p.amount||p.received),0);
+    const pending=ms.reduce((s,m)=>s+num(m.due||m.pendingDue||m.balanceDue),0);
+    const expToday=ms.filter(m=>toISO(m.expiryISO||m.expiry)===today).length;
+    const exp7=ms.filter(m=>{const e=toISO(m.expiryISO||m.expiry);return e>today&&e<=end7ISO}).length;
+    const expired=ms.filter(m=>{const e=toISO(m.expiryISO||m.expiry);return e&&e<today}).length;
+    const month=today.slice(0,7);
+    const newMonth=ms.filter(m=>toISO(m.joiningDateISO||m.startISO||m.joiningDate||m.start)?.slice(0,7)===month).length;
+    const vals=[active,checks,money(collection),money(pending),expToday,exp7,expired,newMonth];
+    const selectors=[
+      '#dashboard .cards .card:nth-child(1) .value','#dashboard .cards .card:nth-child(2) .value','#dashboard .cards .card:nth-child(3) .value','#dashboard .cards .card:nth-child(4) .value',
+      '#dashboard .grid2 .card:first-child .row:nth-of-type(1) b','#dashboard .grid2 .card:first-child .row:nth-of-type(2) b','#dashboard .grid2 .card:first-child .row:nth-of-type(3) b','#dashboard .grid2 .card:first-child .row:nth-of-type(4) b'
+    ];
+    selectors.forEach((q,i)=>{const el=sec.querySelector(q);if(el)el.textContent=vals[i]});
+    const activity=sec.querySelector('.card:last-child');
+    if(activity){
+      const rows=[];
+      att.filter(a=>toISO(a.day||a.date||a.at)===today).slice(-5).reverse().forEach(a=>rows.push('<div class="row"><span>'+String(a.person||'').replace(/[<>]/g,'')+' checked in</span><b>'+new Date(a.at||Date.now()).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+'</b></div>'));
+      pays.filter(p=>toISO(p.date||p.paymentDate||p.at)===today).slice(-5).reverse().forEach(p=>rows.push('<div class="row"><span>'+money(p.amount||p.received)+' received from '+String(p.member||'').replace(/[<>]/g,'')+'</span><b>'+new Date(p.at||((p.date||today)+'T12:00:00')).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+'</b></div>'));
+      const title=activity.querySelector('h3');
+      if(title) activity.innerHTML='<h3>Recent Activity</h3>'+(rows.slice(0,8).join('')||'<p class="muted">No activity recorded yet.</p>');
+    }
+  }
+  window.refreshAkhadaDashboard=refresh;
+  document.addEventListener('DOMContentLoaded',()=>{setTimeout(refresh,120);setInterval(refresh,2000)});
+})();
+</script>
+
 </body>
 <!-- AKHADA V7.1 HARD FINAL FORM PATCH -->
 <style id="akhada-v71-final-css">
@@ -9928,14 +9983,36 @@ body[data-ui-theme] .v30-theme-card.selected{outline:3px solid var(--v30-accent)
  function openThemes(){let m=document.getElementById('v30ThemeModal');if(m)m.classList.add('open');updateThemeCards();}
  window.openAkhadaThemes=openThemes;
  function login(role){
-   currentRole=role; localStorage.setItem('akhadaDemoRole',role); sessionStorage.setItem('akhadaLoggedIn','1'); sessionStorage.setItem('akhadaRole',role);
-   document.body.dataset.role=role.toLowerCase();
-   const r=document.getElementById('demoRole'); if(r)r.value=role;
+   const roleKey=String(role||'Owner');
+   const defaults={Owner:'owner',Manager:'manager',Trainer:'trainer',Member:'member'};
+   // Trial credentials are local to this device. They are intentionally case-sensitive.
+   let profile={};
+   try{ profile=JSON.parse(localStorage.getItem('akhadaProfile_'+roleKey)||'{}')||{}; }catch(e){ profile={}; }
+   const loginId=String(profile.loginId||defaults[roleKey]||roleKey.toLowerCase());
+   const storedPassword=String(localStorage.getItem('akhadaPassword_'+roleKey)||'');
+   const password=storedPassword || '123456';
+   if(!storedPassword){ try{localStorage.setItem('akhadaPassword_'+roleKey,password);}catch(e){} }
+   const nameEl=document.getElementById('v30LoginName'), pinEl=document.getElementById('v30LoginPin');
+   const enteredId=String(nameEl?.value||'');
+   const enteredPin=String(pinEl?.value||'');
+   // When a session already exists, allow the app to restore that session without asking again.
+   const restoring=sessionStorage.getItem('akhadaLoggedIn')==='1' && !enteredId && !enteredPin;
+   if(!restoring && (enteredId!==loginId || enteredPin!==password)){
+     const msg='Invalid Login ID or PIN for '+(roleNames[roleKey]||roleKey)+'.';
+     if(typeof toast==='function')toast(msg); else alert(msg);
+     if(pinEl)pinEl.value='';
+     return false;
+   }
+   currentRole=roleKey; localStorage.setItem('akhadaDemoRole',roleKey); sessionStorage.setItem('akhadaLoggedIn','1'); sessionStorage.setItem('akhadaRole',roleKey);
+   document.body.dataset.role=roleKey.toLowerCase();
+   const r=document.getElementById('demoRole'); if(r)r.value=roleKey;
    const l=document.getElementById('v30Login'); if(l)l.classList.add('hidden');
    if(typeof applyRoleUI==='function')applyRoleUI();
-   setTimeout(()=>{ try{ if(typeof window.go==='function') window.go(role==='Member'?'memberhome':'dashboard'); }catch(e){} },30);
-   const mr=document.getElementById('v28MobileRole');if(mr)mr.textContent=roleNames[role]||role;
-   if(typeof toast==='function')toast('Login: '+(roleNames[role]||role));
+   setTimeout(()=>{ try{ if(typeof window.go==='function') window.go(roleKey==='Member'?'memberhome':'dashboard'); }catch(e){} },30);
+   const mr=document.getElementById('v28MobileRole');if(mr)mr.textContent=roleNames[roleKey]||roleKey;
+   if(typeof window.refreshAkhadaDashboard==='function')setTimeout(window.refreshAkhadaDashboard,60);
+   if(!restoring && typeof toast==='function')toast('Login successful: '+(roleNames[roleKey]||roleKey));
+   return true;
  }
  window.akhadaV30Login=login;
  function logout(){sessionStorage.removeItem('akhadaLoggedIn');sessionStorage.removeItem('akhadaRole');location.reload()}
@@ -9943,7 +10020,7 @@ body[data-ui-theme] .v30-theme-card.selected{outline:3px solid var(--v30-accent)
  function build(){
    let saved='green';try{saved=localStorage.getItem('akhadaUITheme')||'green'}catch(e){} theme(saved);
    const loginBox=document.createElement('div');loginBox.id='v30Login';loginBox.className='v30-login';
-   loginBox.innerHTML='<div class="v30-login-box v32-login-box"><div class="v30-login-brand v32-login-brand"><img src="./icon-192.png" onerror="this.style.display=\'none\'"><div><b>AKHADA</b><span>The Lifestyle Gym</span></div></div><div class="v32-login-title"><h2>Login to AKHADA</h2><p>Select your role. Dashboard and permissions will change automatically.</p></div><label class="v32-role-label">Login as</label><select id="v30LoginRole" class="v32-role-select"><option value="Owner">👑 Admin / Owner</option><option value="Manager">📋 Manager</option><option value="Trainer">🏋️ Trainer</option><option value="Member">👤 Member</option></select><input id="v30LoginName" placeholder="Name / Mobile (trial optional)"><input id="v30LoginPin" type="password" placeholder="PIN (trial optional)"><button class="v30-submit v32-submit" id="v30LoginBtn">Continue to AKHADA</button><div class="v32-trial-note">Trial mode · No server account required</div></div>';
+   loginBox.innerHTML='<div class="v30-login-box v32-login-box"><div class="v30-login-brand v32-login-brand"><img src="./icon-192.png" onerror="this.style.display=\'none\'"><div><b>AKHADA</b><span>The Lifestyle Gym</span></div></div><div class="v32-login-title"><h2>Login to AKHADA</h2><p>Select your role. Dashboard and permissions will change automatically.</p></div><label class="v32-role-label">Login as</label><select id="v30LoginRole" class="v32-role-select"><option value="Owner">👑 Admin / Owner</option><option value="Manager">📋 Manager</option><option value="Trainer">🏋️ Trainer</option><option value="Member">👤 Member</option></select><input id="v30LoginName" placeholder="Trial Login ID" autocomplete="username"><input id="v30LoginPin" type="password" placeholder="Trial PIN" autocomplete="current-password"><button class="v30-submit v32-submit" id="v30LoginBtn">Continue to AKHADA</button><div class="v32-trial-note">Trial mode · Login required · Stored on this device</div></div>';
    document.body.appendChild(loginBox);
    const roleSelect=loginBox.querySelector('#v30LoginRole'); roleSelect.value='Owner';
    loginBox.querySelector('#v30LoginBtn').onclick=()=>login(roleSelect.value);
