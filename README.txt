@@ -1,19 +1,25 @@
-AKHADA V48.3 – ALL-ROLE LOGIN RECOVERY
+AKHADA V49 – FINAL REPAIR LOADER
 
-Login recovery now works for the currently selected role:
-Owner / Manager / Trainer / Member.
+Upload index.html from this folder to the root of the existing AKHADA-GYM-DEMO
+GitHub Pages repository and replace the current index.html.
 
-The recovery button is intentionally simple:
-Forgot Login ID / PIN?
+This replacement keeps the existing application by loading the last working
+repository version from a fixed Git commit, then repairs the broken V46–V48
+JavaScript block and applies the final UI fixes.
 
-Recovery resets only that role's local login ID and PIN to the trial defaults:
-Owner: owner / 123456
-Manager: manager / 123456
-Trainer: trainer / 123456
-Member: member / 123456
+Included fixes:
+1. Raw JavaScript/code no longer appears on the page.
+2. Diet Plan: Save Weekly Diet persists the current diet data, closes the
+   popup, and shows a small “✓ Saved” blink.
+3. Add Member gets a reliable fallback click handler.
+4. Owner/ Admin gets a Member Permissions panel under Staff & Permissions.
+5. Member permissions are stored separately in localStorage.
+6. Existing staff, batch, notification, photo, salary and progress fixes from
+   the previous build are preserved.
 
-Recovery does NOT delete gym data such as members, payments, attendance,
-staff, plans, measurements, expenses or other localStorage records.
-
-Deploy the files in the repository root. If an older service worker is active,
-reload the GitHub Pages site after deployment.
+Important:
+- This index intentionally loads the previous application from a fixed public
+  GitHub commit, because the current repository write connector is unavailable.
+- Keep manifest.webmanifest, icon files and other existing files unchanged.
+- After upload, open the GitHub Pages site in a private/incognito tab once to
+  avoid an old cached page/service-worker copy.
